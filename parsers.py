@@ -46,3 +46,22 @@ def star(p):
 		return newparser(s)
 	newparser=alternate(concat(star,p),true)
 	return star
+
+# use as decorator
+# @transform(concat(a,b))
+def transform(p):
+	def transform(f):
+		@parser
+		def transform(s):
+			for data,i in p(s):
+				yield f(data),i
+		return transform
+	return transform
+
+# use as decorator
+# function returning data,s pair
+def parserify(f):
+	@parser
+	def parser(s):
+		yield f(s)
+	return parser
