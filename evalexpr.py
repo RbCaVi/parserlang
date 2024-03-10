@@ -24,7 +24,6 @@ precedences={
 def apply(op,v1,v2):
   # apply op to v1 and v2
   # remember, they are all [type,value] pairs
-  print('a',op,v1,v2)
   return [EXPR,op[1],v1,v2]
 
 def applyuop(op,v):
@@ -168,7 +167,6 @@ def getToken(s,lastType,comma):
       return [IDX],ss[1:]
     for kw in opkeywords:
       if ss.startswith(kw):
-        print('opkw',kw)
         return [OPKW,kw],ss[len(kw):]
     raise Exception('no token: '+s)
   if lastType in [LPAR,CALL,IDX,OP,UOP,LBR,COMMA]:
@@ -211,9 +209,6 @@ def evaluate(expr):
   # basic shunting yard parser
   lastType=OP # a valid expression can always come after an operator
   while moreTokens(s): # parse all the tokens
-    print('s1',s)
-    print('o1',ops)
-    print('v1',values)
     try:
       token,s=getToken(s,lastType,len(parens) and parens[-1][0] in [CALL,LBR])
     except:
@@ -278,9 +273,6 @@ def evaluate(expr):
       values=values[:-1]
       values[-1].append(arg)
     lastType=token[0] # type of last token
-    print('s',s)
-    print('o',ops)
-    print('v',values)
   while len(ops)>0: # apply the rest of the operators
     op=ops[-1]
     ops=ops[:-1]
