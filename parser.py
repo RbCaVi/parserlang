@@ -13,6 +13,7 @@ def parser(f):
 		return ParserResult(f(s,*args,**kwargs))
 	return f2
 
-def printresults(p):
-	for data,s in p:
-		print(data,repr(s))
+def printresults(p,s):
+	print(repr(s))
+	for data,s2 in p(s):
+		print(data,repr(s2))
