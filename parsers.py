@@ -62,6 +62,9 @@ def transform(p):
 # function returning data,s pair
 def parserify(f):
 	@parser
-	def parser(s):
-		yield f(s)
-	return parser
+	def parserified(s):
+		try:
+			yield f(s)
+		except:
+			pass
+	return parserified
