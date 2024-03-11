@@ -174,6 +174,10 @@ def getToken(s,lastType,comma):
       return [LPAR],ss[1:]
     if ss.startswith('['):
       return [LBR],ss[1:]
+    if lastType==CALL and ss.startswith(')'):
+      return [RPAR],ss[1:]
+    if lastType==LBR and ss.startswith(']'):
+      return [RBR],ss[1:]
     for uop in uops:
       if ss.startswith(uop):
         return [UOP,uop],ss[len(uop):]
