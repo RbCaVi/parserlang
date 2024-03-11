@@ -234,16 +234,11 @@ def evaluate(expr):
       if not parenmatch(parens[-1],token):
         raise Exception(f'unmatched {parens[-1]} {token}')
       while ops[-1][0] not in [LPAR,CALL,IDX,LBR]: # finish the parenthesized expression
-        if ops[-1][0]==UOP:
-          op=ops[-1]
-          ops=ops[:-1]
-          values[-1]=applyuop(op,values[-1])
-        else:
-          op=ops[-1]
-          ops=ops[:-1]
-          v1,v2=values[-2:]
-          values=values[:-2]
-          values.append(apply(op,v1,v2))
+        op=ops[-1]
+        ops=ops[:-1]
+        v1,v2=values[-2:]
+        values=values[:-2]
+        values.append(apply(op,v1,v2))
       if ops[-1][0] in [CALL,IDX,LBR]:
         if lastType not in [ops[-1][0],COMMA]:
           arg=values[-1]
