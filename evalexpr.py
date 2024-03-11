@@ -174,9 +174,9 @@ def getToken(s,lastType,comma):
       return [LPAR],ss[1:]
     if ss.startswith('['):
       return [LBR],ss[1:]
-    if lastType==CALL and ss.startswith(')'):
+    if lastType in [CALL,COMMA] and ss.startswith(')'):
       return [RPAR],ss[1:]
-    if lastType==LBR and ss.startswith(']'):
+    if lastType in [LBR,COMMA] and ss.startswith(']'):
       return [RBR],ss[1:]
     for uop in uops:
       if ss.startswith(uop):
@@ -256,9 +256,10 @@ def evaluate(expr):
           values=values[:-2]
           values.append(apply(op,v1,v2))
       if ops[-1][0] in [CALL,IDX,LBR]:
-        arg=values[-1]
-        values=values[:-1]
-        values[-1].append(arg)
+        if lastType not in [ops[-1][0],COMMA]:
+          arg=values[-1]
+          values=values[:-1]
+          values[-1].append(arg)
       ops=ops[:-1] # pop the left paren as well
       parens=parens[:-1]
     if token[0]==OP:
