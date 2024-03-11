@@ -7,8 +7,6 @@
 # add it to the uops list
 # add a case in applyuop()
 
-import math
-
 ops=['+','-','*','/','^']
 
 uops=['-']
@@ -308,8 +306,9 @@ def stringifyexpr(e):
   if len(e)==4:
     _,op,left,right=e
     p1=precedence(e)
-    pleft=precedence(left) if left[0] in [OP,EXPR] else math.inf
-    pright=precedence(right) if right[0] in [OP,EXPR] else math.inf
+    # p1+1 because i don't want math.inf
+    pleft=precedence(left) if left[0] in [OP,EXPR] else p1+1
+    pright=precedence(right) if right[0] in [OP,EXPR] else p1+1
     leftparen=pleft<p1 or (pleft==p1 and rightassoc(op))
     rightparen=pright<p1 or (pright==p1 and leftassoc(op))
     sleft=stringifyexpr(left)
