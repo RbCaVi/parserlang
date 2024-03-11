@@ -215,8 +215,8 @@ def evaluate(expr):
   while moreTokens(s): # parse all the tokens
     try:
       token,s=getToken(s,lastType,len(parens) and parens[-1][0] in [CALL,LBR])
-    except:
-      break
+    except Exception as e:
+      raise e
     if token[0]==KW:
       value,s=keywords[token[1]](s)
       values.append(value)
