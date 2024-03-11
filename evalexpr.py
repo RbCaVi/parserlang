@@ -143,7 +143,7 @@ def getToken(s,lastType,comma):
     for kw in opkeywords:
       if ss.startswith(kw):
         return [OPKW,kw],ss[len(kw):]
-    raise Exception('no token:',s,'after',lastType)
+    raise Exception(f'no token: {s} after {lastType}')
   if lastType in [LPAR,CALL,IDX,OP,UOP,LBR,COMMA]:
     if ss.startswith('('):
       return [LPAR],ss[1:]
@@ -165,8 +165,8 @@ def getToken(s,lastType,comma):
     sym,snew=getSym(ss)
     if sym is not None:
       return [SYM,sym],snew
-    raise Exception('no token:',s,'after',lastType)
-  raise Exception('unrecognized type:',lastType)
+    raise Exception(f'no token: {s} after {lastType}')
+  raise Exception(f'unrecognized type: {lastType}')
 
 def precedence(token):
   # get the precedence of a binary operator
@@ -231,8 +231,10 @@ def evaluate(expr):
     if token[0]==UOP: # unary operator
       ops.append(token)
     if token[0] in [RPAR,RBR]: # right paren
+      if len(parens)==0:
+        raise Exception(f'unopened {token[0]}')
       if not parenmatch(parens[-1],token):
-        raise Exception(f'unmatched {parens[-1]} {token}')
+        raise Exception(f'unmatched {parens[-1][0]} {token[0]}')
       while ops[-1][0] not in [LPAR,CALL,IDX,LBR]: # finish the parenthesized expression
         op=ops[-1]
         ops=ops[:-1]
@@ -272,12 +274,14 @@ def evaluate(expr):
       op=ops[-1]
       ops=ops[:-1]
       values[-1]=applyuop(op,values[-1])
-    else:
+    elif ops[-1][0]==OP:
       op=ops[-1]
       ops=ops[:-1]
       v1,v2=values[-2:]
       values=values[:-2]
       values.append(apply(op,v1,v2))
+    else:
+      raise Exception(f'unclosed {ops[-1][0]}')
   if len(values)>1: # each operator reduces the number of values by 1
     raise Exception('not enough operators')
   if len(values)==0: # how
