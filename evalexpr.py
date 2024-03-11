@@ -1,11 +1,6 @@
 # to add a binary operator:
 # add it to the ops list
 # add it to precedences
-# add a case in apply()
-
-# to add an unary operator:
-# add it to the uops list
-# add a case in applyuop()
 
 ops=['+','-','*','/','^']
 
@@ -183,12 +178,6 @@ def rightassoc(op):
 
 def leftassoc(op):
   return True
-
-def applyfunc(f,v):
-  return [EXPR,'(',f,v]
-
-def applyidx(f,v):
-  return [EXPR,'[',f,v]
 
 def apply(op,v1,v2):
   return [EXPR,op[1],v1,v2]
