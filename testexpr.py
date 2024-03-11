@@ -3,7 +3,7 @@ from parsers import parserify
 from evalexpr import evaluate,treeexpr
 
 def treeexpr2(expr):
-	return '\n\n'+treeexpr(expr)+'\n'
+	return treeexpr(expr)+'\n\n'
 
 ep=parserify(evaluate)
 
