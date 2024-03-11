@@ -65,6 +65,7 @@ def parserify(f):
 	def parserified(s):
 		try:
 			yield f(s)
-		except:
-			pass
+		except Exception as e:
+			import traceback
+			traceback.print_exc()
 	return parserified
