@@ -136,15 +136,14 @@ def getToken(s,lastType,comma):
       return [RPAR],ss[1:]
     if ss.startswith(']'):
       return [RBR],ss[1:]
-    if lastType==SYM:
-      if ss.startswith('('):
-        return [CALL],ss[1:]
+    if ss.startswith('('):
+      return [CALL],ss[1:]
     if ss.startswith('['):
       return [IDX],ss[1:]
     for kw in opkeywords:
       if ss.startswith(kw):
         return [OPKW,kw],ss[len(kw):]
-    raise Exception('no token: '+s)
+    raise Exception('no token:',s,'after',lastType)
   if lastType in [LPAR,CALL,IDX,OP,UOP,LBR,COMMA]:
     if ss.startswith('('):
       return [LPAR],ss[1:]
@@ -166,7 +165,7 @@ def getToken(s,lastType,comma):
     sym,snew=getSym(ss)
     if sym is not None:
       return [SYM,sym],snew
-    raise Exception('no token: '+s)
+    raise Exception('no token:',s,'after',lastType)
   raise Exception('unrecognized type:',lastType)
 
 def precedence(token):
