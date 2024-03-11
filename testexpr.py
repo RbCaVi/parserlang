@@ -31,5 +31,19 @@ printresults(ep,'[1,]',formatter=treeexpr2)
 printresults(ep,'[1,2,]',formatter=treeexpr2)
 
 # invalid: unmatched brackets
+printresults(ep,'(1',error=True,formatter=treeexpr2)
+printresults(ep,'1)',error=True,formatter=treeexpr2)
+printresults(ep,'[1',error=True,formatter=treeexpr2)
+printresults(ep,'1]',error=True,formatter=treeexpr2)
+printresults(ep,'((1)',error=True,formatter=treeexpr2)
+printresults(ep,'(1))',error=True,formatter=treeexpr2)
+printresults(ep,'[1)',error=True,formatter=treeexpr2)
+printresults(ep,'(1]',error=True,formatter=treeexpr2)
+printresults(ep,'a(1]',error=True,formatter=treeexpr2)
+printresults(ep,'a[1)',error=True,formatter=treeexpr2)
+printresults(ep,'a(1',error=True,formatter=treeexpr2)
+printresults(ep,'a[1',error=True,formatter=treeexpr2)
 
 # invalid: dangling operator
+
+# valid: custom syntax
