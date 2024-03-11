@@ -324,3 +324,18 @@ def stringifyexpr(e):
     if rightparen:
       sright=f'({sright})'
     return f'{sleft}{op}{sright}'
+
+# https://stackoverflow.com/a/76691030 (at least the box drawing characters)
+def treeexpr(expr):
+    elbow = "└─"
+    pipe = "│ "
+    tee = "├─"
+    blank = "  "
+    s=expr[0]+' '+str(expr[1])
+    if expr[0]==EXPR:
+      for i,e in enumerate(expr[2:]):
+        top,*rest=treeexpr(e).split('\n')
+        top=(elbow if i == len(expr) - 3 else tee)+top
+        rest=[(blank if i == len(expr) - 3 else pipe)+line for line in rest]
+        s='\n'.join([s,top,*rest])
+    return s
