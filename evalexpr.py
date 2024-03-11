@@ -150,7 +150,7 @@ def getToken(s,lastType,comma):
   # types accepted depand on last token
   # for example, can't have op after lpar
   ss=s.lstrip()
-  if lastType in [NUM,SYM,RPAR]:
+  if lastType in [NUM,SYM,RPAR,RBR]:
     for op in ops:
       if ss.startswith(op):
         return [OP,op],ss[len(op):]
