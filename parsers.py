@@ -63,9 +63,5 @@ def transform(p):
 def parserify(f):
 	@parser
 	def parserified(s):
-		try:
-			yield f(s)
-		except Exception as e:
-			import traceback
-			traceback.print_exc()
+		yield f(s)
 	return parserified
