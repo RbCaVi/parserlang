@@ -13,7 +13,9 @@ def parser(f):
 		return ParserResult(f(s,*args,**kwargs))
 	return f2
 
-def printresults(p,s):
+def printresults(p,s,formatter=None):
 	print(repr(s))
 	for data,s2 in p(s):
+		if formatter is not None:
+			data=formatter(data)
 		print(data,repr(s2))
