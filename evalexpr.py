@@ -21,22 +21,45 @@ precedences={
   '^':4,
 }
 
-def apply(op,v1,v2):
-  # apply op to v1 and v2
-  # remember, they are all [type,value] pairs
-  return [EXPR,op[1],v1,v2]
+def parseif(s):
+  e1,s=evaluate(s)
+  ss=s.strip()
+  if not ss.startswith('then'):
+    raise Exception('no then')
+  s=ss[4:]
+  e2,s=evaluate(s)
+  ss=s.strip()
+  if not ss.startswith('else'):
+    raise Exception('no else')
+  s=ss[4:]
+  e3,s=evaluate(s)
+  ss=s.strip()
+  if not ss.startswith('end'):
+    raise Exception('no end')
+  s=ss[3:]
+  return [EXPR,'if',e1,e2,e3],s
 
-def applyuop(op,v):
-  # apply op to v
-  # remember, they are both [type,value] pairs
-  return [EXPR,op[1],v]
-  
+def ternary(s):
+  e1,s=evaluate(s)
+  ss=s.strip()
+  if not ss.startswith(':'):
+    raise Exception('expected :')
+  s=ss[1:]
+  e2,s=evaluate(s)
+  ss=s.strip()
+  return [EXPR,'if',e1,e2],s
 
-def applyfunc(f,v):
-  return [EXPR,'(',f,v]
+# each key is a function returning (result,restofstr)
+# result is an expression
+# the values are the keywords that trigger using that parser
+keywords={
+  'if':parseif
+}
 
-def applyidx(f,v):
-  return [EXPR,'[',f,v]
+# opkeywords have the immediately preceding expression added as the first argument to the returned expression
+opkeywords={
+  '?':ternary
+}
 
 # here starts my code
 # please know what you are doing
@@ -105,46 +128,6 @@ def parenmatch(p1,p2):
     return p2[0]==RBR
   return False
 
-def parseif(s):
-  e1,s=evaluate(s)
-  ss=s.strip()
-  if not ss.startswith('then'):
-    raise Exception('no then')
-  s=ss[4:]
-  e2,s=evaluate(s)
-  ss=s.strip()
-  if not ss.startswith('else'):
-    raise Exception('no else')
-  s=ss[4:]
-  e3,s=evaluate(s)
-  ss=s.strip()
-  if not ss.startswith('end'):
-    raise Exception('no end')
-  s=ss[3:]
-  return [EXPR,'if',e1,e2,e3],s
-
-def ternary(s):
-  e1,s=evaluate(s)
-  ss=s.strip()
-  if not ss.startswith(':'):
-    raise Exception('expected :')
-  s=ss[1:]
-  e2,s=evaluate(s)
-  ss=s.strip()
-  return [EXPR,'if',e1,e2],s
-
-# each key is a function returning (result,restofstr)
-# result is an expression
-# the values are the keywords that trigger using that parser
-keywords={
-  'if':parseif
-}
-
-# opkeywords have the immediately preceding expression added as the first argument to the returned expression
-opkeywords={
-  '?':ternary
-}
-
 def getToken(s,lastType,comma):
   # get one token
   # types accepted depand on last token
@@ -202,6 +185,18 @@ def rightassoc(op):
 
 def leftassoc(op):
   return True
+
+def applyfunc(f,v):
+  return [EXPR,'(',f,v]
+
+def applyidx(f,v):
+  return [EXPR,'[',f,v]
+
+def apply(op,v1,v2):
+  return [EXPR,op[1],v1,v2]
+
+def applyuop(op,v):
+  return [EXPR,op[1],v]
 
 def evaluate(expr):
   values=[]
