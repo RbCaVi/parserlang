@@ -215,6 +215,14 @@ def evaluate(expr):
       ops.append(token)
       parens.append(token)
       if token[0]==CALL:
+        # unapply all unary operators
+        par=ops[-1]
+        ops=ops[:-1]
+        while len(values[-1])==3:
+          _,op,val=values[-1]
+          ops.append([UOP,op])
+          values[-1]=val
+        ops.append(par)
         values[-1]=[EXPR,'(',values[-1]]
       if token[0]==IDX:
         values[-1]=[EXPR,'[',values[-1]]
