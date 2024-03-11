@@ -245,11 +245,16 @@ def evaluate(expr):
       if not parenmatch(parens[-1],token):
         raise Exception(f'unmatched {parens[-1]} {token}')
       while ops[-1][0] not in [LPAR,CALL,IDX,LBR]: # finish the parenthesized expression
-        op=ops[-1]
-        ops=ops[:-1]
-        v1,v2=values[-2:]
-        values=values[:-2]
-        values.append(apply(op,v1,v2))
+        if ops[-1][0]==UOP:
+          op=ops[-1]
+          ops=ops[:-1]
+          values[-1]=applyuop(op,values[-1])
+        else:
+          op=ops[-1]
+          ops=ops[:-1]
+          v1,v2=values[-2:]
+          values=values[:-2]
+          values.append(apply(op,v1,v2))
       if ops[-1][0] in [CALL,IDX,LBR]:
         arg=values[-1]
         values=values[:-1]
@@ -278,11 +283,16 @@ def evaluate(expr):
       values[-1].append(arg)
     lastType=token[0] # type of last token
   while len(ops)>0: # apply the rest of the operators
-    op=ops[-1]
-    ops=ops[:-1]
-    v1,v2=values[-2:]
-    values=values[:-2]
-    values.append(apply(op,v1,v2))
+    if ops[-1][0]==UOP:
+      op=ops[-1]
+      ops=ops[:-1]
+      values[-1]=applyuop(op,values[-1])
+    else:
+      op=ops[-1]
+      ops=ops[:-1]
+      v1,v2=values[-2:]
+      values=values[:-2]
+      values.append(apply(op,v1,v2))
   if len(values)>1: # each operator reduces the number of values by 1
     raise Exception('not enough operators')
   if len(values)==0: # how
