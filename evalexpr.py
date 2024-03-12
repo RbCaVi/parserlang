@@ -206,7 +206,7 @@ def evaluate(expr):
     try:
       token,s=getToken(s,lastType,len(parens) and parens[-1][0] in [CALL,LBR])
     except Exception as e:
-      raise e
+      break
     if token[0]==KW:
       value,s=keywords[token[1]](s)
       values.append(value)
