@@ -260,7 +260,7 @@ def evaluate(expr):
       ops=ops[:-1] # pop the left paren as well
       parens=parens[:-1]
     if token[0]==OP:
-      while len(ops)>0 and ((ops[-1][0] not in [LPAR,CALL,IDX] and precedence(ops[-1])>=precedence(token)) or ops[-1][0]==DOT):
+      while len(ops)>0 and (ops[-1][0]==DOT or (ops[-1][0] not in [LPAR,CALL,IDX] and precedence(ops[-1])>=precedence(token))):
         # apply all operators to the left with a lower precedence
         op=ops[-1]
         if op[0]==DOT:
