@@ -1,6 +1,6 @@
 from parser import printresults
 from parsers import parserify
-from evalexpr import evaluate,treeexpr
+from expr import evaluate,treeexpr
 
 def treeexpr2(expr):
 	return treeexpr(expr)+'\n\n'
