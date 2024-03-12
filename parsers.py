@@ -13,13 +13,13 @@ def strp(p):
 	def strp(s):
 		if s.startswith(p):
 			yield p,s[len(p):]
-	return strs
+	return strp
 
 def strip(p):
 	@parser
 	def strip(s):
 		yield from p(s.lstrip())
-	return strs
+	return strip
 
 def alternate(*ps):
 	@parser
@@ -66,8 +66,8 @@ def transform(p):
 	def transform(f):
 		@parser
 		def transform(s):
-			for data,i in p(s):
-				yield f(data),i
+			for data,s2 in p(s):
+				yield f(data),s2
 		return transform
 	return transform
 
