@@ -29,6 +29,12 @@ printresults(ep,'a(1,)',formatter=treeexpr2)
 printresults(ep,'a(1,2,)',formatter=treeexpr2)
 printresults(ep,'[1,]',formatter=treeexpr2)
 printresults(ep,'[1,2,]',formatter=treeexpr2)
+printresults(ep,'a.b',formatter=treeexpr2)
+printresults(ep,'a.b.c',formatter=treeexpr2)
+printresults(ep,'a.b+1',formatter=treeexpr2)
+printresults(ep,'1+a.b',formatter=treeexpr2)
+printresults(ep,'(a.b)',formatter=treeexpr2)
+printresults(ep,'a(b.c,d)',formatter=treeexpr2)
 
 # invalid: unmatched brackets
 printresults(ep,'(1',error=True,formatter=treeexpr2)

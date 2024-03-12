@@ -72,6 +72,7 @@ LBR='LBR'
 RBR='RBR'
 KW='KW'
 OPKW='OPKW'
+DOT='DOT'
 
 # from cpython Tokenize.py
 def group(*choices): return '(' + '|'.join(choices) + ')'
@@ -125,7 +126,13 @@ def getToken(s,lastType,comma):
   # get one token
   # types accepted depand on last token
   # for example, can't have op after lpar
+  # (*a) is not allowed
   ss=s.lstrip()
+  if lastType==DOT:
+    sym,snew=getSym(ss)
+    if sym is not None:
+      return [SYM,sym],snew
+    raise Exception(f'no token: {s} after {lastType}')
   if lastType in [NUM,SYM,RPAR,RBR]:
     for op in ops:
       if ss.startswith(op):
@@ -140,6 +147,8 @@ def getToken(s,lastType,comma):
       return [CALL],ss[1:]
     if ss.startswith('['):
       return [IDX],ss[1:]
+    if ss.startswith('.'):
+      return [DOT],ss[1:]
     for kw in opkeywords:
       if ss.startswith(kw):
         return [OPKW,kw],ss[len(kw):]
@@ -237,6 +246,8 @@ def evaluate(expr):
         raise Exception(f'unmatched {parens[-1][0]} {token[0]}')
       while ops[-1][0] not in [LPAR,CALL,IDX,LBR]: # finish the parenthesized expression
         op=ops[-1]
+        if op[0]==DOT:
+          op=[OP,'.']
         ops=ops[:-1]
         v1,v2=values[-2:]
         values=values[:-2]
@@ -249,18 +260,24 @@ def evaluate(expr):
       ops=ops[:-1] # pop the left paren as well
       parens=parens[:-1]
     if token[0]==OP:
-      while len(ops)>0 and ops[-1][0] not in [LPAR,CALL,IDX] and precedence(ops[-1])>=precedence(token):
+      while len(ops)>0 and ((ops[-1][0] not in [LPAR,CALL,IDX] and precedence(ops[-1])>=precedence(token)) or ops[-1][0]==DOT):
         # apply all operators to the left with a lower precedence
         op=ops[-1]
+        if op[0]==DOT:
+          op=[OP,'.']
         ops=ops[:-1]
         v1,v2=values[-2:]
         values=values[:-2]
         values.append(apply(op,v1,v2))
       ops.append(token) # push this operator
+    if token[0]==DOT:
+      ops.append(token) # push this operator
     if token[0]==COMMA:
       while ops[-1][0] not in [CALL,IDX,LBR]:
         # apply all operators to the left with a lower precedence
         op=ops[-1]
+        if op[0]==DOT:
+          op=[OP,'.']
         ops=ops[:-1]
         v1,v2=values[-2:]
         values=values[:-2]
@@ -274,8 +291,10 @@ def evaluate(expr):
       op=ops[-1]
       ops=ops[:-1]
       values[-1]=applyuop(op,values[-1])
-    elif ops[-1][0]==OP:
+    elif ops[-1][0] in [OP,DOT]:
       op=ops[-1]
+      if op[0]==DOT:
+        op=[OP,'.']
       ops=ops[:-1]
       v1,v2=values[-2:]
       values=values[:-2]
