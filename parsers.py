@@ -8,6 +8,19 @@ def strs(ss):
 				yield p,s[len(p):]
 	return strs
 
+def strp(p):
+	@parser
+	def strp(s):
+		if s.startswith(p):
+			yield p,s[len(p):]
+	return strs
+
+def strip(p):
+	@parser
+	def strip(s):
+		yield from p(s.lstrip())
+	return strs
+
 def alternate(*ps):
 	@parser
 	def alternate(s):
