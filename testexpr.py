@@ -7,7 +7,7 @@ def treeexpr2(expr):
 
 ep=parserify(evaluate)
 
-printresults(ep,'',formatter=treeexpr2) # invalid: empty
+printresults(ep,'',error=True,formatter=treeexpr2) # invalid: empty
 
 # valid
 printresults(ep,'1',formatter=treeexpr2) # number
@@ -54,5 +54,11 @@ printresults(ep,'a(1',error=True,formatter=treeexpr2)
 printresults(ep,'a[1',error=True,formatter=treeexpr2)
 
 # invalid: dangling operator
+printresults(ep,'a+',error=True,formatter=treeexpr2)
+printresults(ep,'(a+)',error=True,formatter=treeexpr2)
+printresults(ep,'+a',error=True,formatter=treeexpr2)
+printresults(ep,'(+a)',error=True,formatter=treeexpr2)
 
 # valid: custom syntax
+printresults(ep,'if a then b else c end',formatter=treeexpr2)
+printresults(ep,'a?b:c',formatter=treeexpr2)
