@@ -4,7 +4,7 @@ from parsers import strs,alternate,concat
 def test(p,ss):
 	for s in ss:
 		print(f'parsing {repr(s)} with {repr(p)}')
-		printresults(p(s))
+		printresults(p,s)
 		print()
 
 p=strs(['6','5','65'])
