@@ -25,8 +25,6 @@ def printresults(p,s,error=False,formatter=None):
 			print(data,repr(s2))
 	except Exception as e:
 		if error:
-			import traceback
-			traceback.print_exc()
 			print('success',e)
 		else:
 			import traceback
