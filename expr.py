@@ -2,6 +2,8 @@
 # add it to the ops list
 # add it to precedences
 
+from copy import deepcopy
+
 ops=['+','-','*','/','^']
 
 uops=['-']
@@ -193,6 +195,90 @@ def apply(op,v1,v2):
 def applyuop(op,v):
   return [EXPR,op[1],v]
 
+def addToken(values,ops,parens,s):
+  values=copy.deepcopy(values)
+  ops=copy.deepcopy(ops)
+  parens=copy.deepcopy(parens)
+  if token[0]==KW:
+    value,s=keywords[token[1]](s)
+    values.append(value)
+  if token[0]==OPKW:
+    value,s=opkeywords[token[1]](s)
+    values[-1]=value[:2]+[values[-1]]+value[2:]
+  if token[0] in [NUM,SYM]: # number or symbol token
+    values.append(token)
+  if token[0] in [NUM,SYM,EXPR]: # number, symbol, or expression
+    while len(ops)>0 and ops[-1][0]==UOP: # apply all unary operators on the stack
+      op=ops[-1]
+      ops=ops[:-1]
+      values[-1]=applyuop(op,values[-1])
+  if token[0] in [LPAR,CALL,IDX,LBR]: # left paren
+    ops.append(token)
+    parens.append(token)
+    if token[0]==CALL:
+      # unapply all unary operators
+      par=ops[-1]
+      ops=ops[:-1]
+      while len(values[-1])==3:
+        _,op,val=values[-1]
+        ops.append([UOP,op])
+        values[-1]=val
+      ops.append(par)
+      values[-1]=[EXPR,'(',values[-1]]
+    if token[0]==IDX:
+      values[-1]=[EXPR,'[',values[-1]]
+    if token[0]==LBR:
+      values.append([EXPR,'[]'])
+  if token[0]==UOP: # unary operator
+    ops.append(token)
+  if token[0] in [RPAR,RBR]: # right paren
+    if len(parens)==0:
+      raise Exception(f'unopened {token[0]}')
+    if not parenmatch(parens[-1],token):
+      raise Exception(f'unmatched {parens[-1][0]} {token[0]}')
+    while ops[-1][0] not in [LPAR,CALL,IDX,LBR]: # finish the parenthesized expression
+      op=ops[-1]
+      if op[0]==DOT:
+        op=[OP,'.']
+      ops=ops[:-1]
+      v1,v2=values[-2:]
+      values=values[:-2]
+      values.append(apply(op,v1,v2))
+    if ops[-1][0] in [CALL,IDX,LBR]:
+      if lastType not in [ops[-1][0],COMMA]:
+        arg=values[-1]
+        values=values[:-1]
+        values[-1].append(arg)
+    ops=ops[:-1] # pop the left paren as well
+    parens=parens[:-1]
+  if token[0]==OP:
+    while len(ops)>0 and (ops[-1][0]==DOT or (ops[-1][0] not in [LPAR,CALL,IDX] and precedence(ops[-1])>=precedence(token))):
+      # apply all operators to the left with a lower precedence
+      op=ops[-1]
+      if op[0]==DOT:
+        op=[OP,'.']
+      ops=ops[:-1]
+      v1,v2=values[-2:]
+      values=values[:-2]
+      values.append(apply(op,v1,v2))
+    ops.append(token) # push this operator
+  if token[0]==DOT:
+    ops.append(token) # push this operator
+  if token[0]==COMMA:
+    while ops[-1][0] not in [CALL,IDX,LBR]:
+      # apply all operators to the left with a lower precedence
+      op=ops[-1]
+      if op[0]==DOT:
+        op=[OP,'.']
+      ops=ops[:-1]
+      v1,v2=values[-2:]
+      values=values[:-2]
+      values.append(apply(op,v1,v2))
+    arg=values[-1]
+    values=values[:-1]
+    values[-1].append(arg)
+  return values,ops,parens,s
+
 def evaluate(expr):
   values=[]
   ops=[]
@@ -207,84 +293,7 @@ def evaluate(expr):
       token,s=getToken(s,lastType,len(parens) and parens[-1][0] in [CALL,LBR])
     except Exception as e:
       break
-    if token[0]==KW:
-      value,s=keywords[token[1]](s)
-      values.append(value)
-    if token[0]==OPKW:
-      value,s=opkeywords[token[1]](s)
-      values[-1]=value[:2]+[values[-1]]+value[2:]
-    if token[0] in [NUM,SYM]: # number or symbol token
-      values.append(token)
-    if token[0] in [NUM,SYM,EXPR]: # number, symbol, or expression
-      while len(ops)>0 and ops[-1][0]==UOP: # apply all unary operators on the stack
-        op=ops[-1]
-        ops=ops[:-1]
-        values[-1]=applyuop(op,values[-1])
-    if token[0] in [LPAR,CALL,IDX,LBR]: # left paren
-      ops.append(token)
-      parens.append(token)
-      if token[0]==CALL:
-        # unapply all unary operators
-        par=ops[-1]
-        ops=ops[:-1]
-        while len(values[-1])==3:
-          _,op,val=values[-1]
-          ops.append([UOP,op])
-          values[-1]=val
-        ops.append(par)
-        values[-1]=[EXPR,'(',values[-1]]
-      if token[0]==IDX:
-        values[-1]=[EXPR,'[',values[-1]]
-      if token[0]==LBR:
-        values.append([EXPR,'[]'])
-    if token[0]==UOP: # unary operator
-      ops.append(token)
-    if token[0] in [RPAR,RBR]: # right paren
-      if len(parens)==0:
-        raise Exception(f'unopened {token[0]}')
-      if not parenmatch(parens[-1],token):
-        raise Exception(f'unmatched {parens[-1][0]} {token[0]}')
-      while ops[-1][0] not in [LPAR,CALL,IDX,LBR]: # finish the parenthesized expression
-        op=ops[-1]
-        if op[0]==DOT:
-          op=[OP,'.']
-        ops=ops[:-1]
-        v1,v2=values[-2:]
-        values=values[:-2]
-        values.append(apply(op,v1,v2))
-      if ops[-1][0] in [CALL,IDX,LBR]:
-        if lastType not in [ops[-1][0],COMMA]:
-          arg=values[-1]
-          values=values[:-1]
-          values[-1].append(arg)
-      ops=ops[:-1] # pop the left paren as well
-      parens=parens[:-1]
-    if token[0]==OP:
-      while len(ops)>0 and (ops[-1][0]==DOT or (ops[-1][0] not in [LPAR,CALL,IDX] and precedence(ops[-1])>=precedence(token))):
-        # apply all operators to the left with a lower precedence
-        op=ops[-1]
-        if op[0]==DOT:
-          op=[OP,'.']
-        ops=ops[:-1]
-        v1,v2=values[-2:]
-        values=values[:-2]
-        values.append(apply(op,v1,v2))
-      ops.append(token) # push this operator
-    if token[0]==DOT:
-      ops.append(token) # push this operator
-    if token[0]==COMMA:
-      while ops[-1][0] not in [CALL,IDX,LBR]:
-        # apply all operators to the left with a lower precedence
-        op=ops[-1]
-        if op[0]==DOT:
-          op=[OP,'.']
-        ops=ops[:-1]
-        v1,v2=values[-2:]
-        values=values[:-2]
-        values.append(apply(op,v1,v2))
-      arg=values[-1]
-      values=values[:-1]
-      values[-1].append(arg)
+    values,ops,parens,s=addToken(values,ops,parens,s)
     lastType=token[0] # type of last token
   while len(ops)>0: # apply the rest of the operators
     if ops[-1][0]==UOP:
