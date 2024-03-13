@@ -1,19 +1,12 @@
 from parser import parser
 
-def strs(ss):
+def strs(*ss):
 	@parser
 	def strs(s):
 		for p in ss:
 			if s.startswith(p):
 				yield p,s[len(p):]
 	return strs
-
-def strp(p):
-	@parser
-	def strp(s):
-		if s.startswith(p):
-			yield p,s[len(p):]
-	return strp
 
 def strip(p):
 	@parser
