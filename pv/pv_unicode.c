@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <assert.h>
-#include "jv_unicode.h"
-#include "jv_utf8_tables.h"
+#include "pv_unicode.h"
+#include "pv_utf8_tables.h"
 
-// jvp_utf8_backtrack returns the beginning of the last codepoint in the
+// pvp_utf8_backtrack returns the beginning of the last codepoint in the
 // string, assuming that start is the last byte in the string.
 // If the last codepoint is incomplete, returns the number of missing bytes via
 // *missing_bytes.  If there are no leading bytes or an invalid byte is
 // encountered, NULL is returned and *missing_bytes is not altered.
-const char* jvp_utf8_backtrack(const char* start, const char* min, int *missing_bytes) {
+const char* pvp_utf8_backtrack(const char* start, const char* min, int *missing_bytes) {
   assert(min <= start);
   if (min == start) {
     return min;
@@ -26,7 +26,7 @@ const char* jvp_utf8_backtrack(const char* start, const char* min, int *missing_
   return start;
 }
 
-const char* jvp_utf8_next(const char* in, const char* end, int* codepoint_ret) {
+const char* pvp_utf8_next(const char* in, const char* end, int* codepoint_ret) {
   assert(in <= end);
   if (in == end) {
     return 0;
@@ -74,30 +74,30 @@ const char* jvp_utf8_next(const char* in, const char* end, int* codepoint_ret) {
   return in + length;
 }
 
-int jvp_utf8_is_valid(const char* in, const char* end) {
+int pvp_utf8_is_valid(const char* in, const char* end) {
   int codepoint;
-  while ((in = jvp_utf8_next(in, end, &codepoint))) {
+  while ((in = pvp_utf8_next(in, end, &codepoint))) {
     if (codepoint == -1) return 0;
   }
   return 1;
 }
 
 /* Assumes startchar is the first byte of a valid character sequence */
-int jvp_utf8_decode_length(char startchar) {
+int pvp_utf8_decode_length(char startchar) {
 	if ((startchar & 0x80) == 0) return 1;         // 0___ ____
 	else if ((startchar & 0xE0) == 0xC0) return 2; // 110_ ____
 	else if ((startchar & 0xF0) == 0xE0) return 3; // 1110 ____
 	else return 4;                                 // 1111 ____
 }
 
-int jvp_utf8_encode_length(int codepoint) {
+int pvp_utf8_encode_length(int codepoint) {
   if (codepoint <= 0x7F) return 1;
   else if (codepoint <= 0x7FF) return 2;
   else if (codepoint <= 0xFFFF) return 3;
   else return 4;
 }
 
-int jvp_utf8_encode(int codepoint, char* out) {
+int pvp_utf8_encode(int codepoint, char* out) {
   assert(codepoint >= 0 && codepoint <= 0x10FFFF);
   char* start = out;
   if (codepoint <= 0x7F) {
@@ -115,6 +115,6 @@ int jvp_utf8_encode(int codepoint, char* out) {
     *out++ = 0x80 + ((codepoint & 0x000FC0) >> 6);
     *out++ = 0x80 + ((codepoint & 0x00003F));
   }
-  assert(out - start == jvp_utf8_encode_length(codepoint));
+  assert(out - start == pvp_utf8_encode_length(codepoint));
   return out - start;
 }

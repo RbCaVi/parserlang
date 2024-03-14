@@ -1,7 +1,7 @@
 #ifndef JV_PRIVATE
 #define JV_PRIVATE
 
-int jvp_number_cmp(jv, jv);
-int jvp_number_is_nan(jv);
+int pvp_number_cmp(pv, pv);
+int pvp_number_is_nan(pv);
 
 #endif //JV_PRIVATE

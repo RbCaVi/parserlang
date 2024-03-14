@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "jv_alloc.h"
+#include "pv_alloc.h"
 
 struct nomem_handler {
-    jv_nomem_handler_f handler;
+    pv_nomem_handler_f handler;
     void *data;
 };
 
@@ -29,7 +29,7 @@ static __thread struct nomem_handler nomem_handler;
 #endif /* !HAVE_PTHREAD_KEY_CREATE */
 
 #ifdef USE_TLS
-void jv_nomem_handler(jv_nomem_handler_f handler, void *data) {
+void pv_nomem_handler(pv_nomem_handler_f handler, void *data) {
   nomem_handler.handler = handler;
 }
 
@@ -88,7 +88,7 @@ static void tsd_init_nomem_handler(void)
   }
 }
 
-void jv_nomem_handler(jv_nomem_handler_f handler, void *data) {
+void pv_nomem_handler(pv_nomem_handler_f handler, void *data) {
   pthread_once(&mem_once, tsd_init); // cannot fail
   tsd_init_nomem_handler();
 
@@ -123,7 +123,7 @@ static void memory_exhausted() {
 /* No thread-local storage of any kind that we know how to handle */
 
 static struct nomem_handler nomem_handler;
-void jv_nomem_handler(jv_nomem_handler_f handler, void *data) {
+void pv_nomem_handler(pv_nomem_handler_f handler, void *data) {
   nomem_handler.handler = handler;
   nomem_handler.data = data;
 }
@@ -137,7 +137,7 @@ static void memory_exhausted() {
 #endif /* USE_TLS */
 
 
-void* jv_mem_alloc(size_t sz) {
+void* pv_mem_alloc(size_t sz) {
   void* p = malloc(sz);
   if (!p) {
     memory_exhausted();
@@ -145,11 +145,11 @@ void* jv_mem_alloc(size_t sz) {
   return p;
 }
 
-void* jv_mem_alloc_unguarded(size_t sz) {
+void* pv_mem_alloc_unguarded(size_t sz) {
   return malloc(sz);
 }
 
-void* jv_mem_calloc(size_t nemb, size_t sz) {
+void* pv_mem_calloc(size_t nemb, size_t sz) {
   void* p = calloc(nemb, sz);
   if (!p) {
     memory_exhausted();
@@ -157,11 +157,11 @@ void* jv_mem_calloc(size_t nemb, size_t sz) {
   return p;
 }
 
-void* jv_mem_calloc_unguarded(size_t nemb, size_t sz) {
+void* pv_mem_calloc_unguarded(size_t nemb, size_t sz) {
   return calloc(nemb, sz);
 }
 
-char* jv_mem_strdup(const char *s) {
+char* pv_mem_strdup(const char *s) {
   char *p = strdup(s);
   if (!p) {
     memory_exhausted();
@@ -169,15 +169,15 @@ char* jv_mem_strdup(const char *s) {
   return p;
 }
 
-char* jv_mem_strdup_unguarded(const char *s) {
+char* pv_mem_strdup_unguarded(const char *s) {
   return strdup(s);
 }
 
-void jv_mem_free(void* p) {
+void pv_mem_free(void* p) {
   free(p);
 }
 
-void* jv_mem_realloc(void* p, size_t sz) {
+void* pv_mem_realloc(void* p, size_t sz) {
   p = realloc(p, sz);
   if (!p) {
     memory_exhausted();
