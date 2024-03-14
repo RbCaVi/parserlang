@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stddef.h>
+
 const void *_jq_memmem(const void *haystack, size_t haystacklen,
                        const void *needle, size_t needlelen);
 
