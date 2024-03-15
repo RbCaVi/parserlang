@@ -71,3 +71,28 @@ def parserify(f):
 	def parserified(s):
 		yield f(s)
 	return parserified
+
+def optional(p,default=None):
+	@parser
+	def optional(s):
+		yield from p(s)
+		yield default,s
+	return optional
+
+def errornone(p):
+	@parser
+	def errornone(s):
+		it=iter(p(s))
+		try:
+			yield next(it) # make sure there's at least one result
+		except StopIteration:
+			raise Exception('no choices')
+		yield from it
+	return errornone
+
+def errorafter(p):
+	@parser
+	def errorafter(s):
+		yield from p(s)
+		raise Exception('ran out of choices')
+	return errorafter
