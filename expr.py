@@ -349,10 +349,9 @@ def treeexpr(expr):
     tee = "├─"
     blank = "  "
     s=expr[0]+' '+str(expr[1])
-    if expr[0]==EXPR:
-      for i,e in enumerate(expr[2:]):
-        top,*rest=treeexpr(e).split('\n')
-        top=(elbow if i == len(expr) - 3 else tee)+top
-        rest=[(blank if i == len(expr) - 3 else pipe)+line for line in rest]
-        s='\n'.join([s,top,*rest])
+    for i,e in enumerate(expr[2:]):
+      top,*rest=treeexpr(e).split('\n')
+      top=(elbow if i == len(expr) - 3 else tee)+top
+      rest=[(blank if i == len(expr) - 3 else pipe)+line for line in rest]
+      s='\n'.join([s,top,*rest])
     return s
