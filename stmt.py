@@ -36,8 +36,8 @@ def declare(data):
 
 @transform(concatstrip(strs('if'),expr,strs('then'),stmtwrap,strs('end')))
 def ifstmt(data):
-	_,cond,__,s,___=data
-	return [STMT,'if',typ,var,e]
+	_,cond,__,st,___=data
+	return [STMT,'if',cond,st]
 
 @transform(alternate(assign,declare))
 def stmt(data):
