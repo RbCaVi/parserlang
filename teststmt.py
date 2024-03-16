@@ -10,3 +10,4 @@ printresults(stmt,'1=2',formatter=treeexpr2)
 printresults(stmt,'1+=2',formatter=treeexpr2) # won't work until backtracking
 printresults(stmt,'def a=2',formatter=treeexpr2)
 printresults(stmt,'def 1=2',error=True,formatter=treeexpr2)
+printresults(stmt,'if a then b=c end',formatter=treeexpr2)
