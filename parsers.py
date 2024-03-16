@@ -96,3 +96,10 @@ def errorafter(p):
 		yield from p(s)
 		raise Exception('ran out of choices')
 	return errorafter
+
+def atomic(p): # return 0 or 1 results
+	@parser
+	def atomic(s):
+		it=iter(p(s))
+		yield next(it)
+	return atomic
