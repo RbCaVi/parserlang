@@ -8,7 +8,7 @@ def stmtwrap(s): # "backreference"
 	return stmt(s)
 
 def concatstrip(*ps):
-	return concat(*map(ps))
+	return concat(*map(strip,ps))
 
 @parser
 def sym(s):
@@ -34,7 +34,7 @@ def declare(data):
 		typ=anytype
 	return [STMT,'def',typ,var,e]
 
-@transform(concatstrip(strs('if'),ep,strs('then'),stmtwrap,strs('end')))
+@transform(concatstrip(strs('if'),expr,strs('then'),stmtwrap,strs('end')))
 def ifstmt(data):
 	_,cond,__,s,___=data
 	return [STMT,'if',typ,var,e]
