@@ -39,6 +39,6 @@ def ifstmt(data):
 	_,cond,__,st,___=data
 	return [STMT,'if',cond,st]
 
-@transform(alternate(assign,declare))
+@transform(alternate(ifstmt,assign,declare))
 def stmt(data):
 	return data[1]
