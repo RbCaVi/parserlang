@@ -71,12 +71,8 @@ pv pv_false(void);
 pv pv_bool(int);
 
 pv pv_number(double);
-pv pv_number_with_literal(const char*);
 double pv_number_value(pv);
 int pv_is_integer(pv);
-
-int pv_number_has_literal(pv n);
-const char* pv_number_get_literal(pv);
 
 pv pv_array(void);
 pv pv_array_sized(int);
