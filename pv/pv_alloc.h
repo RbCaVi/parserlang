@@ -1,5 +1,5 @@
-#ifndef JV_ALLOC_H
-#define JV_ALLOC_H
+#ifndef PV_ALLOC_H
+#define PV_ALLOC_H
 
 #include <stddef.h>
 #include "pv.h"

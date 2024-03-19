@@ -19,14 +19,14 @@ static pv parse_slice(pv j, pv slice, int* pstart, int* pend) {
   // Array slices
   pv start_pv = pv_object_get(pv_ref(slice), pv_string("start"));
   pv end_pv = pv_object_get(slice, pv_string("end"));
-  if (pv_get_kind(start_pv) == JV_KIND_NULL) {
+  if (pv_get_kind(start_pv) == PV_KIND_NULL) {
     pv_unref(start_pv);
     start_pv = pv_number(0);
   }
   int len;
-  if (pv_get_kind(j) == JV_KIND_ARRAY) {
+  if (pv_get_kind(j) == PV_KIND_ARRAY) {
     len = pv_array_length(j);
-  } else if (pv_get_kind(j) == JV_KIND_STRING) {
+  } else if (pv_get_kind(j) == PV_KIND_STRING) {
     len = pv_string_length_codepoints(j);
   } else {
     /*
@@ -38,12 +38,12 @@ static pv parse_slice(pv j, pv slice, int* pstart, int* pend) {
     pv_unref(end_pv);
     return pv_invalid_with_msg(pv_string("Only arrays and strings can be sliced"));
   }
-  if (pv_get_kind(end_pv) == JV_KIND_NULL) {
+  if (pv_get_kind(end_pv) == PV_KIND_NULL) {
     pv_unref(end_pv);
     end_pv = pv_number(len);
   }
-  if (pv_get_kind(start_pv) != JV_KIND_NUMBER ||
-      pv_get_kind(end_pv) != JV_KIND_NUMBER) {
+  if (pv_get_kind(start_pv) != PV_KIND_NUMBER ||
+      pv_get_kind(end_pv) != PV_KIND_NUMBER) {
     pv_unref(start_pv);
     pv_unref(end_pv);
     return pv_invalid_with_msg(pv_string("Array/string slice indices must be integers"));
@@ -78,13 +78,13 @@ static pv parse_slice(pv j, pv slice, int* pstart, int* pend) {
 
 pv pv_get(pv t, pv k) {
   pv v;
-  if (pv_get_kind(t) == JV_KIND_OBJECT && pv_get_kind(k) == JV_KIND_STRING) {
+  if (pv_get_kind(t) == PV_KIND_OBJECT && pv_get_kind(k) == PV_KIND_STRING) {
     v = pv_object_get(t, k);
     if (!pv_is_valid(v)) {
       pv_unref(v);
       v = pv_null();
     }
-  } else if (pv_get_kind(t) == JV_KIND_ARRAY && pv_get_kind(k) == JV_KIND_NUMBER) {
+  } else if (pv_get_kind(t) == PV_KIND_ARRAY && pv_get_kind(k) == PV_KIND_NUMBER) {
     if (pvp_number_is_nan(k)) {
       pv_unref(t);
       v = pv_null();
@@ -106,30 +106,30 @@ pv pv_get(pv t, pv k) {
       }
     }
     pv_unref(k);
-  } else if (pv_get_kind(t) == JV_KIND_ARRAY && pv_get_kind(k) == JV_KIND_OBJECT) {
+  } else if (pv_get_kind(t) == PV_KIND_ARRAY && pv_get_kind(k) == PV_KIND_OBJECT) {
     int start, end;
     pv e = parse_slice(pv_ref(t), k, &start, &end);
-    if (pv_get_kind(e) == JV_KIND_TRUE) {
+    if (pv_get_kind(e) == PV_KIND_TRUE) {
       v = pv_array_slice(t, start, end);
     } else {
       pv_unref(t);
       v = e;
     }
-  } else if (pv_get_kind(t) == JV_KIND_STRING && pv_get_kind(k) == JV_KIND_OBJECT) {
+  } else if (pv_get_kind(t) == PV_KIND_STRING && pv_get_kind(k) == PV_KIND_OBJECT) {
     int start, end;
     pv e = parse_slice(pv_ref(t), k, &start, &end);
-    if (pv_get_kind(e) == JV_KIND_TRUE) {
+    if (pv_get_kind(e) == PV_KIND_TRUE) {
       v = pv_string_slice(t, start, end);
     } else {
       pv_unref(t);
       v = e;
     }
-  } else if (pv_get_kind(t) == JV_KIND_ARRAY && pv_get_kind(k) == JV_KIND_ARRAY) {
+  } else if (pv_get_kind(t) == PV_KIND_ARRAY && pv_get_kind(k) == PV_KIND_ARRAY) {
     v = pv_array_indexes(t, k);
-  } else if (pv_get_kind(t) == JV_KIND_NULL &&
-             (pv_get_kind(k) == JV_KIND_STRING ||
-              pv_get_kind(k) == JV_KIND_NUMBER ||
-              pv_get_kind(k) == JV_KIND_OBJECT)) {
+  } else if (pv_get_kind(t) == PV_KIND_NULL &&
+             (pv_get_kind(k) == PV_KIND_STRING ||
+              pv_get_kind(k) == PV_KIND_NUMBER ||
+              pv_get_kind(k) == PV_KIND_OBJECT)) {
     pv_unref(t);
     pv_unref(k);
     v = pv_null();
@@ -139,7 +139,7 @@ pv pv_get(pv t, pv k) {
      * similar, in which case putting it in the invalid msg may help the
      * user.  The length 30 is arbitrary.
      */
-    if (pv_get_kind(k) == JV_KIND_STRING && pv_string_length_bytes(pv_ref(k)) < 30) {
+    if (pv_get_kind(k) == PV_KIND_STRING && pv_string_length_bytes(pv_ref(k)) < 30) {
       v = pv_invalid_with_msg(pv_string_fmt("Cannot index %s with string \"%s\"",
                                             pv_kind_name(pv_get_kind(t)),
                                             pv_string_value(k)));
@@ -160,13 +160,13 @@ pv pv_set(pv t, pv k, pv v) {
     pv_unref(k);
     return v;
   }
-  int isnull = pv_get_kind(t) == JV_KIND_NULL;
-  if (pv_get_kind(k) == JV_KIND_STRING &&
-      (pv_get_kind(t) == JV_KIND_OBJECT || isnull)) {
+  int isnull = pv_get_kind(t) == PV_KIND_NULL;
+  if (pv_get_kind(k) == PV_KIND_STRING &&
+      (pv_get_kind(t) == PV_KIND_OBJECT || isnull)) {
     if (isnull) t = pv_object();
     t = pv_object_set(t, k, v);
-  } else if (pv_get_kind(k) == JV_KIND_NUMBER &&
-             (pv_get_kind(t) == JV_KIND_ARRAY || isnull)) {
+  } else if (pv_get_kind(k) == PV_KIND_NUMBER &&
+             (pv_get_kind(t) == PV_KIND_ARRAY || isnull)) {
     if (pvp_number_is_nan(k)) {
       pv_unref(t);
       pv_unref(k);
@@ -179,13 +179,13 @@ pv pv_set(pv t, pv k, pv v) {
       t = pv_array_set(t, (int)didx, v);
       pv_unref(k);
     }
-  } else if (pv_get_kind(k) == JV_KIND_OBJECT &&
-             (pv_get_kind(t) == JV_KIND_ARRAY || isnull)) {
+  } else if (pv_get_kind(k) == PV_KIND_OBJECT &&
+             (pv_get_kind(t) == PV_KIND_ARRAY || isnull)) {
     if (isnull) t = pv_array();
     int start, end;
     pv e = parse_slice(pv_ref(t), k, &start, &end);
-    if (pv_get_kind(e) == JV_KIND_TRUE) {
-      if (pv_get_kind(v) == JV_KIND_ARRAY) {
+    if (pv_get_kind(e) == PV_KIND_TRUE) {
+      if (pv_get_kind(v) == PV_KIND_ARRAY) {
         int array_len = pv_array_length(pv_ref(t));
         assert(0 <= start && start <= end && end <= array_len);
         int slice_len = end - start;
@@ -218,7 +218,7 @@ pv pv_set(pv t, pv k, pv v) {
       pv_unref(v);
       t = e;
     }
-  } else if (pv_get_kind(k) == JV_KIND_OBJECT && pv_get_kind(t) == JV_KIND_STRING) {
+  } else if (pv_get_kind(k) == PV_KIND_OBJECT && pv_get_kind(t) == PV_KIND_STRING) {
     pv_unref(t);
     pv_unref(k);
     pv_unref(v);
@@ -240,17 +240,17 @@ pv pv_has(pv t, pv k) {
   assert(pv_is_valid(t));
   assert(pv_is_valid(k));
   pv ret;
-  if (pv_get_kind(t) == JV_KIND_NULL) {
+  if (pv_get_kind(t) == PV_KIND_NULL) {
     pv_unref(t);
     pv_unref(k);
     ret = pv_false();
-  } else if (pv_get_kind(t) == JV_KIND_OBJECT &&
-             pv_get_kind(k) == JV_KIND_STRING) {
+  } else if (pv_get_kind(t) == PV_KIND_OBJECT &&
+             pv_get_kind(k) == PV_KIND_STRING) {
     pv elem = pv_object_get(t, k);
     ret = pv_bool(pv_is_valid(elem));
     pv_unref(elem);
-  } else if (pv_get_kind(t) == JV_KIND_ARRAY &&
-             pv_get_kind(k) == JV_KIND_NUMBER) {
+  } else if (pv_get_kind(t) == PV_KIND_ARRAY &&
+             pv_get_kind(k) == PV_KIND_NUMBER) {
     if (pvp_number_is_nan(k)) {
       pv_unref(t);
       ret = pv_false();
@@ -272,28 +272,28 @@ pv pv_has(pv t, pv k) {
 
 // assumes keys is a sorted array
 static pv pv_dels(pv t, pv keys) {
-  assert(pv_get_kind(keys) == JV_KIND_ARRAY);
+  assert(pv_get_kind(keys) == PV_KIND_ARRAY);
   assert(pv_is_valid(t));
 
-  if (pv_get_kind(t) == JV_KIND_NULL || pv_array_length(pv_ref(keys)) == 0) {
+  if (pv_get_kind(t) == PV_KIND_NULL || pv_array_length(pv_ref(keys)) == 0) {
     // no change
-  } else if (pv_get_kind(t) == JV_KIND_ARRAY) {
+  } else if (pv_get_kind(t) == PV_KIND_ARRAY) {
     // extract slices, they must be handled differently
     pv neg_keys = pv_array();
     pv nonneg_keys = pv_array();
     pv new_array = pv_array();
     pv starts = pv_array(), ends = pv_array();
     pv_array_foreach(keys, i, key) {
-      if (pv_get_kind(key) == JV_KIND_NUMBER) {
+      if (pv_get_kind(key) == PV_KIND_NUMBER) {
         if (pv_number_value(key) < 0) {
           neg_keys = pv_array_append(neg_keys, key);
         } else {
           nonneg_keys = pv_array_append(nonneg_keys, key);
         }
-      } else if (pv_get_kind(key) == JV_KIND_OBJECT) {
+      } else if (pv_get_kind(key) == PV_KIND_OBJECT) {
         int start, end;
         pv e = parse_slice(pv_ref(t), key, &start, &end);
-        if (pv_get_kind(e) == JV_KIND_TRUE) {
+        if (pv_get_kind(e) == PV_KIND_TRUE) {
           starts = pv_array_append(starts, pv_number(start));
           ends = pv_array_append(ends, pv_number(end));
         } else {
@@ -354,9 +354,9 @@ static pv pv_dels(pv t, pv keys) {
     pv_unref(ends);
     pv_unref(t);
     t = new_array;
-  } else if (pv_get_kind(t) == JV_KIND_OBJECT) {
+  } else if (pv_get_kind(t) == PV_KIND_OBJECT) {
     pv_array_foreach(keys, i, k) {
-      if (pv_get_kind(k) != JV_KIND_STRING) {
+      if (pv_get_kind(k) != PV_KIND_STRING) {
         pv_unref(t);
         t = pv_invalid_with_msg(pv_string_fmt("Cannot delete %s field of object",
                                               pv_kind_name(pv_get_kind(k))));
@@ -376,7 +376,7 @@ static pv pv_dels(pv t, pv keys) {
 }
 
 pv pv_setpath(pv root, pv path, pv value) {
-  if (pv_get_kind(path) != JV_KIND_ARRAY) {
+  if (pv_get_kind(path) != PV_KIND_ARRAY) {
     pv_unref(value);
     pv_unref(root);
     pv_unref(path);
@@ -400,7 +400,7 @@ pv pv_setpath(pv root, pv path, pv value) {
    * quadratic behavior (e.g., when growing large data structures in a
    * reduction with `setpath/2`, i.e., with `|=`.
    */
-  if (pv_get_kind(pathcurr) == JV_KIND_OBJECT) {
+  if (pv_get_kind(pathcurr) == PV_KIND_OBJECT) {
     // Assignment to slice -- dunno yet how to avoid the extra copy
     return pv_set(root, pathcurr,
                   pv_setpath(pv_get(pv_ref(root), pv_ref(pathcurr)), pathrest, value));
@@ -428,7 +428,7 @@ pv pv_setpath(pv root, pv path, pv value) {
 }
 
 pv pv_getpath(pv root, pv path) {
-  if (pv_get_kind(path) != JV_KIND_ARRAY) {
+  if (pv_get_kind(path) != PV_KIND_ARRAY) {
     pv_unref(root);
     pv_unref(path);
     return pv_invalid_with_msg(pv_string("Path must be specified as an array"));
@@ -469,7 +469,7 @@ static pv delpaths_sorted(pv object, pv paths, int start) {
         pv_unref(object);
         object = subobject;
         break;
-      } else if (pv_get_kind(subobject) == JV_KIND_NULL) {
+      } else if (pv_get_kind(subobject) == PV_KIND_NULL) {
         pv_unref(key);
         pv_unref(subobject);
       } else {
@@ -495,14 +495,14 @@ static pv delpaths_sorted(pv object, pv paths, int start) {
 }
 
 pv pv_delpaths(pv object, pv paths) {
-  if (pv_get_kind(paths) != JV_KIND_ARRAY) {
+  if (pv_get_kind(paths) != PV_KIND_ARRAY) {
     pv_unref(object);
     pv_unref(paths);
     return pv_invalid_with_msg(pv_string("Paths must be specified as an array"));
   }
   paths = pv_sort(paths, pv_ref(paths));
   pv_array_foreach(paths, i, elem) {
-    if (pv_get_kind(elem) != JV_KIND_ARRAY) {
+    if (pv_get_kind(elem) != PV_KIND_ARRAY) {
       pv_unref(object);
       pv_unref(paths);
       pv err = pv_invalid_with_msg(pv_string_fmt("Path must be specified as array, not %s",
@@ -539,7 +539,7 @@ static int string_cmp(const void* pa, const void* pb){
 }
 
 pv pv_keys_unsorted(pv x) {
-  if (pv_get_kind(x) != JV_KIND_OBJECT)
+  if (pv_get_kind(x) != PV_KIND_OBJECT)
     return pv_keys(x);
   pv answer = pv_array_sized(pv_object_length(pv_ref(x)));
   pv_object_foreach(x, key, value) {
@@ -551,7 +551,7 @@ pv pv_keys_unsorted(pv x) {
 }
 
 pv pv_keys(pv x) {
-  if (pv_get_kind(x) == JV_KIND_OBJECT) {
+  if (pv_get_kind(x) == PV_KIND_OBJECT) {
     int nkeys = pv_object_length(pv_ref(x));
     pv* keys = pv_mem_calloc(nkeys, sizeof(pv));
     int kidx = 0;
@@ -567,7 +567,7 @@ pv pv_keys(pv x) {
     pv_mem_free(keys);
     pv_unref(x);
     return answer;
-  } else if (pv_get_kind(x) == JV_KIND_ARRAY) {
+  } else if (pv_get_kind(x) == PV_KIND_ARRAY) {
     int n = pv_array_length(x);
     pv answer = pv_array();
     for (int i=0; i<n; i++){
@@ -591,14 +591,14 @@ int pv_cmp(pv a, pv b) {
   switch (pv_get_kind(a)) {
   default:
     assert(0 && "invalid kind passed to pv_cmp");
-  case JV_KIND_NULL:
-  case JV_KIND_FALSE:
-  case JV_KIND_TRUE:
+  case PV_KIND_NULL:
+  case PV_KIND_FALSE:
+  case PV_KIND_TRUE:
     // there's only one of each of these values
     r = 0;
     break;
 
-  case JV_KIND_NUMBER: {
+  case PV_KIND_NUMBER: {
     if (pvp_number_is_nan(a)) {
       r = pv_cmp(pv_null(), pv_ref(b));
     } else if (pvp_number_is_nan(b)) {
@@ -609,12 +609,12 @@ int pv_cmp(pv a, pv b) {
     break;
   }
 
-  case JV_KIND_STRING: {
+  case PV_KIND_STRING: {
     r = string_cmp(&a, &b);
     break;
   }
 
-  case JV_KIND_ARRAY: {
+  case PV_KIND_ARRAY: {
     // Lexical ordering of arrays
     int i = 0;
     while (r == 0) {
@@ -632,7 +632,7 @@ int pv_cmp(pv a, pv b) {
     break;
   }
 
-  case JV_KIND_OBJECT: {
+  case PV_KIND_OBJECT: {
     pv keys_a = pv_keys(pv_ref(a));
     pv keys_b = pv_keys(pv_ref(b));
     r = pv_cmp(pv_ref(keys_a), keys_b);
@@ -670,8 +670,8 @@ static int sort_cmp(const void* pa, const void* pb) {
 }
 
 static struct sort_entry* sort_items(pv objects, pv keys) {
-  assert(pv_get_kind(objects) == JV_KIND_ARRAY);
-  assert(pv_get_kind(keys) == JV_KIND_ARRAY);
+  assert(pv_get_kind(objects) == PV_KIND_ARRAY);
+  assert(pv_get_kind(keys) == PV_KIND_ARRAY);
   assert(pv_array_length(pv_ref(objects)) == pv_array_length(pv_ref(keys)));
   int n = pv_array_length(pv_ref(objects));
   struct sort_entry* entries = pv_mem_calloc(n, sizeof(struct sort_entry));
@@ -687,8 +687,8 @@ static struct sort_entry* sort_items(pv objects, pv keys) {
 }
 
 pv pv_sort(pv objects, pv keys) {
-  assert(pv_get_kind(objects) == JV_KIND_ARRAY);
-  assert(pv_get_kind(keys) == JV_KIND_ARRAY);
+  assert(pv_get_kind(objects) == PV_KIND_ARRAY);
+  assert(pv_get_kind(keys) == PV_KIND_ARRAY);
   assert(pv_array_length(pv_ref(objects)) == pv_array_length(pv_ref(keys)));
   int n = pv_array_length(pv_ref(objects));
   struct sort_entry* entries = sort_items(objects, keys);
@@ -702,8 +702,8 @@ pv pv_sort(pv objects, pv keys) {
 }
 
 pv pv_group(pv objects, pv keys) {
-  assert(pv_get_kind(objects) == JV_KIND_ARRAY);
-  assert(pv_get_kind(keys) == JV_KIND_ARRAY);
+  assert(pv_get_kind(objects) == PV_KIND_ARRAY);
+  assert(pv_get_kind(keys) == PV_KIND_ARRAY);
   assert(pv_array_length(pv_ref(objects)) == pv_array_length(pv_ref(keys)));
   int n = pv_array_length(pv_ref(objects));
   struct sort_entry* entries = sort_items(objects, keys);

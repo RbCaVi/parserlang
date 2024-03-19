@@ -1,5 +1,5 @@
-#ifndef JV_H
-#define JV_H
+#ifndef PV_H
+#define PV_H
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -17,14 +17,14 @@ extern "C" {
 #endif
 
 typedef enum {
-  JV_KIND_INVALID,
-  JV_KIND_NULL,
-  JV_KIND_FALSE,
-  JV_KIND_TRUE,
-  JV_KIND_NUMBER,
-  JV_KIND_STRING,
-  JV_KIND_ARRAY,
-  JV_KIND_OBJECT
+  PV_KIND_INVALID,
+  PV_KIND_NULL,
+  PV_KIND_FALSE,
+  PV_KIND_TRUE,
+  PV_KIND_NUMBER,
+  PV_KIND_STRING,
+  PV_KIND_ARRAY,
+  PV_KIND_OBJECT
 } pv_kind;
 
 struct pv_refcnt;
@@ -49,7 +49,7 @@ typedef struct {
 
 pv_kind pv_get_kind(pv);
 const char* pv_kind_name(pv_kind);
-static int pv_is_valid(pv x) { return pv_get_kind(x) != JV_KIND_INVALID; }
+static int pv_is_valid(pv x) { return pv_get_kind(x) != PV_KIND_INVALID; }
 
 pv pv_ref(pv);
 void pv_unref(pv);
@@ -91,23 +91,23 @@ pv pv_array_indexes(pv, pv);
            (x = pv_array_get(pv_ref(a), i), 1) : 0;                    \
          i++)
 
-#define JV_ARRAY_1(e) (pv_array_append(pv_array(),e))
-#define JV_ARRAY_2(e1,e2) (pv_array_append(JV_ARRAY_1(e1),e2))
-#define JV_ARRAY_3(e1,e2,e3) (pv_array_append(JV_ARRAY_2(e1,e2),e3))
-#define JV_ARRAY_4(e1,e2,e3,e4) (pv_array_append(JV_ARRAY_3(e1,e2,e3),e4))
-#define JV_ARRAY_5(e1,e2,e3,e4,e5) (pv_array_append(JV_ARRAY_4(e1,e2,e3,e4),e5))
-#define JV_ARRAY_6(e1,e2,e3,e4,e5,e6) (pv_array_append(JV_ARRAY_5(e1,e2,e3,e4,e5),e6))
-#define JV_ARRAY_7(e1,e2,e3,e4,e5,e6,e7) (pv_array_append(JV_ARRAY_6(e1,e2,e3,e4,e5,e6),e7))
-#define JV_ARRAY_8(e1,e2,e3,e4,e5,e6,e7,e8) (pv_array_append(JV_ARRAY_7(e1,e2,e3,e4,e5,e6,e7),e8))
-#define JV_ARRAY_9(e1,e2,e3,e4,e5,e6,e7,e8,e9) (pv_array_append(JV_ARRAY_8(e1,e2,e3,e4,e5,e6,e7,e8),e9))
-#define JV_ARRAY_IDX(_1,_2,_3,_4,_5,_6,_7,_8,_9,NAME,...) NAME
-#define JV_ARRAY(...) \
-  JV_ARRAY_IDX(__VA_ARGS__, JV_ARRAY_9, JV_ARRAY_8, JV_ARRAY_7, JV_ARRAY_6, JV_ARRAY_5, JV_ARRAY_4, JV_ARRAY_3, JV_ARRAY_2, JV_ARRAY_1, dummy)(__VA_ARGS__)
+#define PV_ARRAY_1(e) (pv_array_append(pv_array(),e))
+#define PV_ARRAY_2(e1,e2) (pv_array_append(PV_ARRAY_1(e1),e2))
+#define PV_ARRAY_3(e1,e2,e3) (pv_array_append(PV_ARRAY_2(e1,e2),e3))
+#define PV_ARRAY_4(e1,e2,e3,e4) (pv_array_append(PV_ARRAY_3(e1,e2,e3),e4))
+#define PV_ARRAY_5(e1,e2,e3,e4,e5) (pv_array_append(PV_ARRAY_4(e1,e2,e3,e4),e5))
+#define PV_ARRAY_6(e1,e2,e3,e4,e5,e6) (pv_array_append(PV_ARRAY_5(e1,e2,e3,e4,e5),e6))
+#define PV_ARRAY_7(e1,e2,e3,e4,e5,e6,e7) (pv_array_append(PV_ARRAY_6(e1,e2,e3,e4,e5,e6),e7))
+#define PV_ARRAY_8(e1,e2,e3,e4,e5,e6,e7,e8) (pv_array_append(PV_ARRAY_7(e1,e2,e3,e4,e5,e6,e7),e8))
+#define PV_ARRAY_9(e1,e2,e3,e4,e5,e6,e7,e8,e9) (pv_array_append(PV_ARRAY_8(e1,e2,e3,e4,e5,e6,e7,e8),e9))
+#define PV_ARRAY_IDX(_1,_2,_3,_4,_5,_6,_7,_8,_9,NAME,...) NAME
+#define PV_ARRAY(...) \
+  PV_ARRAY_IDX(__VA_ARGS__, PV_ARRAY_9, PV_ARRAY_8, PV_ARRAY_7, PV_ARRAY_6, PV_ARRAY_5, PV_ARRAY_4, PV_ARRAY_3, PV_ARRAY_2, PV_ARRAY_1, dummy)(__VA_ARGS__)
 
 #ifdef __GNUC__
-#define JV_PRINTF_LIKE(fmt_arg_num, args_num) \
+#define PV_PRINTF_LIKE(fmt_arg_num, args_num) \
   __attribute__ ((__format__( __printf__, fmt_arg_num, args_num)))
-#define JV_VPRINTF_LIKE(fmt_arg_num) \
+#define PV_VPRINTF_LIKE(fmt_arg_num) \
   __attribute__ ((__format__( __printf__, fmt_arg_num, 0)))
 #endif
 
@@ -122,8 +122,8 @@ const char* pv_string_value(pv);
 pv pv_string_indexes(pv j, pv k);
 pv pv_string_slice(pv j, int start, int end);
 pv pv_string_concat(pv, pv);
-pv pv_string_vfmt(const char*, va_list) JV_VPRINTF_LIKE(1);
-pv pv_string_fmt(const char*, ...) JV_PRINTF_LIKE(1, 2);
+pv pv_string_vfmt(const char*, va_list) PV_VPRINTF_LIKE(1);
+pv pv_string_fmt(const char*, ...) PV_PRINTF_LIKE(1, 2);
 pv pv_string_append_codepoint(pv a, uint32_t c);
 pv pv_string_append_buf(pv a, const char* buf, int len);
 pv pv_string_append_str(pv a, const char* str);
@@ -164,42 +164,42 @@ pv pv_object_iter_value(pv, int);
            : 0;                                                         \
          pv_i__ = pv_object_iter_next(t, pv_i__))
 
-#define JV_OBJECT_1(k1) (pv_object_set(pv_object(),(k1),pv_null()))
-#define JV_OBJECT_2(k1,v1) (pv_object_set(pv_object(),(k1),(v1)))
-#define JV_OBJECT_3(k1,v1,k2) (pv_object_set(JV_OBJECT_2((k1),(v1)),(k2),pv_null()))
-#define JV_OBJECT_4(k1,v1,k2,v2) (pv_object_set(JV_OBJECT_2((k1),(v1)),(k2),(v2)))
-#define JV_OBJECT_5(k1,v1,k2,v2,k3) (pv_object_set(JV_OBJECT_4((k1),(v1),(k2),(v2)),(k3),pv_null()))
-#define JV_OBJECT_6(k1,v1,k2,v2,k3,v3) (pv_object_set(JV_OBJECT_4((k1),(v1),(k2),(v2)),(k3),(v3)))
-#define JV_OBJECT_7(k1,v1,k2,v2,k3,v3,k4) (pv_object_set(JV_OBJECT_6((k1),(v1),(k2),(v2),(k3),(v3)),(k4),pv_null()))
-#define JV_OBJECT_8(k1,v1,k2,v2,k3,v3,k4,v4) (pv_object_set(JV_OBJECT_6((k1),(v1),(k2),(v2),(k3),(v3)),(k4),(v4)))
-#define JV_OBJECT_9(k1,v1,k2,v2,k3,v3,k4,v4,k5) \
-    (pv_object_set(JV_OBJECT_8((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4)),(k5),pv_null()))
-#define JV_OBJECT_10(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5) \
-    (pv_object_set(JV_OBJECT_8((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4)),(k5),(v5)))
-#define JV_OBJECT_11(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6) \
-    (pv_object_set(JV_OBJECT_10((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5)),(k6),pv_null()))
-#define JV_OBJECT_12(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6) \
-    (pv_object_set(JV_OBJECT_10((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5)),(k6),(v6)))
-#define JV_OBJECT_13(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7) \
-    (pv_object_set(JV_OBJECT_12((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6)),(k7),pv_null()))
-#define JV_OBJECT_14(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7) \
-    (pv_object_set(JV_OBJECT_12((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6)),(k7),(v7)))
-#define JV_OBJECT_15(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8) \
-    (pv_object_set(JV_OBJECT_14((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7)),(k8),pv_null()))
-#define JV_OBJECT_16(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8,v8) \
-    (pv_object_set(JV_OBJECT_14((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7)),(k8),(v8)))
-#define JV_OBJECT_17(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8,v8,k9) \
-    (pv_object_set(JV_OBJECT_16((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7),(k8),(v8)),(k9),pv_null()))
-#define JV_OBJECT_18(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8,v8,k9,v9) \
-    (pv_object_set(JV_OBJECT_16((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7),(k8),(v8)),(k9),(v9)))
-#define JV_OBJECT_IDX(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,NAME,...) NAME
-#define JV_OBJECT(...) \
-  JV_OBJECT_IDX(__VA_ARGS__, \
-                JV_OBJECT_18, JV_OBJECT_17, JV_OBJECT_16, JV_OBJECT_15, \
-                JV_OBJECT_14, JV_OBJECT_13, JV_OBJECT_12, JV_OBJECT_11, \
-                JV_OBJECT_10, JV_OBJECT_9, JV_OBJECT_8, JV_OBJECT_7,    \
-                JV_OBJECT_6, JV_OBJECT_5, JV_OBJECT_4, JV_OBJECT_3,     \
-                JV_OBJECT_2, JV_OBJECT_1)(__VA_ARGS__)
+#define PV_OBJECT_1(k1) (pv_object_set(pv_object(),(k1),pv_null()))
+#define PV_OBJECT_2(k1,v1) (pv_object_set(pv_object(),(k1),(v1)))
+#define PV_OBJECT_3(k1,v1,k2) (pv_object_set(PV_OBJECT_2((k1),(v1)),(k2),pv_null()))
+#define PV_OBJECT_4(k1,v1,k2,v2) (pv_object_set(PV_OBJECT_2((k1),(v1)),(k2),(v2)))
+#define PV_OBJECT_5(k1,v1,k2,v2,k3) (pv_object_set(PV_OBJECT_4((k1),(v1),(k2),(v2)),(k3),pv_null()))
+#define PV_OBJECT_6(k1,v1,k2,v2,k3,v3) (pv_object_set(PV_OBJECT_4((k1),(v1),(k2),(v2)),(k3),(v3)))
+#define PV_OBJECT_7(k1,v1,k2,v2,k3,v3,k4) (pv_object_set(PV_OBJECT_6((k1),(v1),(k2),(v2),(k3),(v3)),(k4),pv_null()))
+#define PV_OBJECT_8(k1,v1,k2,v2,k3,v3,k4,v4) (pv_object_set(PV_OBJECT_6((k1),(v1),(k2),(v2),(k3),(v3)),(k4),(v4)))
+#define PV_OBJECT_9(k1,v1,k2,v2,k3,v3,k4,v4,k5) \
+    (pv_object_set(PV_OBJECT_8((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4)),(k5),pv_null()))
+#define PV_OBJECT_10(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5) \
+    (pv_object_set(PV_OBJECT_8((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4)),(k5),(v5)))
+#define PV_OBJECT_11(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6) \
+    (pv_object_set(PV_OBJECT_10((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5)),(k6),pv_null()))
+#define PV_OBJECT_12(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6) \
+    (pv_object_set(PV_OBJECT_10((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5)),(k6),(v6)))
+#define PV_OBJECT_13(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7) \
+    (pv_object_set(PV_OBJECT_12((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6)),(k7),pv_null()))
+#define PV_OBJECT_14(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7) \
+    (pv_object_set(PV_OBJECT_12((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6)),(k7),(v7)))
+#define PV_OBJECT_15(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8) \
+    (pv_object_set(PV_OBJECT_14((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7)),(k8),pv_null()))
+#define PV_OBJECT_16(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8,v8) \
+    (pv_object_set(PV_OBJECT_14((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7)),(k8),(v8)))
+#define PV_OBJECT_17(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8,v8,k9) \
+    (pv_object_set(PV_OBJECT_16((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7),(k8),(v8)),(k9),pv_null()))
+#define PV_OBJECT_18(k1,v1,k2,v2,k3,v3,k4,v4,k5,v5,k6,v6,k7,v7,k8,v8,k9,v9) \
+    (pv_object_set(PV_OBJECT_16((k1),(v1),(k2),(v2),(k3),(v3),(k4),(v4),(k5),(v5),(k6),(v6),(k7),(v7),(k8),(v8)),(k9),(v9)))
+#define PV_OBJECT_IDX(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,NAME,...) NAME
+#define PV_OBJECT(...) \
+  PV_OBJECT_IDX(__VA_ARGS__, \
+                PV_OBJECT_18, PV_OBJECT_17, PV_OBJECT_16, PV_OBJECT_15, \
+                PV_OBJECT_14, PV_OBJECT_13, PV_OBJECT_12, PV_OBJECT_11, \
+                PV_OBJECT_10, PV_OBJECT_9, PV_OBJECT_8, PV_OBJECT_7,    \
+                PV_OBJECT_6, PV_OBJECT_5, PV_OBJECT_4, PV_OBJECT_3,     \
+                PV_OBJECT_2, PV_OBJECT_1)(__VA_ARGS__)
 
 
 

@@ -54,7 +54,7 @@ typedef struct pv_refcnt {
   int count;
 } pv_refcnt;
 
-static const pv_refcnt JV_REFCNT_INIT = {1};
+static const pv_refcnt PV_REFCNT_INIT = {1};
 
 static void pvp_refcnt_inc(pv_refcnt* c) {
   c->count++;
@@ -75,71 +75,71 @@ static int pvp_refcnt_unshared(pv_refcnt* c) {
 #define PTYPE_MASK  0x70
 
 typedef enum {
-  JVP_PAYLOAD_NONE = 0,
-  JVP_PAYLOAD_ALLOCATED = 0x80,
+  PVP_PAYLOAD_NONE = 0,
+  PVP_PAYLOAD_ALLOCATED = 0x80,
 } payload_flags;
 
-#define JVP_MAKE_PFLAGS(ptype, allocated) ((((ptype) << 4) & PTYPE_MASK) | ((allocated) ? JVP_PAYLOAD_ALLOCATED : 0))
-#define JVP_MAKE_FLAGS(kind, pflags) ((kind & KIND_MASK) | (pflags & PFLAGS_MASK))
+#define PVP_MAKE_PFLAGS(ptype, allocated) ((((ptype) << 4) & PTYPE_MASK) | ((allocated) ? PVP_PAYLOAD_ALLOCATED : 0))
+#define PVP_MAKE_FLAGS(kind, pflags) ((kind & KIND_MASK) | (pflags & PFLAGS_MASK))
 
-#define JVP_FLAGS(j)  ((j).kind_flags)
-#define JVP_KIND(j)   (JVP_FLAGS(j) & KIND_MASK)
+#define PVP_FLAGS(j)  ((j).kind_flags)
+#define PVP_KIND(j)   (PVP_FLAGS(j) & KIND_MASK)
 
-#define JVP_HAS_FLAGS(j, flags) (JVP_FLAGS(j) == flags)
-#define JVP_HAS_KIND(j, kind)   (JVP_KIND(j) == kind)
+#define PVP_HAS_FLAGS(j, flags) (PVP_FLAGS(j) == flags)
+#define PVP_HAS_KIND(j, kind)   (PVP_KIND(j) == kind)
 
-#define JVP_IS_ALLOCATED(j) (j.kind_flags & JVP_PAYLOAD_ALLOCATED)
+#define PVP_IS_ALLOCATED(j) (j.kind_flags & PVP_PAYLOAD_ALLOCATED)
 
-#define JVP_FLAGS_NULL      JVP_MAKE_FLAGS(JV_KIND_NULL, JVP_PAYLOAD_NONE)
-#define JVP_FLAGS_INVALID   JVP_MAKE_FLAGS(JV_KIND_INVALID, JVP_PAYLOAD_NONE)
-#define JVP_FLAGS_FALSE     JVP_MAKE_FLAGS(JV_KIND_FALSE, JVP_PAYLOAD_NONE)
-#define JVP_FLAGS_TRUE      JVP_MAKE_FLAGS(JV_KIND_TRUE, JVP_PAYLOAD_NONE)
+#define PVP_FLAGS_NULL      PVP_MAKE_FLAGS(PV_KIND_NULL, PVP_PAYLOAD_NONE)
+#define PVP_FLAGS_INVALID   PVP_MAKE_FLAGS(PV_KIND_INVALID, PVP_PAYLOAD_NONE)
+#define PVP_FLAGS_FALSE     PVP_MAKE_FLAGS(PV_KIND_FALSE, PVP_PAYLOAD_NONE)
+#define PVP_FLAGS_TRUE      PVP_MAKE_FLAGS(PV_KIND_TRUE, PVP_PAYLOAD_NONE)
 
 pv_kind pv_get_kind(pv x) {
-  return JVP_KIND(x);
+  return PVP_KIND(x);
 }
 
 const char* pv_kind_name(pv_kind k) {
   switch (k) {
-  case JV_KIND_INVALID: return "<invalid>";
-  case JV_KIND_NULL:    return "null";
-  case JV_KIND_FALSE:   return "boolean";
-  case JV_KIND_TRUE:    return "boolean";
-  case JV_KIND_NUMBER:  return "number";
-  case JV_KIND_STRING:  return "string";
-  case JV_KIND_ARRAY:   return "array";
-  case JV_KIND_OBJECT:  return "object";
+  case PV_KIND_INVALID: return "<invalid>";
+  case PV_KIND_NULL:    return "null";
+  case PV_KIND_FALSE:   return "boolean";
+  case PV_KIND_TRUE:    return "boolean";
+  case PV_KIND_NUMBER:  return "number";
+  case PV_KIND_STRING:  return "string";
+  case PV_KIND_ARRAY:   return "array";
+  case PV_KIND_OBJECT:  return "object";
   }
   assert(0 && "invalid kind");
   return "<unknown>";
 }
 
-const pv JV_NULL = {JVP_FLAGS_NULL, 0, 0, 0, {0}};
-const pv JV_INVALID = {JVP_FLAGS_INVALID, 0, 0, 0, {0}};
-const pv JV_FALSE = {JVP_FLAGS_FALSE, 0, 0, 0, {0}};
-const pv JV_TRUE = {JVP_FLAGS_TRUE, 0, 0, 0, {0}};
+const pv PV_NULL = {PVP_FLAGS_NULL, 0, 0, 0, {0}};
+const pv PV_INVALID = {PVP_FLAGS_INVALID, 0, 0, 0, {0}};
+const pv PV_FALSE = {PVP_FLAGS_FALSE, 0, 0, 0, {0}};
+const pv PV_TRUE = {PVP_FLAGS_TRUE, 0, 0, 0, {0}};
 
 pv pv_true() {
-  return JV_TRUE;
+  return PV_TRUE;
 }
 
 pv pv_false() {
-  return JV_FALSE;
+  return PV_FALSE;
 }
 
 pv pv_null() {
-  return JV_NULL;
+  return PV_NULL;
 }
 
 pv pv_bool(int x) {
-  return x ? JV_TRUE : JV_FALSE;
+  return x ? PV_TRUE : PV_FALSE;
 }
 
 /*
  * Invalid objects, with optional error messages
  */
 
-#define JVP_FLAGS_INVALID_MSG   JVP_MAKE_FLAGS(JV_KIND_INVALID, JVP_PAYLOAD_ALLOCATED)
+#define PVP_FLAGS_INVALID_MSG   PVP_MAKE_FLAGS(PV_KIND_INVALID, PVP_PAYLOAD_ALLOCATED)
 
 typedef struct {
   pv_refcnt refcnt;
@@ -148,22 +148,22 @@ typedef struct {
 
 pv pv_invalid_with_msg(pv err) {
   pvp_invalid* i = pv_mem_alloc(sizeof(pvp_invalid));
-  i->refcnt = JV_REFCNT_INIT;
+  i->refcnt = PV_REFCNT_INIT;
   i->errmsg = err;
 
-  pv x = {JVP_FLAGS_INVALID_MSG, 0, 0, 0, {&i->refcnt}};
+  pv x = {PVP_FLAGS_INVALID_MSG, 0, 0, 0, {&i->refcnt}};
   return x;
 }
 
 pv pv_invalid() {
-  return JV_INVALID;
+  return PV_INVALID;
 }
 
 pv pv_invalid_get_msg(pv inv) {
-  assert(JVP_HAS_KIND(inv, JV_KIND_INVALID));
+  assert(PVP_HAS_KIND(inv, PV_KIND_INVALID));
 
   pv x;
-  if (JVP_HAS_FLAGS(inv, JVP_FLAGS_INVALID_MSG)) {
+  if (PVP_HAS_FLAGS(inv, PVP_FLAGS_INVALID_MSG)) {
     x = pv_ref(((pvp_invalid*)inv.u.ptr)->errmsg);
   }
   else {
@@ -175,15 +175,15 @@ pv pv_invalid_get_msg(pv inv) {
 }
 
 int pv_invalid_has_msg(pv inv) {
-  assert(JVP_HAS_KIND(inv, JV_KIND_INVALID));
-  int r = JVP_HAS_FLAGS(inv, JVP_FLAGS_INVALID_MSG);
+  assert(PVP_HAS_KIND(inv, PV_KIND_INVALID));
+  int r = PVP_HAS_FLAGS(inv, PVP_FLAGS_INVALID_MSG);
   pv_unref(inv);
   return r;
 }
 
 static void pvp_invalid_free(pv x) {
-  assert(JVP_HAS_KIND(x, JV_KIND_INVALID));
-  if (JVP_HAS_FLAGS(x, JVP_FLAGS_INVALID_MSG) && pvp_refcnt_dec(x.u.ptr)) {
+  assert(PVP_HAS_KIND(x, PV_KIND_INVALID));
+  if (PVP_HAS_FLAGS(x, PVP_FLAGS_INVALID_MSG) && pvp_refcnt_dec(x.u.ptr)) {
     pv_unref(((pvp_invalid*)x.u.ptr)->errmsg);
     pv_mem_free(x.u.ptr);
   }
@@ -195,23 +195,23 @@ static void pvp_invalid_free(pv x) {
 
 pv pv_number(double x) {
   pv j = {
-    JV_KIND_NUMBER,
+    PV_KIND_NUMBER,
     0, 0, 0, {.number = x}
   };
   return j;
 }
 
 static void pvp_number_free(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_NUMBER));
+  assert(PVP_HAS_KIND(j, PV_KIND_NUMBER));
 }
 
 double pv_number_value(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_NUMBER));
+  assert(PVP_HAS_KIND(j, PV_KIND_NUMBER));
   return j.u.number;
 }
 
 int pv_is_integer(pv j){
-  if (!JVP_HAS_KIND(j, JV_KIND_NUMBER)){
+  if (!PVP_HAS_KIND(j, PV_KIND_NUMBER)){
     return 0;
   }
 
@@ -224,13 +224,13 @@ int pv_is_integer(pv j){
 }
 
 int pvp_number_is_nan(pv n) {
-  assert(JVP_HAS_KIND(n, JV_KIND_NUMBER));
+  assert(PVP_HAS_KIND(n, PV_KIND_NUMBER));
   return n.u.number != n.u.number;
 }
 
 int pvp_number_cmp(pv a, pv b) {
-  assert(JVP_HAS_KIND(a, JV_KIND_NUMBER));
-  assert(JVP_HAS_KIND(b, JV_KIND_NUMBER));
+  assert(PVP_HAS_KIND(a, PV_KIND_NUMBER));
+  assert(PVP_HAS_KIND(b, PV_KIND_NUMBER));
 
   double da = pv_number_value(a), db = pv_number_value(b);
   if (da < db) {
@@ -251,7 +251,7 @@ static int pvp_number_equal(pv a, pv b) {
  */
 
 #define ARRAY_SIZE_ROUND_UP(n) (((n)*3)/2)
-#define JVP_FLAGS_ARRAY   JVP_MAKE_FLAGS(JV_KIND_ARRAY, JVP_PAYLOAD_ALLOCATED)
+#define PVP_FLAGS_ARRAY   PVP_MAKE_FLAGS(PV_KIND_ARRAY, PVP_PAYLOAD_ALLOCATED)
 
 static int imax(int a, int b) {
   if (a>b) return a;
@@ -266,7 +266,7 @@ typedef struct {
 } pvp_array;
 
 static pvp_array* pvp_array_ptr(pv a) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   return (pvp_array*)a.u.ptr;
 }
 
@@ -279,12 +279,12 @@ static pvp_array* pvp_array_alloc(unsigned size) {
 }
 
 static pv pvp_array_new(unsigned size) {
-  pv r = {JVP_FLAGS_ARRAY, 0, 0, 0, {&pvp_array_alloc(size)->refcnt}};
+  pv r = {PVP_FLAGS_ARRAY, 0, 0, 0, {&pvp_array_alloc(size)->refcnt}};
   return r;
 }
 
 static void pvp_array_free(pv a) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   if (pvp_refcnt_dec(a.u.ptr)) {
     pvp_array* array = pvp_array_ptr(a);
     for (int i=0; i<array->length; i++) {
@@ -295,17 +295,17 @@ static void pvp_array_free(pv a) {
 }
 
 static int pvp_array_length(pv a) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   return a.size;
 }
 
 static int pvp_array_offset(pv a) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   return a.offset;
 }
 
 static pv* pvp_array_read(pv a, int i) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   if (i >= 0 && i < pvp_array_length(a)) {
     pvp_array* array = pvp_array_ptr(a);
     assert(i + pvp_array_offset(a) < array->length);
@@ -323,7 +323,7 @@ static pv* pvp_array_write(pv* a, int i) {
   if (pos < array->alloc_length && pvp_refcnt_unshared(a->u.ptr)) {
     // use existing array space
     for (int j = array->length; j <= pos; j++) {
-      array->elements[j] = JV_NULL;
+      array->elements[j] = PV_NULL;
     }
     array->length = imax(pos + 1, array->length);
     a->size = imax(i + 1, a->size);
@@ -338,11 +338,11 @@ static pv* pvp_array_write(pv* a, int i) {
         pv_ref(array->elements[j + pvp_array_offset(*a)]);
     }
     for (; j < new_length; j++) {
-      new_array->elements[j] = JV_NULL;
+      new_array->elements[j] = PV_NULL;
     }
     new_array->length = new_length;
     pvp_array_free(*a);
-    pv new_pv = {JVP_FLAGS_ARRAY, 0, 0, new_length, {&new_array->refcnt}};
+    pv new_pv = {PVP_FLAGS_ARRAY, 0, 0, new_length, {&new_array->refcnt}};
     *a = new_pv;
     return &new_array->elements[i];
   }
@@ -399,7 +399,7 @@ static int pvp_array_contains(pv a, pv b) {
  */
 
 static pv pvp_array_slice(pv a, int start, int end) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   int len = pvp_array_length(a);
   pvp_clamp_slice_params(len, &start, &end);
   assert(0 <= start && start <= end && end <= len);
@@ -436,14 +436,14 @@ pv pv_array() {
 }
 
 int pv_array_length(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(j, PV_KIND_ARRAY));
   int len = pvp_array_length(j);
   pv_unref(j);
   return len;
 }
 
 pv pv_array_get(pv j, int idx) {
-  assert(JVP_HAS_KIND(j, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(j, PV_KIND_ARRAY));
   pv* slot = pvp_array_read(j, idx);
   pv val;
   if (slot) {
@@ -456,7 +456,7 @@ pv pv_array_get(pv j, int idx) {
 }
 
 pv pv_array_set(pv j, int idx, pv val) {
-  assert(JVP_HAS_KIND(j, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(j, PV_KIND_ARRAY));
 
   if (idx < 0)
     idx = pvp_array_length(j) + idx;
@@ -478,8 +478,8 @@ pv pv_array_append(pv j, pv val) {
 }
 
 pv pv_array_concat(pv a, pv b) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
-  assert(JVP_HAS_KIND(b, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(b, PV_KIND_ARRAY));
 
   // FIXME: could be faster
   pv_array_foreach(b, i, elem) {
@@ -490,7 +490,7 @@ pv pv_array_concat(pv a, pv b) {
 }
 
 pv pv_array_slice(pv a, int start, int end) {
-  assert(JVP_HAS_KIND(a, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   // copy/free of a coalesced
   return pvp_array_slice(a, start, end);
 }
@@ -520,7 +520,7 @@ pv pv_array_indexes(pv a, pv b) {
  * Strings (internal helpers)
  */
 
-#define JVP_FLAGS_STRING  JVP_MAKE_FLAGS(JV_KIND_STRING, JVP_PAYLOAD_ALLOCATED)
+#define PVP_FLAGS_STRING  PVP_MAKE_FLAGS(PV_KIND_STRING, PVP_PAYLOAD_ALLOCATED)
 
 typedef struct {
   pv_refcnt refcnt;
@@ -533,7 +533,7 @@ typedef struct {
 } pvp_string;
 
 static pvp_string* pvp_string_ptr(pv a) {
-  assert(JVP_HAS_KIND(a, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(a, PV_KIND_STRING));
   return (pvp_string*)a.u.ptr;
 }
 
@@ -564,7 +564,7 @@ static pv pvp_string_copy_replace_bad(const char* data, uint32_t length) {
   length = out - s->data;
   s->data[length] = 0;
   s->length_hashed = length << 1;
-  pv r = {JVP_FLAGS_STRING, 0, 0, 0, {&s->refcnt}};
+  pv r = {PVP_FLAGS_STRING, 0, 0, 0, {&s->refcnt}};
   return r;
 }
 
@@ -575,7 +575,7 @@ static pv pvp_string_new(const char* data, uint32_t length) {
   if (data != NULL)
     memcpy(s->data, data, length);
   s->data[length] = 0;
-  pv r = {JVP_FLAGS_STRING, 0, 0, 0, {&s->refcnt}};
+  pv r = {PVP_FLAGS_STRING, 0, 0, 0, {&s->refcnt}};
   return r;
 }
 
@@ -583,7 +583,7 @@ static pv pvp_string_empty_new(uint32_t length) {
   pvp_string* s = pvp_string_alloc(length);
   s->length_hashed = 0;
   memset(s->data, 0, length);
-  pv r = {JVP_FLAGS_STRING, 0, 0, 0, {&s->refcnt}};
+  pv r = {PVP_FLAGS_STRING, 0, 0, 0, {&s->refcnt}};
   return r;
 }
 
@@ -626,7 +626,7 @@ static pv pvp_string_append(pv string, const char* data, uint32_t len) {
     memcpy(news->data + currlen, data, len);
     news->data[currlen + len] = 0;
     pvp_string_free(string);
-    pv r = {JVP_FLAGS_STRING, 0, 0, 0, {&news->refcnt}};
+    pv r = {PVP_FLAGS_STRING, 0, 0, 0, {&news->refcnt}};
     return r;
   }
 }
@@ -697,8 +697,8 @@ static uint32_t pvp_string_hash(pv jstr) {
 
 
 static int pvp_string_equal(pv a, pv b) {
-  assert(JVP_HAS_KIND(a, JV_KIND_STRING));
-  assert(JVP_HAS_KIND(b, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(a, PV_KIND_STRING));
+  assert(PVP_HAS_KIND(b, PV_KIND_STRING));
   pvp_string* stra = pvp_string_ptr(a);
   pvp_string* strb = pvp_string_ptr(b);
   if (pvp_string_length(stra) != pvp_string_length(strb)) return 0;
@@ -725,14 +725,14 @@ pv pv_string(const char* str) {
 }
 
 int pv_string_length_bytes(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
   int r = pvp_string_length(pvp_string_ptr(j));
   pv_unref(j);
   return r;
 }
 
 int pv_string_length_codepoints(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
   const char* i = pv_string_value(j);
   const char* end = i + pv_string_length_bytes(pv_ref(j));
   int c = 0, len = 0;
@@ -743,8 +743,8 @@ int pv_string_length_codepoints(pv j) {
 
 
 pv pv_string_indexes(pv j, pv k) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
-  assert(JVP_HAS_KIND(k, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
+  assert(PVP_HAS_KIND(k, PV_KIND_STRING));
   const char *jstr = pv_string_value(j);
   const char *idxstr = pv_string_value(k);
   const char *p;
@@ -765,8 +765,8 @@ pv pv_string_indexes(pv j, pv k) {
 }
 
 pv pv_string_split(pv j, pv sep) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
-  assert(JVP_HAS_KIND(sep, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
+  assert(PVP_HAS_KIND(sep, PV_KIND_STRING));
   const char *jstr = pv_string_value(j);
   const char *jend = jstr + pv_string_length_bytes(pv_ref(j));
   const char *sepstr = pv_string_value(sep);
@@ -797,7 +797,7 @@ pv pv_string_split(pv j, pv sep) {
 }
 
 pv pv_string_explode(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
   const char* i = pv_string_value(j);
   int len = pv_string_length_bytes(pv_ref(j));
   const char* end = i + len;
@@ -810,7 +810,7 @@ pv pv_string_explode(pv j) {
 }
 
 pv pv_string_implode(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_ARRAY));
+  assert(PVP_HAS_KIND(j, PV_KIND_ARRAY));
   int len = pv_array_length(pv_ref(j));
   pv s = pv_string_empty(len);
   int i;
@@ -819,7 +819,7 @@ pv pv_string_implode(pv j) {
 
   for (i = 0; i < len; i++) {
     pv n = pv_array_get(pv_ref(j), i);
-    assert(JVP_HAS_KIND(n, JV_KIND_NUMBER));
+    assert(PVP_HAS_KIND(n, PV_KIND_NUMBER));
     int nv = pv_number_value(n);
     pv_unref(n);
     // outside codepoint range or in utf16 surrogate pair range
@@ -833,19 +833,19 @@ pv pv_string_implode(pv j) {
 }
 
 unsigned long pv_string_hash(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
   uint32_t hash = pvp_string_hash(j);
   pv_unref(j);
   return hash;
 }
 
 const char* pv_string_value(pv j) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
   return pvp_string_ptr(j)->data;
 }
 
 pv pv_string_slice(pv j, int start, int end) {
-  assert(JVP_HAS_KIND(j, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(j, PV_KIND_STRING));
   const char *s = pv_string_value(j);
   int len = pv_string_length_bytes(pv_ref(j));
   int i;
@@ -956,7 +956,7 @@ pv pv_string_fmt(const char* fmt, ...) {
  * Objects (internal helpers)
  */
 
-#define JVP_FLAGS_OBJECT  JVP_MAKE_FLAGS(JV_KIND_OBJECT, JVP_PAYLOAD_ALLOCATED)
+#define PVP_FLAGS_OBJECT  PVP_MAKE_FLAGS(PV_KIND_OBJECT, PVP_PAYLOAD_ALLOCATED)
 
 struct object_slot {
   int next; /* next slot with same hash, for collisions */
@@ -985,31 +985,31 @@ static pv pvp_object_new(int size) {
   obj->refcnt.count = 1;
   for (int i=0; i<size; i++) {
     obj->elements[i].next = i - 1;
-    obj->elements[i].string = JV_NULL;
+    obj->elements[i].string = PV_NULL;
     obj->elements[i].hash = 0;
-    obj->elements[i].value = JV_NULL;
+    obj->elements[i].value = PV_NULL;
   }
   obj->next_free = 0;
   int* hashbuckets = (int*)(&obj->elements[size]);
   for (int i=0; i<size*2; i++) {
     hashbuckets[i] = -1;
   }
-  pv r = {JVP_FLAGS_OBJECT, 0, 0, size, {&obj->refcnt}};
+  pv r = {PVP_FLAGS_OBJECT, 0, 0, size, {&obj->refcnt}};
   return r;
 }
 
 static pvp_object* pvp_object_ptr(pv o) {
-  assert(JVP_HAS_KIND(o, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(o, PV_KIND_OBJECT));
   return (pvp_object*)o.u.ptr;
 }
 
 static uint32_t pvp_object_mask(pv o) {
-  assert(JVP_HAS_KIND(o, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(o, PV_KIND_OBJECT));
   return (o.size * 2) - 1;
 }
 
 static int pvp_object_size(pv o) {
-  assert(JVP_HAS_KIND(o, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(o, PV_KIND_OBJECT));
   return o.size;
 }
 
@@ -1057,7 +1057,7 @@ static struct object_slot* pvp_object_add_slot(pv object, pv key, int* bucket) {
 }
 
 static pv* pvp_object_read(pv object, pv key) {
-  assert(JVP_HAS_KIND(key, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(key, PV_KIND_STRING));
   int* bucket = pvp_object_find_bucket(object, key);
   struct object_slot* slot = pvp_object_find_slot(object, key, bucket);
   if (slot == 0) return 0;
@@ -1065,11 +1065,11 @@ static pv* pvp_object_read(pv object, pv key) {
 }
 
 static void pvp_object_free(pv o) {
-  assert(JVP_HAS_KIND(o, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(o, PV_KIND_OBJECT));
   if (pvp_refcnt_dec(o.u.ptr)) {
     for (int i=0; i<pvp_object_size(o); i++) {
       struct object_slot* slot = pvp_object_get_slot(o, i);
-      if (pv_get_kind(slot->string) != JV_KIND_NULL) {
+      if (pv_get_kind(slot->string) != PV_KIND_NULL) {
         pvp_string_free(slot->string);
         pv_unref(slot->value);
       }
@@ -1079,13 +1079,13 @@ static void pvp_object_free(pv o) {
 }
 
 static pv pvp_object_rehash(pv object) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
   assert(pvp_refcnt_unshared(object.u.ptr));
   int size = pvp_object_size(object);
   pv new_object = pvp_object_new(size * 2);
   for (int i=0; i<size; i++) {
     struct object_slot* slot = pvp_object_get_slot(object, i);
-    if (pv_get_kind(slot->string) == JV_KIND_NULL) continue;
+    if (pv_get_kind(slot->string) == PV_KIND_NULL) continue;
     int* new_bucket = pvp_object_find_bucket(new_object, slot->string);
     assert(!pvp_object_find_slot(new_object, slot->string, new_bucket));
     struct object_slot* new_slot = pvp_object_add_slot(new_object, slot->string, new_bucket);
@@ -1098,7 +1098,7 @@ static pv pvp_object_rehash(pv object) {
 }
 
 static pv pvp_object_unshare(pv object) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
   if (pvp_refcnt_unshared(object.u.ptr))
     return object;
 
@@ -1108,7 +1108,7 @@ static pv pvp_object_unshare(pv object) {
     struct object_slot* old_slot = pvp_object_get_slot(object, i);
     struct object_slot* new_slot = pvp_object_get_slot(new_object, i);
     *new_slot = *old_slot;
-    if (pv_get_kind(old_slot->string) != JV_KIND_NULL) {
+    if (pv_get_kind(old_slot->string) != PV_KIND_NULL) {
       new_slot->string = pv_ref(old_slot->string);
       new_slot->value = pv_ref(old_slot->value);
     }
@@ -1147,7 +1147,7 @@ static pv* pvp_object_write(pv* object, pv key) {
 }
 
 static int pvp_object_delete(pv* object, pv key) {
-  assert(JVP_HAS_KIND(key, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(key, PV_KIND_STRING));
   *object = pvp_object_unshare(*object);
   int* bucket = pvp_object_find_bucket(*object, key);
   int* prev_ptr = bucket;
@@ -1158,7 +1158,7 @@ static int pvp_object_delete(pv* object, pv key) {
     if (hash == curr->hash && pvp_string_equal(key, curr->string)) {
       *prev_ptr = curr->next;
       pvp_string_free(curr->string);
-      curr->string = JV_NULL;
+      curr->string = PV_NULL;
       pv_unref(curr->value);
       return 1;
     }
@@ -1171,7 +1171,7 @@ static int pvp_object_length(pv object) {
   int n = 0;
   for (int i=0; i<pvp_object_size(object); i++) {
     struct object_slot* slot = pvp_object_get_slot(object, i);
-    if (pv_get_kind(slot->string) != JV_KIND_NULL) n++;
+    if (pv_get_kind(slot->string) != PV_KIND_NULL) n++;
   }
   return n;
 }
@@ -1181,7 +1181,7 @@ static int pvp_object_equal(pv o1, pv o2) {
   int len1 = 0;
   for (int i=0; i<pvp_object_size(o1); i++) {
     struct object_slot* slot = pvp_object_get_slot(o1, i);
-    if (pv_get_kind(slot->string) == JV_KIND_NULL) continue;
+    if (pv_get_kind(slot->string) == PV_KIND_NULL) continue;
     pv* slot2 = pvp_object_read(o2, slot->string);
     if (!slot2) return 0;
     // FIXME: do less refcounting here
@@ -1192,8 +1192,8 @@ static int pvp_object_equal(pv o1, pv o2) {
 }
 
 static int pvp_object_contains(pv a, pv b) {
-  assert(JVP_HAS_KIND(a, JV_KIND_OBJECT));
-  assert(JVP_HAS_KIND(b, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(a, PV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(b, PV_KIND_OBJECT));
   int r = 1;
 
   pv_object_foreach(b, key, b_val) {
@@ -1215,8 +1215,8 @@ pv pv_object() {
 }
 
 pv pv_object_get(pv object, pv key) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
-  assert(JVP_HAS_KIND(key, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(key, PV_KIND_STRING));
   pv* slot = pvp_object_read(object, key);
   pv val;
   if (slot) {
@@ -1230,8 +1230,8 @@ pv pv_object_get(pv object, pv key) {
 }
 
 int pv_object_has(pv object, pv key) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
-  assert(JVP_HAS_KIND(key, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(key, PV_KIND_STRING));
   pv* slot = pvp_object_read(object, key);
   int res = slot ? 1 : 0;
   pv_unref(object);
@@ -1240,8 +1240,8 @@ int pv_object_has(pv object, pv key) {
 }
 
 pv pv_object_set(pv object, pv key, pv value) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
-  assert(JVP_HAS_KIND(key, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(key, PV_KIND_STRING));
   // copy/free of object, key, value coalesced
   pv* slot = pvp_object_write(&object, key);
   pv_unref(*slot);
@@ -1250,22 +1250,22 @@ pv pv_object_set(pv object, pv key, pv value) {
 }
 
 pv pv_object_delete(pv object, pv key) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
-  assert(JVP_HAS_KIND(key, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(key, PV_KIND_STRING));
   pvp_object_delete(&object, key);
   pv_unref(key);
   return object;
 }
 
 int pv_object_length(pv object) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
   int n = pvp_object_length(object);
   pv_unref(object);
   return n;
 }
 
 pv pv_object_merge(pv a, pv b) {
-  assert(JVP_HAS_KIND(a, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(a, PV_KIND_OBJECT));
   pv_object_foreach(b, k, v) {
     a = pv_object_set(a, k, v);
   }
@@ -1274,14 +1274,14 @@ pv pv_object_merge(pv a, pv b) {
 }
 
 pv pv_object_merge_recursive(pv a, pv b) {
-  assert(JVP_HAS_KIND(a, JV_KIND_OBJECT));
-  assert(JVP_HAS_KIND(b, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(a, PV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(b, PV_KIND_OBJECT));
 
   pv_object_foreach(b, k, v) {
     pv elem = pv_object_get(pv_ref(a), pv_ref(k));
     if (pv_is_valid(elem) &&
-        JVP_HAS_KIND(elem, JV_KIND_OBJECT) &&
-        JVP_HAS_KIND(v, JV_KIND_OBJECT)) {
+        PVP_HAS_KIND(elem, PV_KIND_OBJECT) &&
+        PVP_HAS_KIND(v, PV_KIND_OBJECT)) {
       a = pv_object_set(a, k, pv_object_merge_recursive(elem, v));
     } else {
       pv_unref(elem);
@@ -1303,12 +1303,12 @@ int pv_object_iter_valid(pv object, int i) {
 }
 
 int pv_object_iter(pv object) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
   return pv_object_iter_next(object, -1);
 }
 
 int pv_object_iter_next(pv object, int iter) {
-  assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
+  assert(PVP_HAS_KIND(object, PV_KIND_OBJECT));
   assert(iter != ITER_FINISHED);
   struct object_slot* slot;
   do {
@@ -1316,15 +1316,15 @@ int pv_object_iter_next(pv object, int iter) {
     if (iter >= pvp_object_size(object))
       return ITER_FINISHED;
     slot = pvp_object_get_slot(object, iter);
-  } while (pv_get_kind(slot->string) == JV_KIND_NULL);
+  } while (pv_get_kind(slot->string) == PV_KIND_NULL);
   assert(pv_get_kind(pvp_object_get_slot(object,iter)->string)
-         == JV_KIND_STRING);
+         == PV_KIND_STRING);
   return iter;
 }
 
 pv pv_object_iter_key(pv object, int iter) {
   pv s = pvp_object_get_slot(object, iter)->string;
-  assert(JVP_HAS_KIND(s, JV_KIND_STRING));
+  assert(PVP_HAS_KIND(s, PV_KIND_STRING));
   return pv_ref(s);
 }
 
@@ -1336,34 +1336,34 @@ pv pv_object_iter_value(pv object, int iter) {
  * Memory management
  */
 pv pv_ref(pv j) {
-  if (JVP_IS_ALLOCATED(j)) {
+  if (PVP_IS_ALLOCATED(j)) {
     pvp_refcnt_inc(j.u.ptr);
   }
   return j;
 }
 
 void pv_unref(pv j) {
-  switch(JVP_KIND(j)) {
-    case JV_KIND_ARRAY:
+  switch(PVP_KIND(j)) {
+    case PV_KIND_ARRAY:
       pvp_array_free(j);
       break;
-    case JV_KIND_STRING:
+    case PV_KIND_STRING:
       pvp_string_free(j);
       break;
-    case JV_KIND_OBJECT:
+    case PV_KIND_OBJECT:
       pvp_object_free(j);
       break;
-    case JV_KIND_INVALID:
+    case PV_KIND_INVALID:
       pvp_invalid_free(j);
       break;
-    case JV_KIND_NUMBER:
+    case PV_KIND_NUMBER:
       pvp_number_free(j);
       break;
   }
 }
 
 int pv_get_refcnt(pv j) {
-  if (JVP_IS_ALLOCATED(j)) {
+  if (PVP_IS_ALLOCATED(j)) {
     return j.u.ptr->count;
   } else {
     return 1;
@@ -1378,24 +1378,24 @@ int pv_equal(pv a, pv b) {
   int r;
   if (pv_get_kind(a) != pv_get_kind(b)) {
     r = 0;
-  } else if (JVP_IS_ALLOCATED(a) &&
-             JVP_IS_ALLOCATED(b) &&
+  } else if (PVP_IS_ALLOCATED(a) &&
+             PVP_IS_ALLOCATED(b) &&
              a.kind_flags == b.kind_flags &&
              a.size == b.size &&
              a.u.ptr == b.u.ptr) {
     r = 1;
   } else {
     switch (pv_get_kind(a)) {
-    case JV_KIND_NUMBER:
+    case PV_KIND_NUMBER:
       r = pvp_number_equal(a, b);
       break;
-    case JV_KIND_ARRAY:
+    case PV_KIND_ARRAY:
       r = pvp_array_equal(a, b);
       break;
-    case JV_KIND_STRING:
+    case PV_KIND_STRING:
       r = pvp_string_equal(a, b);
       break;
-    case JV_KIND_OBJECT:
+    case PV_KIND_OBJECT:
       r = pvp_object_equal(a, b);
       break;
     default:
@@ -1415,7 +1415,7 @@ int pv_identical(pv a, pv b) {
       || a.size != b.size) {
     r = 0;
   } else {
-    if (JVP_IS_ALLOCATED(a) /* b has the same flags */) {
+    if (PVP_IS_ALLOCATED(a) /* b has the same flags */) {
       r = a.u.ptr == b.u.ptr;
     } else {
       r = memcmp(&a.u.ptr, &b.u.ptr, sizeof(a.u)) == 0;
@@ -1430,11 +1430,11 @@ int pv_contains(pv a, pv b) {
   int r = 1;
   if (pv_get_kind(a) != pv_get_kind(b)) {
     r = 0;
-  } else if (JVP_HAS_KIND(a, JV_KIND_OBJECT)) {
+  } else if (PVP_HAS_KIND(a, PV_KIND_OBJECT)) {
     r = pvp_object_contains(a, b);
-  } else if (JVP_HAS_KIND(a, JV_KIND_ARRAY)) {
+  } else if (PVP_HAS_KIND(a, PV_KIND_ARRAY)) {
     r = pvp_array_contains(a, b);
-  } else if (JVP_HAS_KIND(a, JV_KIND_STRING)) {
+  } else if (PVP_HAS_KIND(a, PV_KIND_STRING)) {
     int b_len = pv_string_length_bytes(pv_ref(b));
     if (b_len != 0) {
       r = _jq_memmem(pv_string_value(a), pv_string_length_bytes(pv_ref(a)),
