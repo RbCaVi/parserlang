@@ -164,27 +164,27 @@ pv pv_invalid_get_msg(pv inv) {
 
   pv x;
   if (JVP_HAS_FLAGS(inv, JVP_FLAGS_INVALID_MSG)) {
-    x = pv_copy(((pvp_invalid*)inv.u.ptr)->errmsg);
+    x = pv_ref(((pvp_invalid*)inv.u.ptr)->errmsg);
   }
   else {
     x = pv_null();
   }
 
-  pv_free(inv);
+  pv_unref(inv);
   return x;
 }
 
 int pv_invalid_has_msg(pv inv) {
   assert(JVP_HAS_KIND(inv, JV_KIND_INVALID));
   int r = JVP_HAS_FLAGS(inv, JVP_FLAGS_INVALID_MSG);
-  pv_free(inv);
+  pv_unref(inv);
   return r;
 }
 
 static void pvp_invalid_free(pv x) {
   assert(JVP_HAS_KIND(x, JV_KIND_INVALID));
   if (JVP_HAS_FLAGS(x, JVP_FLAGS_INVALID_MSG) && pvp_refcnt_dec(x.u.ptr)) {
-    pv_free(((pvp_invalid*)x.u.ptr)->errmsg);
+    pv_unref(((pvp_invalid*)x.u.ptr)->errmsg);
     pv_mem_free(x.u.ptr);
   }
 }
@@ -288,7 +288,7 @@ static void pvp_array_free(pv a) {
   if (pvp_refcnt_dec(a.u.ptr)) {
     pvp_array* array = pvp_array_ptr(a);
     for (int i=0; i<array->length; i++) {
-      pv_free(array->elements[i]);
+      pv_unref(array->elements[i]);
     }
     pv_mem_free(array);
   }
@@ -335,7 +335,7 @@ static pv* pvp_array_write(pv* a, int i) {
     int j;
     for (j = 0; j < pvp_array_length(*a); j++) {
       new_array->elements[j] =
-        pv_copy(array->elements[j + pvp_array_offset(*a)]);
+        pv_ref(array->elements[j + pvp_array_offset(*a)]);
     }
     for (; j < new_length; j++) {
       new_array->elements[j] = JV_NULL;
@@ -355,8 +355,8 @@ static int pvp_array_equal(pv a, pv b) {
       pvp_array_offset(a) == pvp_array_offset(b))
     return 1;
   for (int i=0; i<pvp_array_length(a); i++) {
-    if (!pv_equal(pv_copy(*pvp_array_read(a, i)),
-                  pv_copy(*pvp_array_read(b, i))))
+    if (!pv_equal(pv_ref(*pvp_array_read(a, i)),
+                  pv_ref(*pvp_array_read(b, i))))
       return 0;
   }
   return 1;
@@ -379,12 +379,12 @@ static int pvp_array_contains(pv a, pv b) {
   pv_array_foreach(b, bi, belem) {
     int ri = 0;
     pv_array_foreach(a, ai, aelem) {
-      if (pv_contains(aelem, pv_copy(belem))) {
+      if (pv_contains(aelem, pv_ref(belem))) {
         ri = 1;
         break;
       }
     }
-    pv_free(belem);
+    pv_unref(belem);
     if (!ri) {
       r = 0;
       break;
@@ -406,15 +406,15 @@ static pv pvp_array_slice(pv a, int start, int end) {
 
   // FIXME: maybe slice should reallocate if the slice is small enough
   if (start == end) {
-    pv_free(a);
+    pv_unref(a);
     return pv_array();
   }
 
   if (a.offset + start >= 1 << (sizeof(a.offset) * CHAR_BIT)) {
     pv r = pv_array_sized(end - start);
     for (int i = start; i < end; i++)
-      r = pv_array_append(r, pv_array_get(pv_copy(a), i));
-    pv_free(a);
+      r = pv_array_append(r, pv_array_get(pv_ref(a), i));
+    pv_unref(a);
     return r;
   } else {
     a.offset += start;
@@ -438,7 +438,7 @@ pv pv_array() {
 int pv_array_length(pv j) {
   assert(JVP_HAS_KIND(j, JV_KIND_ARRAY));
   int len = pvp_array_length(j);
-  pv_free(j);
+  pv_unref(j);
   return len;
 }
 
@@ -447,11 +447,11 @@ pv pv_array_get(pv j, int idx) {
   pv* slot = pvp_array_read(j, idx);
   pv val;
   if (slot) {
-    val = pv_copy(*slot);
+    val = pv_ref(*slot);
   } else {
     val = pv_invalid();
   }
-  pv_free(j);
+  pv_unref(j);
   return val;
 }
 
@@ -461,20 +461,20 @@ pv pv_array_set(pv j, int idx, pv val) {
   if (idx < 0)
     idx = pvp_array_length(j) + idx;
   if (idx < 0) {
-    pv_free(j);
-    pv_free(val);
+    pv_unref(j);
+    pv_unref(val);
     return pv_invalid_with_msg(pv_string("Out of bounds negative array index"));
   }
   // copy/free of val,j coalesced
   pv* slot = pvp_array_write(&j, idx);
-  pv_free(*slot);
+  pv_unref(*slot);
   *slot = val;
   return j;
 }
 
 pv pv_array_append(pv j, pv val) {
   // copy/free of val,j coalesced
-  return pv_array_set(j, pv_array_length(pv_copy(j)), val);
+  return pv_array_set(j, pv_array_length(pv_ref(j)), val);
 }
 
 pv pv_array_concat(pv a, pv b) {
@@ -485,7 +485,7 @@ pv pv_array_concat(pv a, pv b) {
   pv_array_foreach(b, i, elem) {
     a = pv_array_append(a, elem);
   }
-  pv_free(b);
+  pv_unref(b);
   return a;
 }
 
@@ -499,20 +499,20 @@ pv pv_array_indexes(pv a, pv b) {
   pv res = pv_array();
   int idx = -1;
   pv_array_foreach(a, ai, aelem) {
-    pv_free(aelem);
+    pv_unref(aelem);
     pv_array_foreach(b, bi, belem) {
-      if (!pv_equal(pv_array_get(pv_copy(a), ai + bi), pv_copy(belem)))
+      if (!pv_equal(pv_array_get(pv_ref(a), ai + bi), pv_ref(belem)))
         idx = -1;
       else if (bi == 0 && idx == -1)
         idx = ai;
-      pv_free(belem);
+      pv_unref(belem);
     }
     if (idx > -1)
       res = pv_array_append(res, pv_number(idx));
     idx = -1;
   }
-  pv_free(a);
-  pv_free(b);
+  pv_unref(a);
+  pv_unref(b);
   return res;
 }
 
@@ -727,17 +727,17 @@ pv pv_string(const char* str) {
 int pv_string_length_bytes(pv j) {
   assert(JVP_HAS_KIND(j, JV_KIND_STRING));
   int r = pvp_string_length(pvp_string_ptr(j));
-  pv_free(j);
+  pv_unref(j);
   return r;
 }
 
 int pv_string_length_codepoints(pv j) {
   assert(JVP_HAS_KIND(j, JV_KIND_STRING));
   const char* i = pv_string_value(j);
-  const char* end = i + pv_string_length_bytes(pv_copy(j));
+  const char* end = i + pv_string_length_bytes(pv_ref(j));
   int c = 0, len = 0;
   while ((i = pvp_utf8_next(i, end, &c))) len++;
-  pv_free(j);
+  pv_unref(j);
   return len;
 }
 
@@ -748,8 +748,8 @@ pv pv_string_indexes(pv j, pv k) {
   const char *jstr = pv_string_value(j);
   const char *idxstr = pv_string_value(k);
   const char *p;
-  int jlen = pv_string_length_bytes(pv_copy(j));
-  int idxlen = pv_string_length_bytes(pv_copy(k));
+  int jlen = pv_string_length_bytes(pv_ref(j));
+  int idxlen = pv_string_length_bytes(pv_ref(k));
   pv a = pv_array();
 
   if (idxlen != 0) {
@@ -759,8 +759,8 @@ pv pv_string_indexes(pv j, pv k) {
       p++;
     }
   }
-  pv_free(j);
-  pv_free(k);
+  pv_unref(j);
+  pv_unref(k);
   return a;
 }
 
@@ -768,10 +768,10 @@ pv pv_string_split(pv j, pv sep) {
   assert(JVP_HAS_KIND(j, JV_KIND_STRING));
   assert(JVP_HAS_KIND(sep, JV_KIND_STRING));
   const char *jstr = pv_string_value(j);
-  const char *jend = jstr + pv_string_length_bytes(pv_copy(j));
+  const char *jend = jstr + pv_string_length_bytes(pv_ref(j));
   const char *sepstr = pv_string_value(sep);
   const char *p, *s;
-  int seplen = pv_string_length_bytes(pv_copy(sep));
+  int seplen = pv_string_length_bytes(pv_ref(sep));
   pv a = pv_array();
 
   assert(pv_get_refcnt(a) == 1);
@@ -791,51 +791,51 @@ pv pv_string_split(pv j, pv sep) {
         a = pv_array_append(a, pv_string(""));
     }
   }
-  pv_free(j);
-  pv_free(sep);
+  pv_unref(j);
+  pv_unref(sep);
   return a;
 }
 
 pv pv_string_explode(pv j) {
   assert(JVP_HAS_KIND(j, JV_KIND_STRING));
   const char* i = pv_string_value(j);
-  int len = pv_string_length_bytes(pv_copy(j));
+  int len = pv_string_length_bytes(pv_ref(j));
   const char* end = i + len;
   pv a = pv_array_sized(len);
   int c;
   while ((i = pvp_utf8_next(i, end, &c)))
     a = pv_array_append(a, pv_number(c));
-  pv_free(j);
+  pv_unref(j);
   return a;
 }
 
 pv pv_string_implode(pv j) {
   assert(JVP_HAS_KIND(j, JV_KIND_ARRAY));
-  int len = pv_array_length(pv_copy(j));
+  int len = pv_array_length(pv_ref(j));
   pv s = pv_string_empty(len);
   int i;
 
   assert(len >= 0);
 
   for (i = 0; i < len; i++) {
-    pv n = pv_array_get(pv_copy(j), i);
+    pv n = pv_array_get(pv_ref(j), i);
     assert(JVP_HAS_KIND(n, JV_KIND_NUMBER));
     int nv = pv_number_value(n);
-    pv_free(n);
+    pv_unref(n);
     // outside codepoint range or in utf16 surrogate pair range
     if (nv < 0 || nv > 0x10FFFF || (nv >= 0xD800 && nv <= 0xDFFF))
       nv = 0xFFFD; // U+FFFD REPLACEMENT CHARACTER
     s = pv_string_append_codepoint(s, nv);
   }
 
-  pv_free(j);
+  pv_unref(j);
   return s;
 }
 
 unsigned long pv_string_hash(pv j) {
   assert(JVP_HAS_KIND(j, JV_KIND_STRING));
   uint32_t hash = pvp_string_hash(j);
-  pv_free(j);
+  pv_unref(j);
   return hash;
 }
 
@@ -847,7 +847,7 @@ const char* pv_string_value(pv j) {
 pv pv_string_slice(pv j, int start, int end) {
   assert(JVP_HAS_KIND(j, JV_KIND_STRING));
   const char *s = pv_string_value(j);
-  int len = pv_string_length_bytes(pv_copy(j));
+  int len = pv_string_length_bytes(pv_ref(j));
   int i;
   const char *p, *e;
   int c;
@@ -860,11 +860,11 @@ pv pv_string_slice(pv j, int start, int end) {
   for (p = s, i = 0; i < start; i++) {
     p = pvp_utf8_next(p, s + len, &c);
     if (p == NULL) {
-      pv_free(j);
+      pv_unref(j);
       return pv_string_empty(16);
     }
     if (c == -1) {
-      pv_free(j);
+      pv_unref(j);
       return pv_invalid_with_msg(pv_string("Invalid UTF-8 string"));
     }
   }
@@ -876,7 +876,7 @@ pv pv_string_slice(pv j, int start, int end) {
       break;
     }
     if (c == -1) {
-      pv_free(j);
+      pv_unref(j);
       return pv_invalid_with_msg(pv_string("Invalid UTF-8 string"));
     }
   }
@@ -889,14 +889,14 @@ pv pv_string_slice(pv j, int start, int end) {
    * can do about it.
    */
   res = pv_string_sized(p, e - p);
-  pv_free(j);
+  pv_unref(j);
   return res;
 }
 
 pv pv_string_concat(pv a, pv b) {
   a = pvp_string_append(a, pv_string_value(b),
                         pvp_string_length(pvp_string_ptr(b)));
-  pv_free(b);
+  pv_unref(b);
   return a;
 }
 
@@ -1071,7 +1071,7 @@ static void pvp_object_free(pv o) {
       struct object_slot* slot = pvp_object_get_slot(o, i);
       if (pv_get_kind(slot->string) != JV_KIND_NULL) {
         pvp_string_free(slot->string);
-        pv_free(slot->value);
+        pv_unref(slot->value);
       }
     }
     pv_mem_free(pvp_object_ptr(o));
@@ -1109,8 +1109,8 @@ static pv pvp_object_unshare(pv object) {
     struct object_slot* new_slot = pvp_object_get_slot(new_object, i);
     *new_slot = *old_slot;
     if (pv_get_kind(old_slot->string) != JV_KIND_NULL) {
-      new_slot->string = pv_copy(old_slot->string);
-      new_slot->value = pv_copy(old_slot->value);
+      new_slot->string = pv_ref(old_slot->string);
+      new_slot->value = pv_ref(old_slot->value);
     }
   }
 
@@ -1159,7 +1159,7 @@ static int pvp_object_delete(pv* object, pv key) {
       *prev_ptr = curr->next;
       pvp_string_free(curr->string);
       curr->string = JV_NULL;
-      pv_free(curr->value);
+      pv_unref(curr->value);
       return 1;
     }
     prev_ptr = &curr->next;
@@ -1185,7 +1185,7 @@ static int pvp_object_equal(pv o1, pv o2) {
     pv* slot2 = pvp_object_read(o2, slot->string);
     if (!slot2) return 0;
     // FIXME: do less refcounting here
-    if (!pv_equal(pv_copy(slot->value), pv_copy(*slot2))) return 0;
+    if (!pv_equal(pv_ref(slot->value), pv_ref(*slot2))) return 0;
     len1++;
   }
   return len1 == len2;
@@ -1197,7 +1197,7 @@ static int pvp_object_contains(pv a, pv b) {
   int r = 1;
 
   pv_object_foreach(b, key, b_val) {
-    pv a_val = pv_object_get(pv_copy(a), key);
+    pv a_val = pv_object_get(pv_ref(a), key);
 
     r = pv_contains(a_val, b_val);
 
@@ -1220,12 +1220,12 @@ pv pv_object_get(pv object, pv key) {
   pv* slot = pvp_object_read(object, key);
   pv val;
   if (slot) {
-    val = pv_copy(*slot);
+    val = pv_ref(*slot);
   } else {
     val = pv_invalid();
   }
-  pv_free(object);
-  pv_free(key);
+  pv_unref(object);
+  pv_unref(key);
   return val;
 }
 
@@ -1234,8 +1234,8 @@ int pv_object_has(pv object, pv key) {
   assert(JVP_HAS_KIND(key, JV_KIND_STRING));
   pv* slot = pvp_object_read(object, key);
   int res = slot ? 1 : 0;
-  pv_free(object);
-  pv_free(key);
+  pv_unref(object);
+  pv_unref(key);
   return res;
 }
 
@@ -1244,7 +1244,7 @@ pv pv_object_set(pv object, pv key, pv value) {
   assert(JVP_HAS_KIND(key, JV_KIND_STRING));
   // copy/free of object, key, value coalesced
   pv* slot = pvp_object_write(&object, key);
-  pv_free(*slot);
+  pv_unref(*slot);
   *slot = value;
   return object;
 }
@@ -1253,14 +1253,14 @@ pv pv_object_delete(pv object, pv key) {
   assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
   assert(JVP_HAS_KIND(key, JV_KIND_STRING));
   pvp_object_delete(&object, key);
-  pv_free(key);
+  pv_unref(key);
   return object;
 }
 
 int pv_object_length(pv object) {
   assert(JVP_HAS_KIND(object, JV_KIND_OBJECT));
   int n = pvp_object_length(object);
-  pv_free(object);
+  pv_unref(object);
   return n;
 }
 
@@ -1269,7 +1269,7 @@ pv pv_object_merge(pv a, pv b) {
   pv_object_foreach(b, k, v) {
     a = pv_object_set(a, k, v);
   }
-  pv_free(b);
+  pv_unref(b);
   return a;
 }
 
@@ -1278,17 +1278,17 @@ pv pv_object_merge_recursive(pv a, pv b) {
   assert(JVP_HAS_KIND(b, JV_KIND_OBJECT));
 
   pv_object_foreach(b, k, v) {
-    pv elem = pv_object_get(pv_copy(a), pv_copy(k));
+    pv elem = pv_object_get(pv_ref(a), pv_ref(k));
     if (pv_is_valid(elem) &&
         JVP_HAS_KIND(elem, JV_KIND_OBJECT) &&
         JVP_HAS_KIND(v, JV_KIND_OBJECT)) {
       a = pv_object_set(a, k, pv_object_merge_recursive(elem, v));
     } else {
-      pv_free(elem);
+      pv_unref(elem);
       a = pv_object_set(a, k, v);
     }
   }
-  pv_free(b);
+  pv_unref(b);
   return a;
 }
 
@@ -1325,24 +1325,24 @@ int pv_object_iter_next(pv object, int iter) {
 pv pv_object_iter_key(pv object, int iter) {
   pv s = pvp_object_get_slot(object, iter)->string;
   assert(JVP_HAS_KIND(s, JV_KIND_STRING));
-  return pv_copy(s);
+  return pv_ref(s);
 }
 
 pv pv_object_iter_value(pv object, int iter) {
-  return pv_copy(pvp_object_get_slot(object, iter)->value);
+  return pv_ref(pvp_object_get_slot(object, iter)->value);
 }
 
 /*
  * Memory management
  */
-pv pv_copy(pv j) {
+pv pv_ref(pv j) {
   if (JVP_IS_ALLOCATED(j)) {
     pvp_refcnt_inc(j.u.ptr);
   }
   return j;
 }
 
-void pv_free(pv j) {
+void pv_unref(pv j) {
   switch(JVP_KIND(j)) {
     case JV_KIND_ARRAY:
       pvp_array_free(j);
@@ -1403,8 +1403,8 @@ int pv_equal(pv a, pv b) {
       break;
     }
   }
-  pv_free(a);
-  pv_free(b);
+  pv_unref(a);
+  pv_unref(b);
   return r;
 }
 
@@ -1421,8 +1421,8 @@ int pv_identical(pv a, pv b) {
       r = memcmp(&a.u.ptr, &b.u.ptr, sizeof(a.u)) == 0;
     }
   }
-  pv_free(a);
-  pv_free(b);
+  pv_unref(a);
+  pv_unref(b);
   return r;
 }
 
@@ -1435,17 +1435,17 @@ int pv_contains(pv a, pv b) {
   } else if (JVP_HAS_KIND(a, JV_KIND_ARRAY)) {
     r = pvp_array_contains(a, b);
   } else if (JVP_HAS_KIND(a, JV_KIND_STRING)) {
-    int b_len = pv_string_length_bytes(pv_copy(b));
+    int b_len = pv_string_length_bytes(pv_ref(b));
     if (b_len != 0) {
-      r = _jq_memmem(pv_string_value(a), pv_string_length_bytes(pv_copy(a)),
+      r = _jq_memmem(pv_string_value(a), pv_string_length_bytes(pv_ref(a)),
                      pv_string_value(b), b_len) != 0;
     } else {
       r = 1;
     }
   } else {
-    r = pv_equal(pv_copy(a), pv_copy(b));
+    r = pv_equal(pv_ref(a), pv_ref(b));
   }
-  pv_free(a);
-  pv_free(b);
+  pv_unref(a);
+  pv_unref(b);
   return r;
 }

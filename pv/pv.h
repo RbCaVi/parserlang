@@ -44,15 +44,15 @@ typedef struct {
 
 /*
  * All pv_* functions consume (decref) input and produce (incref) output
- * Except pv_copy
+ * Except pv_ref
  */
 
 pv_kind pv_get_kind(pv);
 const char* pv_kind_name(pv_kind);
 static int pv_is_valid(pv x) { return pv_get_kind(x) != JV_KIND_INVALID; }
 
-pv pv_copy(pv);
-void pv_free(pv);
+pv pv_ref(pv);
+void pv_unref(pv);
 
 int pv_get_refcnt(pv);
 
@@ -84,11 +84,11 @@ pv pv_array_concat(pv, pv);
 pv pv_array_slice(pv, int, int);
 pv pv_array_indexes(pv, pv);
 #define pv_array_foreach(a, i, x) \
-  for (int pv_len__ = pv_array_length(pv_copy(a)), i=0, pv_j__ = 1;     \
+  for (int pv_len__ = pv_array_length(pv_ref(a)), i=0, pv_j__ = 1;     \
        pv_j__; pv_j__ = 0)                                              \
     for (pv x;                                                          \
          i < pv_len__ ?                                                 \
-           (x = pv_array_get(pv_copy(a), i), 1) : 0;                    \
+           (x = pv_array_get(pv_ref(a), i), 1) : 0;                    \
          i++)
 
 #define JV_ARRAY_1(e) (pv_array_append(pv_array(),e))
