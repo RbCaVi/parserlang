@@ -75,3 +75,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# replit stuff
+.replit
+rippkgs-index.sqlite
