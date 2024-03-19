@@ -1,0 +1,5 @@
+Changes from jq version of jv:
+* Removed libdecnumber and jv number literal functions
+* Renamed jv to pv
+* jv_copy and jv_free are jv_ref and jv_unref, respectively
+* Removed jv_parse and jv_print/dump
