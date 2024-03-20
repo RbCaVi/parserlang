@@ -1,6 +1,6 @@
 flags := -Wall -Wpedantic -pedantic-errors -Wextra
-compileflags := -std=c++2a
-linkflags := -Wl,-rpath=/opt/gcc-12.2.0/lib64
+compileflags :=
+linkflags :=
 arflags := crv
 
 compilecmd = $(CC) $(flags) $(compileflags) $(CFLAGS) -c
