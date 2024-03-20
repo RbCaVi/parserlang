@@ -1,5 +1,5 @@
 flags := -Wall -Wpedantic -pedantic-errors -Wextra
-compileflags :=
+compileflags := -fpic
 linkflags :=
 arflags := crv
 
