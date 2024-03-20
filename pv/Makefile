@@ -11,6 +11,15 @@ archivecmd = $(AR) $(arflags) $(ARFLAGS)
 
 all: pv.so pv.a
 
+clean:
+	rm -f pv.o
+	rm -f pv_alloc.o
+	rm -f pv_aux.o
+	rm -f pv_unicode.o
+	rm -f util.o
+	rm -f pv.so
+	rm -f pv.a
+
 %.o: %.c
 	$(compilecmd) $< -o $@
 
