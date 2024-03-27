@@ -25,19 +25,42 @@ typep=strip(alternate()) # no values
 
 TYPE='TYPE'
 STMT='STMT'
+ARG='ARG'
+SIG='SIG'
 anytype=[TYPE,'any']
 
 @transform(concatstrip(strs('def'),optional(typep),errorafter(sym),strs('='),expr))
 def declare(data):
 	_,typ,var,__,e=data
-	if not typ:
-		typ=anytype
 	return [STMT,'def',typ,var,e]
 
 @transform(concatstrip(strs('if'),expr,strs('then'),stmtwrap,strs('end')))
 def ifstmt(data):
 	_,cond,__,st,___=data
 	return [STMT,'if',cond,st]
+
+def commasep(p):
+	@transform(optional(concatstrip(p,star(concatstrip(strs(','),p)),optional(strs(',')))))
+	def commasep(data):
+		if data is None:
+			return []
+		d,others,_=data
+		return [d,*others]
+
+@transform(concatstrip(optional(typep),optional(sym)))
+def arg(data):
+	typ,var=data
+	return [ARG,typ,var]
+
+@transform(concatstrip(sym,strs('('),commasep(arg),strs(')')))
+def funcsig(data):
+	name,_,args,_=data
+	return [SIG,name,*args]
+
+@transform(concatstrip(strs('fn'),funcsig,star(stmtwrap),strs('end')))
+def func(data):
+	_,sig,_,stmts,_=data
+
 
 @transform(alternate(ifstmt,declare,assign,expr))
 def stmt(data):
