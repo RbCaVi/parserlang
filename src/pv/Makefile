@@ -1,7 +1,7 @@
 flags := -Wall -Wpedantic -pedantic-errors -Wextra
 compileflags := -fpic
 linkflags :=
-arflags := crv
+arflags :=
 
 compilecmd = $(CC) $(flags) $(compileflags) $(CFLAGS) -c
 linkcmd = $(CC) $(flags) $(linkflags) $(LDFLAGS)
@@ -31,5 +31,8 @@ util.o: util.h
 
 pv.so: pv.o pv_alloc.o pv_aux.o pv_unicode.o util.o
 	$(linkcmd) $< -o $@ -shared
+
+(%): %
+	$(archivecmd) $@ $?
 
 pv.a: pv.a(pv.o pv_alloc.o pv_aux.o pv_unicode.o util.o)
