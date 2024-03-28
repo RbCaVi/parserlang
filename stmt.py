@@ -7,6 +7,10 @@ expr=parserify(evaluate)
 def stmtwrap(s): # "backreference"
 	return stmt(s)
 
+@transform(star(noneerror(stmtwrap)))
+def stmts(data):
+	return ['STMT',None,*data]
+
 def concatstrip(*ps):
 	return concat(*map(strip,ps))
 
@@ -35,10 +39,10 @@ def declare(data):
 	_,typ,var,__,e=data
 	return [STMT,'def',typ,var,e]
 
-@transform(concatstrip(strs('if'),expr,strs('then'),stmtwrap,strs('end')))
+@transform(concatstrip(strs('if'),expr,strs('then'),stmts,strs('end')))
 def ifstmt(data):
 	_,cond,__,st,___=data
-	return [STMT,'if',cond,st]
+	return [STMT,'if',cond,*st]
 
 def commasep(p):
 	@transform(optional(concatstrip(p,star(concatstrip(strs(','),p)),optional(strs(',')))))
@@ -59,10 +63,10 @@ def funcsig(data):
 	name,_,args,_=data
 	return [SIG,name,*args]
 
-@transform(concatstrip(strs('fn'),funcsig,star(noneerror(stmtwrap)),strs('end')))
+@transform(concatstrip(strs('fn'),funcsig,stmts,strs('end')))
 def func(data):
 	_,sig,stmts,_=data
-	return [STMT,'func',sig[1],[EXPR,'sig',*sig[2:]],*stmts]
+	return [STMT,'func',sig[1],[EXPR,'sig',*sig[2:]],stmts]
 
 @transform(expr)
 def exprstmt(data):
@@ -71,7 +75,3 @@ def exprstmt(data):
 @transform(alternate(func,ifstmt,declare,assign,exprstmt))
 def stmt(data):
 	return data[1]
-
-@transform(star(noneerror(stmtwrap)))
-def stmts(data):
-	return ['STMT',None,*data]
