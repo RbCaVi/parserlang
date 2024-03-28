@@ -108,3 +108,13 @@ def atomic(p): # return 0 or 1 results
 		it=iter(p(s))
 		yield next(it)
 	return atomic
+
+def noneerror(p):
+	@parser
+	def noneerror(s):
+		try:
+			for x in p(s):
+				yield x
+		except:
+			pass
+	return noneerror
