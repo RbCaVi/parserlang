@@ -1,7 +1,7 @@
 from parser import printresults
 from parsers import parserify
 from expr import treeexpr
-from stmt import stmt
+from stmt import stmt,stmts
 
 def treeexpr2(expr):
 	return treeexpr(expr)+'\n\n'
@@ -14,3 +14,4 @@ printresults(stmt,'if a then b=c end',formatter=treeexpr2)
 printresults(stmt,'if a then b end',formatter=treeexpr2)
 printresults(stmt,'fn a(a) end',formatter=treeexpr2)
 printresults(stmt,'fn a(b) c=d end',formatter=treeexpr2)
+printresults(stmts,'fn a(b) c=d end fn aef(aweda) r=w end',formatter=treeexpr2)

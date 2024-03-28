@@ -71,3 +71,7 @@ def exprstmt(data):
 @transform(alternate(func,ifstmt,declare,assign,exprstmt))
 def stmt(data):
 	return data[1]
+
+@transform(star(noneerror(stmtwrap)))
+def stmts(data):
+	return ['STMT',None,*data]
