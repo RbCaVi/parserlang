@@ -50,7 +50,12 @@ def star(p):
 	@parser
 	def star(s):
 		return newparser(s)
-	newparser=alternate(concat(star,p),true)
+	@transform(star)
+	def star(data):
+		if data is None:
+			return []
+		return [data[0],*data[1]]
+	newparser=optional(concat(p,star))
 	return star
 
 # use as decorator
