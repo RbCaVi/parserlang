@@ -4,6 +4,9 @@ from expr import evaluate,EXPR,ops,getSym,SYM
 
 expr=parserify(evaluate)
 
+def concatstrip(*ps):
+	return concat(*map(strip,ps))
+
 def stmtwrap(s): # "backreference"
 	return stmt(s)
 
@@ -11,8 +14,16 @@ def stmtwrap(s): # "backreference"
 def stmts(data):
 	return ['STMT',None,*data]
 
-def concatstrip(*ps):
-	return concat(*map(strip,ps))
+@transform(concatstrip(strs('{'),stmts,strs('}')))
+def block(data):
+	return data[1]
+
+@transform(alternate(block,stmtwrap))
+def blockstmt(data):
+	if data[0]==0:
+		return data[1]
+	else:
+		return [data[1]]
 
 @parser
 def sym(s):
@@ -39,7 +50,7 @@ def declare(data):
 	_,typ,var,__,e=data
 	return [STMT,'def',typ,var,e]
 
-@transform(concatstrip(strs('if'),expr,strs('then'),stmts,strs('end')))
+@transform(concatstrip(strs('if'),expr,block))
 def ifstmt(data):
 	_,cond,__,st,___=data
 	return [STMT,'if',cond,*st]
@@ -63,15 +74,17 @@ def funcsig(data):
 	name,_,args,_=data
 	return [SIG,name,*args]
 
-@transform(concatstrip(strs('fn'),funcsig,stmts,strs('end')))
+@transform(concatstrip(strs('fn'),funcsig,blockstmt))
 def func(data):
-	_,sig,stmts,_=data
-	return [STMT,'func',sig[1],[EXPR,'sig',*sig[2:]],stmts]
+	_,sig,stmts=data
+	return [STMT,'func',sig[1],[EXPR,'sig',*sig[2:]],*stmts]
 
 @transform(expr)
 def exprstmt(data):
 	return [STMT,'expr',data]
 
-@transform(alternate(func,ifstmt,declare,assign,exprstmt))
+@transform(alternate(func,ifstmt,declare,assign,exprstmt,block))
 def stmt(data):
+	if data[0]==5: # block
+		return [BLOCK,*block]
 	return data[1]
