@@ -1,6 +1,5 @@
 from gen import geneval
 import sys
-sys.path.append('parserlang/parserlang')
 from stmt import expr
 from disasm import disasm2,disasm
 import itertools
