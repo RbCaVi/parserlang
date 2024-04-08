@@ -12,7 +12,7 @@ def stmtwrap(s): # "backreference"
 
 @transform(star(noneerror(stmtwrap)))
 def stmts(data):
-	return ['STMT',None,*data]
+	return ['STMT','many',*data]
 
 @transform(concatstrip(strs('{'),stmts,strs('}')))
 def block(data):
