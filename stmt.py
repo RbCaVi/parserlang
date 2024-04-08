@@ -23,7 +23,7 @@ def blockstmt(data):
 	if data[0]==0:
 		return data[1]
 	else:
-		return [data[1]]
+		return ['STMT','many',data[1]]
 
 @parser
 def sym(s):
@@ -76,7 +76,7 @@ def funcsig(data):
 
 @transform(concatstrip(strs('fn'),funcsig,blockstmt))
 def func(data):
-	_,sig,stmts=data
+	_,sig,(_,_,*stmts)=data
 	return [STMT,'func',sig[1],[EXPR,'sig',*sig[2:]],*stmts]
 
 @transform(expr)
