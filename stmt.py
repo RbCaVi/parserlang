@@ -32,9 +32,9 @@ def sym(s):
 		yield data,s
 
 @transform(concatstrip(expr,strs(*[op+'=' for op in ops]),expr))
-def assign(data):
+def setop(data):
 	e1,aop,e2=data
-	return [STMT,aop,e1,e2]
+	return [STMT,'setop',aop,e1,e2]
 
 @transform(concatstrip(expr,strs('='),expr))
 def setstmt(data):
@@ -88,7 +88,7 @@ def func(data):
 def exprstmt(data):
 	return [STMT,'expr',data]
 
-@transform(alternate(func,ifstmt,declare,setstmt,assign,exprstmt,block))
+@transform(alternate(func,ifstmt,declare,setstmt,setop,exprstmt,block))
 def stmt(data):
 	if data[0]==5: # block
 		return [BLOCK,*block]
