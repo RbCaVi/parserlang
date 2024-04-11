@@ -25,7 +25,7 @@ instructions={
   'GETPATHCONST':(('num',),0,1),
   'BACKTRACK':(('addr'),1,2),
   'MAKEREF':(('num',),0,1),
-  'CALLN':(('num'),'ivar',1),
+  'CALLN':(('num',),'ivar',1),
   'CALL':((),'svar',1),
   'RET':((),1,'return'),
   'STORECONST':((),1,0),

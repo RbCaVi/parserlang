@@ -117,21 +117,20 @@ def geneval(expr,vars):
       # local
       # global
       # function table
-      fn=op
-      if fn in vars:
-        insts+=inst('DUPN',vars[fn])
+      fn=args[0]
+      args=args[1:]
+      print(vars)
+      if evalable(fn,vars):
+        insts+=geneval(fn,vars)
         for expr in args:
           insts+=geneval(expr,vars)
         insts+=inst('CALLN',len(args))
-      elif fn in globals:
-        insts+=inst('PUSHCONST',globals[fn])
-        for expr in args:
-          insts+=geneval(expr,vars)
-        insts+=inst('CALLN',len(args))
-      elif fn in functable:
+      elif fn[0]=='SYM' and fn in functable:
         for expr in args:
           insts+=geneval(expr,vars)
         insts+=inst('CALLCONSTFN',functable[fn],len(args))
+      else:
+        raise Exception(f'couldn\'t find {fn}')
     elif len(args)==1:
       insts+=geneval(args[0],vars)
       insts+=genuop(op)
@@ -139,6 +138,59 @@ def geneval(expr,vars):
       insts+=geneval(args[0],vars)
       insts+=geneval(args[1],vars)
       insts+=genbop(op)
+    else:
+      raise Exception(f'unrecognized op {op} in {expr}')
+  return insts
+
+def evalable(expr,vars):
+  etype=exprtype(expr)
+  op=expr[1]
+  args=expr[2:]
+  if etype=='NUM':
+    return True
+  elif etype=='SYM':
+    return op in vars
+  else:
+    # special cases
+    if op=='if':
+      # eval after
+      return (
+        evalable(args[0],vars) and
+        evalable(args[1],vars) and
+        evalable(args[2],vars)
+      )
+    elif op=='(':
+      # order:
+      # local
+      # global
+      # function table
+      fn=args[0]
+      args=args[1:]
+      print(vars)
+      if evalable(fn,vars):
+        out=True
+        out=out and evalable(fn,vars)
+        for expr in args:
+          out=out and evalable(expr,vars)
+        return out
+      elif fn[0]=='SYM' and fn in functable:
+        for expr in args:
+          out=out and evalable(expr,vars)
+        return out
+      else:
+        return False
+    elif len(args)==1:
+      try:
+        genuop(op)
+        return evalable(args[0],vars)
+      except:
+        return False
+    elif len(args)==2:
+      try:
+        genbop(op)
+        return evalable(args[0],vars) and evalable(args[1],vars)
+      except:
+        return False
     else:
       raise Exception(f'unrecognized op {op} in {expr}')
   return insts
