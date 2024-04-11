@@ -49,6 +49,12 @@ def getsetvar(stmt):
 def getsetexpr(stmt):
   return stmt[3]
 
+def getdefvar(stmt):
+  return stmt[3]
+
+def getdefexpr(stmt):
+  return stmt[4]
+
 def getvarpath(var):
   if var[0]=='SYM':
     return var[1],[]
@@ -90,35 +96,11 @@ def geneval(expr,vars):
   op=expr[1]
   args=expr[2:]
   insts=b''
-  if etype=='(':
-    # order:
-    # local
-    # global
-    # function table
-    fn=op
-    if fn in vars:
-      insts+=inst('DUPN',vars[fn])
-      for expr in args:
-        insts+=geneval(expr,vars)
-      insts+=inst('CALLN',len(args))
-    elif fn in globals:
-      insts+=inst('PUSHCONST',globals[fn])
-      for expr in args:
-        insts+=geneval(expr,vars)
-      insts+=inst('CALLN',len(args))
-    elif fn in functable:
-      for expr in args:
-        insts+=geneval(expr,vars)
-      insts+=inst('CALLCONSTFN',functable[fn],len(args))
-  elif etype=='NUM':
+  if etype=='NUM':
     insts+=inst('PUSHNUM',op)
-  elif len(args)==1:
-    insts+=geneval(args[0],vars)
-    insts+=genuop(op)
-  elif len(args)==2:
-    insts+=geneval(args[0],vars)
-    insts+=geneval(args[1],vars)
-    insts+=genbop(op)
+  elif etype=='SYM':
+    var=op
+    insts+=inst('DUPN',vars[var])
   else:
     # special cases
     if op=='if':
@@ -130,8 +112,35 @@ def geneval(expr,vars):
       insts+=case1
       insts+=inst('JUMP',len(case2))
       insts+=case2
+    elif op=='(':
+      # order:
+      # local
+      # global
+      # function table
+      fn=op
+      if fn in vars:
+        insts+=inst('DUPN',vars[fn])
+        for expr in args:
+          insts+=geneval(expr,vars)
+        insts+=inst('CALLN',len(args))
+      elif fn in globals:
+        insts+=inst('PUSHCONST',globals[fn])
+        for expr in args:
+          insts+=geneval(expr,vars)
+        insts+=inst('CALLN',len(args))
+      elif fn in functable:
+        for expr in args:
+          insts+=geneval(expr,vars)
+        insts+=inst('CALLCONSTFN',functable[fn],len(args))
+    elif len(args)==1:
+      insts+=geneval(args[0],vars)
+      insts+=genuop(op)
+    elif len(args)==2:
+      insts+=geneval(args[0],vars)
+      insts+=geneval(args[1],vars)
+      insts+=genbop(op)
     else:
-      raise Exception('unrecognized op')
+      raise Exception(f'unrecognized op {op} in {expr}')
   return insts
 
 def exprtype(expr):
