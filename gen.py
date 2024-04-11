@@ -3,16 +3,17 @@ from opcodes import inst,bopcodes,uopcodes,opsize
 # when an invalid is detected, instant return
 
 def genfn(code,upvars={}):
-  # code is [STMT,name,sig,*code]
-  name=code[1]
-  sig=code[2]
-  stmts=code[3:]
+  # code is [STMT,'func',name,sig,*code]
+  name=code[2]
+  sig=code[3]
+  stmts=code[4:]
   insts=b''
   vars={}
-  for type,arg in getargs(sig):
+  for typ,arg in getargs(sig):
     vars[arg]=len(vars)
   for _,upval in sorted(map(reversed,upvars.items())):
     vars[upval]=len(vars) # upvalues shadow arguments
+  print('vars',vars)
   for stmt in stmts:
     stype=stmttype(stmt)
     if stype=='def': # assuming this doesn't happen in the middle of an expression
@@ -27,8 +28,7 @@ def genfn(code,upvars={}):
       var=getsetvar(stmt)
       var,path=getvarpath(var)
       expr=getsetexpr(stmt)
-      insts+=geneval(expr,vars)
-      insts+=gensetpath(vars[var],path)
+      insts+=gensetpath(vars[var],path,geneval(expr,vars))
     elif stype=='while':
       insts+=genwhile(stmt)
     elif stype=='for':
@@ -39,6 +39,39 @@ def genfn(code,upvars={}):
       stmt=setfnname(stmt,name+'('+getfnname(stmt))
       insts+=genupvaluefn(stmt,vars)
   return insts
+
+def stmttype(stmt):
+  return stmt[1]
+
+def getsetvar(stmt):
+  return stmt[2]
+
+def getsetexpr(stmt):
+  return stmt[3]
+
+def getvarpath(var):
+  if var[0]=='SYM':
+    return var[1],[]
+  elif var[0]=='EXPR':
+    raise Exception('expression lvalues aren\'t supported yet')
+    if var[1]=='[':
+      var,path=getvarpath(var)
+      return var,[]+path
+
+def gensetpath(varidx,path,expr):
+  insts=b''
+  if len(path)>0:
+    raise Exception('expression lvalues aren\'t supported yet')
+  else:
+    insts+=inst('PUSHARRAY')
+  insts+=expr
+  insts+=inst('SETPATH',varidx)
+  return insts
+
+def getargs(args):
+  _,*args=args
+  print(args)
+  return [(typ,name) for _,typ,name in args]
 
 def setfnname(stmt,name):
   #stmt=copy.deepcopy(stmt)

@@ -195,7 +195,7 @@ def apply(op,v1,v2):
 def applyuop(op,v):
   return [EXPR,op[1],v]
 
-def addToken(token,values,ops,parens,s):
+def addToken(token,lastType,values,ops,parens,s):
   values=copy.deepcopy(values)
   ops=copy.deepcopy(ops)
   parens=copy.deepcopy(parens)
@@ -293,7 +293,7 @@ def evaluate(expr):
       token,s=getToken(s,lastType,len(parens) and parens[-1][0] in [CALL,LBR])
     except Exception as e:
       break
-    values,ops,parens,s=addToken(token,values,ops,parens,s)
+    values,ops,parens,s=addToken(token,lastType,values,ops,parens,s)
     lastType=token[0] # type of last token
   while len(ops)>0: # apply the rest of the operators
     if ops[-1][0]==UOP:

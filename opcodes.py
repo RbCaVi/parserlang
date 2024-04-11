@@ -36,6 +36,7 @@ instructions={
   'PUSHNUM':(('num',),0,1),
   'PUSHNUM32':(('num32',),0,1),
   'PUSHNUM64':(('num64',),0,1),
+  'PUSHARRAY':((),0,1),
 }
 
 for opcode in bopcodes.values():

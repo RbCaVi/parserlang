@@ -29,12 +29,17 @@ def blockstmt(data):
 def sym(s):
 	data,s=getSym(s)
 	if data:
-		yield [SYM,data],s
+		yield data,s
 
-@transform(concatstrip(expr,strs('=',*[op+'=' for op in ops]),expr))
+@transform(concatstrip(expr,strs(*[op+'=' for op in ops]),expr))
 def assign(data):
 	e1,aop,e2=data
 	return [STMT,aop,e1,e2]
+
+@transform(concatstrip(expr,strs('='),expr))
+def setstmt(data):
+	e1,_,e2=data
+	return [STMT,'set',e1,e2]
 
 typep=strip(alternate()) # no values
 
@@ -61,7 +66,7 @@ def commasep(p):
 		if data is None:
 			return []
 		d,others,_=data
-		return [d,*others]
+		return [d,*[arg for _,arg in others]]
 	return commasep
 
 @transform(concatstrip(optional(typep),optional(sym)))
@@ -76,14 +81,14 @@ def funcsig(data):
 
 @transform(concatstrip(strs('fn'),funcsig,blockstmt))
 def func(data):
-	_,sig,(_,_,*stmts)=data
-	return [STMT,'func',sig[1],[EXPR,'sig',*sig[2:]],*stmts]
+	_,(_,name,*args),(_,_,*stmts)=data
+	return [STMT,'func',name,[SIG,*args],*stmts]
 
 @transform(expr)
 def exprstmt(data):
 	return [STMT,'expr',data]
 
-@transform(alternate(func,ifstmt,declare,assign,exprstmt,block))
+@transform(alternate(func,ifstmt,declare,setstmt,assign,exprstmt,block))
 def stmt(data):
 	if data[0]==5: # block
 		return [BLOCK,*block]
