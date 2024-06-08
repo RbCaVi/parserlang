@@ -2,7 +2,9 @@
 
 Name might change.
 
-A compiled programming language with backtracking.
+A programming language with backtracking.
+
+Compiled to a VM.
 
 All data types are immutable, except for references.
 
