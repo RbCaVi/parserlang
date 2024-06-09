@@ -13,11 +13,16 @@ pv pl_stack_get(pl_stack stack,int idx) {
 }
 
 pl_stack pl_stack_pop(pl_stack stack) {
-	assert()
+	assert(stack.top > stack.locals + 1); // +1 for the retinfo at the bottom of a frame
+	stack.top--;
+	return stack;
 }
 
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 	// set makes a new stack always
+	if (stack.cells->refcnt > 1) {
+		
+	}
 }
 
 pl_stack pl_stack_push(pl_stack stack,pv val) {
