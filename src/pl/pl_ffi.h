@@ -1,6 +1,6 @@
 #include <stddef.h>
-#include "pl_stack.h"
-#include "pv.h"
+#include "pl/pl_stack.h"
+#include "pv/pv.h"
 #include <ffi.h>
 
 // pop value
@@ -33,4 +33,4 @@ typedef struct {
 } pl_ffi_data;
 
 size_t pl_add_ffi_func(pl_ffi_data data);
-void pl_ffi_call(pl_state*, size_t);
+void pl_ffi_call(pl_stack, size_t);
