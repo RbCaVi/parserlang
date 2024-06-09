@@ -1,14 +1,13 @@
 #include "pl_ffi.h"
+#include <stdlib.h>
 
-static pv_type ffi_type;
-
-struct pl_ffi_entry {
+typedef struct {
   void *func; // function to call
   size_t nargs;
   pl_native_from_pv_f *argconvs;
   pl_pv_from_native_f retconv;
   ffi_cif cif;
-};
+} pl_ffi_entry;
 
 static pl_ffi_entry *pl_ffi_entries=NULL;
 static size_t pl_ffi_entries_count = 0, pl_ffi_entries_size = 0;
@@ -35,7 +34,7 @@ static size_t pl_add_ffi_entry(pl_ffi_data data, ffi_cif cif) {
   return idx;
 }
 
-size_t pl_add_ffi_func(pl_ffi_data data){
+size_t pl_add_ffi_func(pl_ffi_data data) {
   ffi_cif cif;
   ffi_type **atypes = malloc(data.nargs * sizeof(ffi_type*));
   if (atypes == NULL) {
