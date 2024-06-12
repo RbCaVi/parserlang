@@ -58,13 +58,14 @@ static int max(int a, int b) {
   return b;
 }
 
-void pl_ffi_call(pl_stack stack, size_t idx){
+void pl_ffi_call(pl_state *state, size_t idx){
   // get func desc
   pl_ffi_entry entry = pl_ffi_entries[idx];
   // convert args
   void **data = malloc(entry.nargs * sizeof(void*));
   for (size_t i = 0; i < entry.nargs; i++) {
-    pv val = pl_stack_pop(stack);
+    pv val = pl_stack_top(state->stack);
+    state->stack = pl_stack_top(state->stack);
     data[i] = malloc(entry.argconvs[i].type->size);
     if (data[i] == NULL) {
       abort();
@@ -84,5 +85,5 @@ void pl_ffi_call(pl_stack stack, size_t idx){
     abort();
   }
   // push return
-  pl_stack_push(stack, retpv);
+  pl_stack_push(state->stack, retpv);
 }
