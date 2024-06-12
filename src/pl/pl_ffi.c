@@ -12,12 +12,16 @@ typedef struct {
 static pl_ffi_entry *pl_ffi_entries=NULL;
 static size_t pl_ffi_entries_count = 0, pl_ffi_entries_size = 0;
 
-static size_t pl_add_ffi_entry(pl_ffi_data data, ffi_cif cif) {
+static size_t add_ffi_entry(pl_ffi_data data, ffi_cif cif) {
+  
   size_t idx = pl_ffi_entries_count;
   pl_ffi_entries_count++;
   if (pl_ffi_entries_count > pl_ffi_entries_size) {
     pl_ffi_entries_size = pl_ffi_entries_size * 1.5f;
     pl_ffi_entries = realloc(pl_ffi_entries,pl_ffi_entries_size * sizeof(pl_ffi_entry));
+    if (pl_ffi_entries == NULL) {
+      abort();
+    }
   }
   pl_ffi_entry *entry = pl_ffi_entries + idx;
   entry->func = data.func;
@@ -47,7 +51,7 @@ size_t pl_add_ffi_func(pl_ffi_data data) {
   if (status != FFI_OK) {
     abort();
   }
-  int idx = pl_add_ffi_entry(data,cif);
+  int idx = add_ffi_entry(data,cif);
   return idx;
 }
 

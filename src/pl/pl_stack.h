@@ -29,15 +29,15 @@ struct pl_stack_cell {
 };
 
 struct pl_stack_cells {
-  size_t refcount;
-  struct pl_stack_cell cells[];
+  size_t refcount; // the number of stacks using these cells
+  size_t size; // the number of stack cells
+  struct pl_stack_cell cells[]; // the stack data
 };
 
 typedef struct {
-  struct pl_stack_cells* cells;
-  size_t size; // the number of stack cells
+  struct pl_stack_cells* cells; // pointer to the stack data, refcount, and size
   size_t top; // the number of filled cells
-  size_t locals; // the stack index locals start at // the location of retinfo
+  size_t locals; // the stack index locals start at // also the location of retinfo
 } pl_stack;
 
 // stack indexes are positive up from locals or negative down from stack top

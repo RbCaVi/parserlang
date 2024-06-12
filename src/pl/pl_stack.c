@@ -20,13 +20,32 @@ pl_stack pl_stack_pop(pl_stack stack) {
 
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 	// set makes a new stack always
-	if (stack.cells->refcnt > 1) {
-		
+	if (stack.cells->refcount > 1) {
+		stack = duplicate_stack(stack);
 	}
+  assert(idx != 0);
+  if (idx > 0) {
+  	assert(stack.locals + idx < stack.top);
+  	stack.cells->cells[stack.locals + idx].value->value = val; // the longest chain of properties i have ever written
+  } else {
+  	assert(-idx < stack.top);
+  	stack.cells->cells[stack.top + idx].value->value = val; // the longest chain of properties i have ever written
+  }
 }
 
 pl_stack pl_stack_push(pl_stack stack,pv val) {
 	// push makes a new stack always
+	if (stack.cells->refcount > 1) {
+		stack = duplicate_stack(stack);
+	}
+	size_t idx = stack.top;
+	stack.top++;
+	// allocate more memory
+	if (stack.top > stack.size) {
+
+	}
+	// initialize the new cell
+	stack.cells->cells[idx].value->value = val; // the longest chain of properties i have ever written  }
 }
 
 pl_stack pl_stack_push_ref(pl_stack stack,int idx) {
