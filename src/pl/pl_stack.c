@@ -4,11 +4,11 @@
 pv pl_stack_get(pl_stack stack,int idx) {
   assert(idx != 0);
   if (idx > 0) {
-  	assert(locals + idx < top);
-  	return stack.cells->cells[locals + idx].value->value; // the longest chain of properties i have ever written
+  	assert(stack.locals + idx < stack.top);
+  	return stack.cells->cells[stack.locals + idx].value->value; // the longest chain of properties i have ever written
   } else {
-  	assert(idx < top);
-  	return stack.cells->cells[top - idx].value->value; // the longest chain of properties i have ever written
+  	assert(-idx < stack.top);
+  	return stack.cells->cells[stack.top + idx].value->value; // the longest chain of properties i have ever written
   }
 }
 
