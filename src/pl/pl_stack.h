@@ -30,7 +30,7 @@ struct pl_stack_cell {
 
 struct pl_stack_cells {
   size_t refcount;
-  struct pl_stack_cell[] cells;
+  struct pl_stack_cell cells[];
 };
 
 typedef struct {
