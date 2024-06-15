@@ -43,20 +43,29 @@ pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 }
 
 pl_stack pl_stack_push(pl_stack stack,pv val) {
+	size_t idx;
 	// push makes a new stack always
-	if (stack.cells->refcount > 1) {
+	if (stack.cells->refcount.refcount > 1) {
 		stack = duplicate_stack(stack);
 	}
-	size_t idx = stack.top;
-	stack.top++;
-	// allocate more memory
-	if (stack.top > stack.size) {
+	inc_size(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(size_t)((float)stack.cells->refcount.size * 1.5f));
+  // initialize the new cell
+	stack.cells->cells[idx].value->refcount = 1;
+	stack.cells->cells[idx].value->value = pv_ref(val);
 
-	}
-	// initialize the new cell
-	stack.cells->cells[idx].value->value = val; // the longest chain of properties i have ever written  }
+	return stack;
 }
 
-pl_stack pl_stack_push_ref(pl_stack stack,int idx) {
+pl_stack pl_stack_push_ref(pl_stack stack,int sidx) {
+	size_t idx;
 	// push makes a new stack always
+	if (stack.cells->refcount.refcount > 1) {
+		stack = duplicate_stack(stack);
+	}
+	inc_size(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(size_t)((float)stack.cells->refcount.size * 1.5f));
+  // initialize the new cell
+	stack.cells->cells[idx].value = stack.cells->cells[sidx].value;
+	stack.cells->cells[idx].value->refcount++;
+
+	return stack;
 }
