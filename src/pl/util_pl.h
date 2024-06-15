@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 // save the top in idx
 // increments the top
 // if top is out of bounds, reallocate for newsize elements
