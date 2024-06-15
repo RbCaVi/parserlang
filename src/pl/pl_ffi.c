@@ -41,11 +41,11 @@ size_t pl_add_ffi_func(pl_ffi_data data) {
   for (size_t i = 0; i < data.nargs; i++) {
     atypes[i] = data.argconvs[i].type;
   }
-  int status = ffi_prep_cif(&cif, FFI_DEFAULT_ABI, data.nargs, data.retconv.type, atypes);
+  int status = ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned int)data.nargs, data.retconv.type, atypes);
   if (status != FFI_OK) {
     abort();
   }
-  int idx = add_ffi_entry(data,cif);
+  size_t idx = add_ffi_entry(data,cif);
   return idx;
 }
 
