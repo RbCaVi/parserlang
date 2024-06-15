@@ -26,6 +26,14 @@ void replace_pv_pointer(pv *to_replace, pv replacement) {
 	pv_unref(*to_replace);
 	*to_replace = replacement;
 }
+
+static pl_stack duplicate_stack(pl_stack stack) {
+	pl_stack newstack = stack;
+	// duplicate the stack cells
+	size_t size = sizeof(struct pl_stack_cells_refcnt) + stack.cells->refcount.size * sizeof(typeof(stack.cells.cells));
+	newstack.cells = malloc
+}
+
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 	// set makes a new stack always
 	if (stack.cells->refcount.refcount > 1) {
