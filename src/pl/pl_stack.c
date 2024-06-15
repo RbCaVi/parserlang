@@ -1,5 +1,8 @@
 #include "pl/pl_stack.h"
+
 #include <assert.h>
+#include <stdlib.h>
+#include "pl/util_pl.h"
 
 pv pl_stack_get(pl_stack stack,int idx) {
   assert(idx != 0);
