@@ -5,37 +5,7 @@
  * The stack
  */
 
-struct pl_stack_cell_data {
-  int refcount; // number of stack cells using this value (references)
-  pv value;
-};
-
-struct pl_retinfo {
-  size_t locals;
-};
-
-enum pl_stack_cell_type {
-  VAL,
-  RET
-};
-
-struct pl_stack_cell {
-  enum pl_stack_cell_type type;
-  union {
-    struct pl_stack_cell_data *value;
-    struct pl_retinfo ret;
-  };
-};
-
-struct pl_stack_cells_refcnt {
-  size_t refcount; // the number of stacks using these cells
-  size_t size; // the number of stack cells
-};
-
-struct pl_stack_cells {
-  struct pl_stack_cells_refcnt refcount;
-  struct pl_stack_cell cells[]; // the stack data
-};
+struct pl_stack_cells;
 
 typedef struct {
   struct pl_stack_cells* cells; // pointer to the stack data, refcount, and size
