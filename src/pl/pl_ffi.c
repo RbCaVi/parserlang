@@ -49,13 +49,6 @@ size_t pl_add_ffi_func(pl_ffi_data data) {
   return idx;
 }
 
-static int max(int a, int b) {
-  if (a > b) {
-    return a;
-  }
-  return b;
-}
-
 void pl_ffi_call(pl_state *state, size_t idx){
   // get func desc
   pl_ffi_entry entry = pl_ffi_entries[idx];
