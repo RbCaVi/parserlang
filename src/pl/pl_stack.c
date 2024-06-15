@@ -4,11 +4,11 @@
 pv pl_stack_get(pl_stack stack,int idx) {
   assert(idx != 0);
   if (idx > 0) {
-  	assert(stack.locals + idx < stack.top);
-  	return stack.cells->cells[stack.locals + idx].value->value; // the longest chain of properties i have ever written
+  	assert(stack.locals + (size_t)idx < stack.top);
+  	return stack.cells->cells[stack.locals + (size_t)idx].value->value; // the longest chain of properties i have ever written
   } else {
-  	assert(-idx < stack.top);
-  	return stack.cells->cells[stack.top + idx].value->value; // the longest chain of properties i have ever written
+  	assert((size_t)(-idx) < stack.top);
+  	return stack.cells->cells[stack.top - (size_t)(-idx)].value->value; // the longest chain of properties i have ever written
   }
 }
 
@@ -25,17 +25,21 @@ void replace_pv_pointer(pv *to_replace, pv replacement) {
 }
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 	// set makes a new stack always
-	if (stack.cells->refcount > 1) {
+	if (stack.cells->refcount.refcount > 1) {
 		stack = duplicate_stack(stack);
 	}
   assert(idx != 0);
+  size_t i;
   if (idx > 0) {
-  	assert(stack.locals + idx < stack.top);
-  	stack.cells->cells[stack.locals + idx].value->value = val; // the longest chain of properties i have ever written
+  	assert(stack.locals + (size_t)idx < stack.top);
+  	i = stack.locals + (size_t)idx;
   } else {
-  	assert(-idx < stack.top);
-  	stack.cells->cells[stack.top + idx].value->value = val; // the longest chain of properties i have ever written
+  	assert((size_t)(-idx) < stack.top);
+  	i = stack.top - (size_t)(-idx);
   }
+  replace_pv_pointer(&(stack.cells->cells[i].value->value), val);
+
+  return stack;
 }
 
 pl_stack pl_stack_push(pl_stack stack,pv val) {
