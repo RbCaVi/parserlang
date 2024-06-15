@@ -18,6 +18,11 @@ pl_stack pl_stack_pop(pl_stack stack) {
 	return stack;
 }
 
+void replace_pv_pointer(pv *to_replace, pv replacement) {
+	pv_ref(replacement);
+	pv_unref(*to_replace);
+	*to_replace = replacement;
+}
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 	// set makes a new stack always
 	if (stack.cells->refcount > 1) {
