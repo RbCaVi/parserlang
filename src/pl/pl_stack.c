@@ -35,6 +35,7 @@ struct pl_stack_cells {
 pv pl_stack_get(pl_stack stack,int idx) {
   assert(idx != 0);
   pv out;
+  size_t i;
   if (idx > 0) {
   	assert(stack.locals + (size_t)idx < stack.top);
   	out = stack.cells->cells[stack.locals + (size_t)idx].value; // the longest chain of properties i have ever written
@@ -46,9 +47,9 @@ pv pl_stack_get(pl_stack stack,int idx) {
 }
 
 pl_stack pl_stack_pop(pl_stack stack) {
-	assert(stack.top > stack.locals + 1); // +1 for the retinfo at the bottom of a frame
+	assert(stack.cells->cells[stack.top - 1].type == PV); // don't pop a retinfo
+	pv_unref(stack.cells->cells[stack.top - 1].value); // delete the stack top
 	stack.top--;
-	pv_unref(stack.cells->cells[stack.top].value); // delete the stack top
 	return stack;
 }
 
@@ -99,4 +100,21 @@ pl_stack pl_stack_push(pl_stack stack,pv val) {
 	stack.cells->cells[idx].value = val;
 
 	return stack;
+}
+
+pl_stack pl_stack_push_frame(pl_stack){
+	//
+}
+
+pl_stack pl_stack_pop_frame(pl_stack){
+	//
+}
+
+pl_stack pl_stack_ref(pl_stack){
+	//
+}
+
+void pl_stack_decref(pl_stack){
+	// cheese it
+	cheese it // don't compile this
 }

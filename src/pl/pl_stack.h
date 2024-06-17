@@ -21,6 +21,9 @@ pv pl_stack_get(pl_stack,int);
 pl_stack pl_stack_pop(pl_stack);
 pl_stack pl_stack_set(pl_stack,pv,int);
 pl_stack pl_stack_push(pl_stack,pv);
-pl_stack pl_stack_add_frame(pl_stack);
+
+pl_stack pl_stack_push_frame(pl_stack);
+pl_stack pl_stack_pop_frame(pl_stack);
+
 pl_stack pl_stack_ref(pl_stack);
 void pl_stack_decref(pl_stack);
