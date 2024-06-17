@@ -63,7 +63,14 @@ static pl_stack duplicate_stack(pl_stack stack) {
 	pl_stack newstack = stack;
 	// duplicate the stack cells
 	size_t size = sizeof(struct pl_stack_cells_refcnt) + stack.cells->refcount.size * sizeof(typeof(stack.cells.cells));
-	newstack.cells = malloc
+	newstack.cells = malloc(size);
+  if (newstack.cells == NULL) {
+    abort();
+  }
+	// have to copy the references too
+	// copy the cells
+	memcpy(newstack.cells,stack.cells,size);
+	
 }
 
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
