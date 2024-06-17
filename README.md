@@ -6,7 +6,7 @@ A programming language with backtracking.
 
 Compiled to a VM.
 
-All data types are immutable, except for references.
+All data types are immutable.
 
 Functions are first-class values.
 
@@ -20,8 +20,6 @@ Data types:
 * object
 * closure
 * generator
-* reference
-
-Data types might be user definable in the future.
+* any user defined types
 
 pv is copied from [jq](https://github.com/jqlang/jq)
