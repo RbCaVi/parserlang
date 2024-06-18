@@ -46,27 +46,6 @@ pv pl_stack_get(pl_stack stack,int idx) {
   return pv_ref(out);
 }
 
-pl_stack pl_stack_pop(pl_stack stack) {
-	assert(stack.cells->cells[stack.top - 1].type == PV); // don't pop a retinfo
-	pv_unref(stack.cells->cells[stack.top - 1].value); // delete the stack top
-	stack.top--;
-	return stack;
-}
-
-static pl_stack duplicate_stack(pl_stack stack) {
-	pl_stack newstack = stack;
-	// duplicate the stack cells
-	size_t size = sizeof(struct pl_stack_cells_refcnt) + stack.cells->refcount.size * sizeof(typeof(stack.cells->cells[0]));
-	newstack.cells = malloc(size);
-  if (newstack.cells == NULL) {
-    abort();
-  }
-	// copy the cells
-	memcpy(newstack.cells,stack.cells,size);
-
-	return newstack;
-}
-
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 	// set makes a new stack always
 	if (stack.cells->refcount.refcount > 1) {
@@ -86,6 +65,27 @@ pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
   stack.cells->cells[i].value = val;
 
   return stack;
+}
+
+pl_stack pl_stack_pop(pl_stack stack) {
+	assert(stack.cells->cells[stack.top - 1].type == PV); // don't pop a retinfo
+	pv_unref(stack.cells->cells[stack.top - 1].value); // delete the stack top
+	stack.top--;
+	return stack;
+}
+
+static pl_stack duplicate_stack(pl_stack stack) {
+	pl_stack newstack = stack;
+	// duplicate the stack cells
+	size_t size = sizeof(struct pl_stack_cells_refcnt) + stack.cells->refcount.size * sizeof(typeof(stack.cells->cells[0]));
+	newstack.cells = malloc(size);
+  if (newstack.cells == NULL) {
+    abort();
+  }
+	// copy the cells
+	memcpy(newstack.cells,stack.cells,size);
+
+	return newstack;
 }
 
 pl_stack pl_stack_push(pl_stack stack,pv val) {
