@@ -14,8 +14,21 @@
 (top)++; \
 if ((top) >= (size)) { \
   (size) = (newsize); \
-  (array) = realloc((array),(initial) + (size) * sizeof(typeof(*(array)))); \
-  if ((array) == NULL) { \
-    abort(); \
-  } \
+  (array) = checked_realloc((array),(initial) + (size) * sizeof(typeof(*(array)))); \
+}
+
+void *checked_malloc(size_t size) {
+  void *p = malloc(size);
+  if (p == NULL) {
+    abort();
+  }
+  return p;
+}
+
+void *checked_realloc(size_t size) {
+  void *p = realloc(size);
+  if (p == NULL) {
+    abort();
+  }
+  return p;
 }

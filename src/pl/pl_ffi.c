@@ -20,10 +20,7 @@ static size_t add_ffi_entry(pl_ffi_data data, ffi_cif cif) {
   pl_ffi_entry *entry = pl_ffi_entries + idx;
   entry->func = data.func;
   entry->nargs = data.nargs;
-  entry->argconvs = malloc(data.nargs * sizeof(pl_native_from_pv_f));
-  if (entry->argconvs == NULL) {
-    abort();
-  }
+  entry->argconvs = checked_malloc(data.nargs * sizeof(pl_native_from_pv_f));
   for (size_t i = 0; i < data.nargs; i++) {
     entry->argconvs[i] = data.argconvs[i];
   }
@@ -34,10 +31,7 @@ static size_t add_ffi_entry(pl_ffi_data data, ffi_cif cif) {
 
 size_t pl_add_ffi_func(pl_ffi_data data) {
   ffi_cif cif;
-  ffi_type **atypes = malloc(data.nargs * sizeof(ffi_type*));
-  if (atypes == NULL) {
-    abort();
-  }
+  ffi_type **atypes = checked_malloc(data.nargs * sizeof(ffi_type*));
   for (size_t i = 0; i < data.nargs; i++) {
     atypes[i] = data.argconvs[i].type;
   }
@@ -53,21 +47,18 @@ void pl_ffi_call(pl_state *state, size_t idx){
   // get func desc
   pl_ffi_entry entry = pl_ffi_entries[idx];
   // convert args
-  void **data = malloc(entry.nargs * sizeof(void*));
+  void **data = checked_malloc(entry.nargs * sizeof(void*));
   for (size_t i = 0; i < entry.nargs; i++) {
     pv val = pl_stack_top(state->stack);
     state->stack = pl_stack_top(state->stack);
-    data[i] = malloc(entry.argconvs[i].type->size);
-    if (data[i] == NULL) {
-      abort();
-    }
+    data[i] = checked_malloc(entry.argconvs[i].type->size);
     int status = entry.argconvs[i].converter(val,data[i]);
     if (status != 0) {
       abort();
     }
   }
   // call
-  void *retval = malloc(max(entry.retconv.type->size,sizeof(long)));
+  void *retval = checked_malloc(max(entry.retconv.type->size,sizeof(long)));
   ffi_call(&entry.cif,FFI_FN(entry.func),retval,data);
   // convert return
   pv retpv;
