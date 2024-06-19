@@ -56,12 +56,17 @@ pv pl_stack_get(pl_stack stack,int idx) {
   return pv_ref(out);
 }
 
-pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
-  // set makes a new stack always
+static pl_stack move_stack(pl_stack stack) {
   if (stack.cells->refcount.refcount > 1) {
-    pl_stack_decref(stack);
+    pl_stack_unref(stack);
     stack = duplicate_stack(stack);
   }
+  return stack;
+}
+
+pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
+  // set makes a new stack always
+  stack = move_stack(stack);
 
   size_t i = get_stack_idx(stack, idx);
 
@@ -98,10 +103,8 @@ static pl_stack duplicate_stack(pl_stack stack) {
 pl_stack pl_stack_push(pl_stack stack,pv val) {
   size_t idx;
   // push makes a new stack always
-  if (stack.cells->refcount.refcount > 1) {
-    pl_stack_decref(stack);
-    stack = duplicate_stack(stack);
-  }
+  stack = move_stack(stack);
+
   inc_size(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(size_t)((float)stack.cells->refcount.size * 1.5f));
   // initialize the new cell
   stack.cells->cells[idx].type = PV;
@@ -110,19 +113,40 @@ pl_stack pl_stack_push(pl_stack stack,pv val) {
   return stack;
 }
 
-pl_stack pl_stack_push_frame(pl_stack){
-  //a
+pl_stack pl_stack_push_frame(pl_stack stack) {
+  size_t idx;
+  // push makes a new stack always
+  stack = move_stack(stack);
+  
+  inc_size(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(size_t)((float)stack.cells->refcount.size * 1.5f));
+  // initialize the new cell
+  stack.cells->cells[idx].type = RET;
+  stack.cells->cells[idx].ret.locals = stack.locals;
+
+  return stack;
 }
 
-pl_stack pl_stack_pop_frame(pl_stack){
-  //
+pl_stack pl_stack_pop_frame(pl_stack stack){
+  size_t idx = stack.top - 1;
+  while (stack.cells->cells[idx].type == PV) {
+    pv_unref(stack.cells->cells[idx].value);
+    idx--;
+  }
+  // the top of the stack should be a retinfo
+  assert(stack.cells->cells[idx].type == RET);
+  stack.top = idx;
+
+  return stack;
 }
 
-pl_stack pl_stack_ref(pl_stack){
-  //
+pl_stack pl_stack_ref(pl_stack stack){
+  stack.cells->refcount.refcount++;
+  return stack;
 }
 
-void pl_stack_decref(pl_stack){
-  // cheese it
-  cheese it // don't compile this
+void pl_stack_unref(pl_stack stack){
+  stack.cells->refcount.refcount--;
+  if (stack.cells->refcount.refcount == 0) {
+    free(stack.cells);
+  }
 }
