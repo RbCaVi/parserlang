@@ -25,8 +25,8 @@ void *checked_malloc(size_t size) {
   return p;
 }
 
-void *checked_realloc(size_t size) {
-  void *p = realloc(size);
+void *checked_realloc(void *p, size_t size) {
+  p = realloc(p, size);
   if (p == NULL) {
     abort();
   }

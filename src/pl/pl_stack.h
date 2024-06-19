@@ -26,4 +26,4 @@ pl_stack pl_stack_push_frame(pl_stack);
 pl_stack pl_stack_pop_frame(pl_stack);
 
 pl_stack pl_stack_ref(pl_stack);
-void pl_stack_decref(pl_stack);
+void pl_stack_unref(pl_stack);
