@@ -16,5 +16,5 @@ pv/pv_aux.o: pv/pv_aux.c pv/pv_alloc.h pv/pv_private.h
 main.o: main.c pv/pv.h pl/pl_stack.h pl/util_pl.h
 	$(compilecmd) $< -o $@
 
-main: main.o
+main: main.o pv/pv.o pv/pv_alloc.o pv/util.o pv/pv_unicode.o
 	gcc $^ -o $@

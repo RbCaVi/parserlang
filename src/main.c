@@ -8,7 +8,7 @@ struct pl_dump_part {
 	} type;
 	union {
 		char *str; // STR and KEY
-		size_t idx;
+		int idx;
 	};
 };
 
@@ -34,6 +34,7 @@ void pl_dump_pv(pv val) {
 static void dump_pv_inner(pv val, pl_dump_parts parts) {
 	print_prefix(parts);
 	parts.count++;
+	size_t idx;
 	switch (pv_get_kind(val)) {
 	  case PV_KIND_INVALID:
 	  	printf("ERROR OBJECT\n");
@@ -55,21 +56,19 @@ static void dump_pv_inner(pv val, pl_dump_parts parts) {
 	  	break;
 	  case PV_KIND_ARRAY:
 	  	printf("[]\n");
-  		size_t idx;
   		inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
   		pv_array_foreach(val, i, v) {
-  			parts.data->cells[idx].type = IDX;
-  			parts.data->cells[idx].idx = i;
+  			parts.data->parts[idx].type = IDX;
+  			parts.data->parts[idx].idx = i;
   			dump_pv_inner(v, parts);
 	  	}
 	  	break;
 	  case PV_KIND_OBJECT:
 	  	printf("{}\n");
-  		size_t idx;
   		inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
   		pv_object_foreach(val, k, v) {
-  			parts.data->cells[idx].type = STR;
-  			parts.data->cells[idx].idx = pv_string_value(k);
+  			parts.data->parts[idx].type = STR;
+  			parts.data->parts[idx].str = pv_string_value(k);
   			dump_pv_inner(v, parts);
 	  	}
 	  	break;
