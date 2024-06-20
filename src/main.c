@@ -52,7 +52,6 @@ void pl_dump_pv(pv val) {
 
 static void dump_pv_inner(pv val, pl_dump_parts parts) {
 	print_prefix(parts);
-	parts.count++;
 	size_t idx;
 	switch (pv_get_kind(val)) {
   case PV_KIND_INVALID:
