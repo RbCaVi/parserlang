@@ -1,3 +1,6 @@
+#ifndef PL_DUMP_H
+#define PL_DUMP_H
+
 #include <stddef.h>
 
 #include "pv/pv.h"
@@ -22,3 +25,5 @@ typedef struct {
 
 void pl_dump_pv(pv val);
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef PL_FFI_H
+#define PL_FFI_H
+
 #include <stddef.h>
 #include "pl/pl_stack.h"
 #include "pv/pv.h"
@@ -34,3 +37,5 @@ typedef struct {
 
 size_t pl_add_ffi_func(pl_ffi_data data);
 void pl_ffi_call(pl_stack, size_t);
+
+#endif

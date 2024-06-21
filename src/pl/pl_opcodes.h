@@ -1,3 +1,4 @@
+// probably like jq with its OP() redefinition
 /*
 DUP duplicate top
 ITER addr step the top of the stack and push the result or jump to const

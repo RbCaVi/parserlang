@@ -1,3 +1,6 @@
+#ifndef PL_STACK_H
+#define PL_STACK_H
+
 #include <stddef.h>
 #include "pv/pv.h"
 
@@ -27,3 +30,5 @@ pl_stack pl_stack_pop_frame(pl_stack);
 
 pl_stack pl_stack_ref(pl_stack);
 void pl_stack_unref(pl_stack);
+
+#endif

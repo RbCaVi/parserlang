@@ -1,3 +1,6 @@
+#ifndef UTIL_PL_H
+#define UTIL_PL_H
+
 #include <stdlib.h>
 
 // save the top in idx
@@ -20,3 +23,4 @@ if ((top) >= (size)) { \
 void *checked_malloc(size_t);
 void *checked_realloc(void*, size_t);
 
+#endif
