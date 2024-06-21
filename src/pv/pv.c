@@ -70,8 +70,8 @@ static int pvp_refcnt_unshared(pv_refcnt* c) {
   return c->count == 1;
 }
 
-#define KIND_MASK   0xF
-#define PFLAGS_MASK 0xF0
+#define KIND_MASK   0x1F
+#define PFLAGS_MASK 0xE0
 
 typedef enum {
   PVP_PAYLOAD_NONE = 0,
