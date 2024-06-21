@@ -17,18 +17,6 @@ if ((top) >= (size)) { \
   (array) = checked_realloc((array),(initial) + (size) * sizeof(typeof(*(array)))); \
 }
 
-void *checked_malloc(size_t size) {
-  void *p = malloc(size);
-  if (p == NULL) {
-    abort();
-  }
-  return p;
-}
+void *checked_malloc(size_t);
+void *checked_realloc(void*, size_t);
 
-void *checked_realloc(void *p, size_t size) {
-  p = realloc(p, size);
-  if (p == NULL) {
-    abort();
-  }
-  return p;
-}
