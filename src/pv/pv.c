@@ -72,14 +72,12 @@ static int pvp_refcnt_unshared(pv_refcnt* c) {
 
 #define KIND_MASK   0xF
 #define PFLAGS_MASK 0xF0
-#define PTYPE_MASK  0x70
 
 typedef enum {
   PVP_PAYLOAD_NONE = 0,
   PVP_PAYLOAD_ALLOCATED = 0x80,
 } payload_flags;
 
-#define PVP_MAKE_PFLAGS(ptype, allocated) ((((ptype) << 4) & PTYPE_MASK) | ((allocated) ? PVP_PAYLOAD_ALLOCATED : 0))
 #define PVP_MAKE_FLAGS(kind, pflags) ((kind & KIND_MASK) | (pflags & PFLAGS_MASK))
 
 #define PVP_FLAGS(j)  ((j).kind_flags)
