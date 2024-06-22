@@ -1,5 +1,10 @@
 #include "pl/pl_dump.h"
 #include "pl/util_pl.h"
+#include "pv/pv_array.h"
+#include "pv/pv_number.h"
+#include "pv/pv_object.h"
+#include "pv/pv_string.h"
+#include "pl/pl_dump.h"
 
 static void print_prefix(pl_dump_prefix parts) {
 	printf(".");

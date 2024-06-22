@@ -1,4 +1,9 @@
 #include "pv/pv.h"
+#include "pv/pv_array.h"
+#include "pv/pv_number.h"
+#include "pv/pv_constants.h"
+#include "pv/pv_object.h"
+#include "pv/pv_string.h"
 #include "pl/pl_dump.h"
 #include "pl/pl_stack.h"
 
