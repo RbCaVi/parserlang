@@ -1,4 +1,4 @@
-compilecmd := gcc -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -I . -c
+compilecmd := gcc -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
 
 %.o: %.c # ignore the "implicit" rule from make
 %.o: %.c %.h
