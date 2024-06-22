@@ -1,0 +1,9 @@
+#ifndef PV_INVALID_H
+#define PV_INVALID_H
+
+pv pv_invalid(void);
+pv pv_invalid_with_msg(pv);
+pv pv_invalid_get_msg(pv);
+int pv_invalid_has_msg(pv);
+
+#endif
