@@ -35,7 +35,7 @@ static pv pvp_array_new(unsigned size) {
   return r;
 }
 
-static void pvp_array_free(pv a) {
+void pvp_array_free(pv a) {
   assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
   if (pvp_refcnt_dec(a.u.ptr)) {
     pvp_array* array = pvp_array_ptr(a);

@@ -70,7 +70,7 @@ static pv pvp_string_empty_new(uint32_t length) {
 }
 
 
-static void pvp_string_free(pv js) {
+void pvp_string_free(pv js) {
   pvp_string* s = pvp_string_ptr(js);
   if (pvp_refcnt_dec(&s->refcnt)) {
     pv_mem_free(s);

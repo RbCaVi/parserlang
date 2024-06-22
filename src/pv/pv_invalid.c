@@ -44,7 +44,7 @@ int pv_invalid_has_msg(pv inv) {
   return r;
 }
 
-static void pvp_invalid_free(pv x) {
+void pvp_invalid_free(pv x) {
   assert(PVP_HAS_KIND(x, PV_KIND_INVALID));
   if (PVP_HAS_FLAGS(x, PVP_FLAGS_INVALID_MSG) && pvp_refcnt_dec(x.u.ptr)) {
     pv_unref(((pvp_invalid*)x.u.ptr)->errmsg);

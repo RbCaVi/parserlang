@@ -43,6 +43,7 @@
 
 #include "pv_alloc.h"
 #include "pv.h"
+#include "pvp.h"
 #include "pv_unicode.h"
 #include "util.h"
 

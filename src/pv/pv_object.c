@@ -110,7 +110,7 @@ static pv* pvp_object_read(pv object, pv key) {
   else return &slot->value;
 }
 
-static void pvp_object_free(pv o) {
+void pvp_object_free(pv o) {
   assert(PVP_HAS_KIND(o, PV_KIND_OBJECT));
   if (pvp_refcnt_dec(o.u.ptr)) {
     for (int i=0; i<pvp_object_size(o); i++) {
