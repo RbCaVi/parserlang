@@ -16,16 +16,18 @@ extern "C" {
 # define JQ_FALLTHROUGH do {} while (0) /* fallthrough */
 #endif
 
-typedef enum {
-  PV_KIND_INVALID,
-  PV_KIND_NULL,
-  PV_KIND_FALSE,
-  PV_KIND_TRUE,
-  PV_KIND_NUMBER,
-  PV_KIND_STRING,
-  PV_KIND_ARRAY,
-  PV_KIND_OBJECT
-} pv_kind;
+// typedef enum {
+//   PV_KIND_INVALID,
+//   PV_KIND_NULL,
+//   PV_KIND_FALSE,
+//   PV_KIND_TRUE,
+//   PV_KIND_NUMBER,
+//   PV_KIND_STRING,
+//   PV_KIND_ARRAY,
+//   PV_KIND_OBJECT
+// } pv_kind;
+
+typedef char pv_kind; // 0-31
 
 struct pv_refcnt;
 
