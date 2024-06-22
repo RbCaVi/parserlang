@@ -199,10 +199,6 @@ pv pv_number(double x) {
   return j;
 }
 
-static void pvp_number_free(pv j) {
-  assert(PVP_HAS_KIND(j, PV_KIND_NUMBER));
-}
-
 double pv_number_value(pv j) {
   assert(PVP_HAS_KIND(j, PV_KIND_NUMBER));
   return j.u.number;
@@ -1353,9 +1349,6 @@ void pv_unref(pv j) {
       break;
     case PV_KIND_INVALID:
       pvp_invalid_free(j);
-      break;
-    case PV_KIND_NUMBER:
-      pvp_number_free(j);
       break;
   }
 }
