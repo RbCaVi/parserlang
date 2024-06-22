@@ -151,7 +151,8 @@ int pv_get_refcnt(pv j) {
 /*
  * Higher-level operations
  */
-
+// commented out because i don't want to deal with this
+/*
 int pv_equal(pv a, pv b) {
   int r;
   if (pv_get_kind(a) != pv_get_kind(b)) {
@@ -185,7 +186,7 @@ int pv_equal(pv a, pv b) {
   pv_unref(b);
   return r;
 }
-
+*//*
 int pv_identical(pv a, pv b) {
   int r;
   if (a.kind_flags != b.kind_flags
@@ -193,7 +194,7 @@ int pv_identical(pv a, pv b) {
       || a.size != b.size) {
     r = 0;
   } else {
-    if (PVP_IS_ALLOCATED(a) /* b has the same flags */) {
+    if (PVP_IS_ALLOCATED(a) /* b has the same flags *//*) {
       r = a.u.ptr == b.u.ptr;
     } else {
       r = memcmp(&a.u.ptr, &b.u.ptr, sizeof(a.u)) == 0;
@@ -227,3 +228,4 @@ int pv_contains(pv a, pv b) {
   pv_unref(b);
   return r;
 }
+*/
