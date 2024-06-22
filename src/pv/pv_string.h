@@ -1,6 +1,8 @@
 #ifndef PV_STRING_H
 #define PV_STRING_H
 
+#include "pv.h"
+
 pv pv_string(const char*);
 pv pv_string_sized(const char*, int);
 pv pv_string_empty(int len);

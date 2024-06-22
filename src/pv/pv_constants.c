@@ -1,3 +1,5 @@
+#include "pv_constants.h"
+
 const pv PV_NULL = {PVP_FLAGS_NULL, 0, 0, 0, {0}};
 const pv PV_INVALID = {PVP_FLAGS_INVALID, 0, 0, 0, {0}};
 const pv PV_FALSE = {PVP_FLAGS_FALSE, 0, 0, 0, {0}};

@@ -1,6 +1,8 @@
 #ifndef PV_OBJECT_H
 #define PV_OBJECT_H
 
+#include "pv.h"
+
 pv pv_object(void);
 pv pv_object_get(pv object, pv key);
 int pv_object_has(pv object, pv key);

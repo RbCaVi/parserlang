@@ -1,6 +1,8 @@
 #ifndef PV_CONSTANTS_H
 #define PV_CONSTANTS_H
 
+#include "pv.h"
+
 pv pv_null(void);
 pv pv_true(void);
 pv pv_false(void);

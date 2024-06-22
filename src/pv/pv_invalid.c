@@ -22,6 +22,8 @@ pv pv_invalid() {
   return PV_INVALID;
 }
 
+#include "pv_invalid.h"
+
 pv pv_invalid_get_msg(pv inv) {
   assert(PVP_HAS_KIND(inv, PV_KIND_INVALID));
 

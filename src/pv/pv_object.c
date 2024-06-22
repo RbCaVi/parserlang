@@ -1,3 +1,5 @@
+#include "pv_object.h"
+
 /*
  * Objects (internal helpers)
  */

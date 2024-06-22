@@ -1,6 +1,8 @@
 #ifndef PV_ARRAY_H
 #define PV_ARRAY_H
 
+#include "pv.h"
+
 pv pv_array(void);
 pv pv_array_sized(int);
 int pv_array_length(pv);

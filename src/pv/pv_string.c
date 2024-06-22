@@ -1,3 +1,5 @@
+#include "pv_string.h"
+
 /*
  * Strings (internal helpers)
  */

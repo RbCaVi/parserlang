@@ -1,3 +1,5 @@
+#include "pv_array.h"
+
 /*
  * Arrays (internal helpers)
  */
