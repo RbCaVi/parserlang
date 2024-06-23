@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include "pv/pv.h"
+#include "pl/pl_stack.h"
 
 typedef struct {
 	enum {
@@ -25,5 +26,8 @@ typedef struct {
 
 void pl_dump_pv(pv val);
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts);
+
+void pl_dump_stack(pl_stack);
+void pl_dump_stack_prefixed(pl_stack, pl_dump_prefix parts);
 
 #endif
