@@ -31,4 +31,6 @@ pl_stack pl_stack_pop_frame(pl_stack);
 pl_stack pl_stack_ref(pl_stack);
 void pl_stack_unref(pl_stack);
 
+pv pl_stack_frames(pl_stack);
+
 #endif
