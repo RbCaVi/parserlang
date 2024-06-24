@@ -1,5 +1,24 @@
 #include "pv_array.h"
 
+#include "pvp.h"
+#include "pv_constants.h"
+#include "pv_alloc.h"
+
+// #include <stdint.h>
+// #include <stddef.h>
+#include <assert.h>
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include <string.h>
+// #include <stdarg.h>
+#include <limits.h>
+// #include <math.h>
+// #include <float.h>
+
+#include "pv_invalid.h"
+#include "pv_number.h"
+#include "pv_string.h"
+
 /*
  * Arrays (internal helpers)
  */
@@ -101,7 +120,7 @@ static pv* pvp_array_write(pv* a, int i) {
     return &new_array->elements[i];
   }
 }
-
+/*
 static int pvp_array_equal(pv a, pv b) {
   if (pvp_array_length(a) != pvp_array_length(b))
     return 0;
@@ -115,8 +134,8 @@ static int pvp_array_equal(pv a, pv b) {
   }
   return 1;
 }
-
-static void pvp_clamp_slice_params(int len, int *pstart, int *pend)
+*/
+void pvp_clamp_slice_params(int len, int *pstart, int *pend)
 {
   if (*pstart < 0) *pstart = len + *pstart;
   if (*pend < 0) *pend = len + *pend;
@@ -127,7 +146,7 @@ static void pvp_clamp_slice_params(int len, int *pstart, int *pend)
   if (*pend < *pstart) *pend = *pstart;
 }
 
-
+/*
 static int pvp_array_contains(pv a, pv b) {
   int r = 1;
   pv_array_foreach(b, bi, belem) {
@@ -146,7 +165,7 @@ static int pvp_array_contains(pv a, pv b) {
   }
   return r;
 }
-
+*/
 
 /*
  * Public
@@ -248,7 +267,7 @@ pv pv_array_slice(pv a, int start, int end) {
   // copy/free of a coalesced
   return pvp_array_slice(a, start, end);
 }
-
+/*
 pv pv_array_indexes(pv a, pv b) {
   pv res = pv_array();
   int idx = -1;
@@ -269,3 +288,4 @@ pv pv_array_indexes(pv a, pv b) {
   pv_unref(b);
   return res;
 }
+*/

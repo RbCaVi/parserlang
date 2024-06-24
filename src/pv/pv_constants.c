@@ -1,7 +1,12 @@
 #include "pv_constants.h"
 
+#include "pvp.h"
+
+#define PVP_FLAGS_NULL      PVP_MAKE_FLAGS(PV_KIND_NULL, PVP_PAYLOAD_NONE)
+#define PVP_FLAGS_FALSE     PVP_MAKE_FLAGS(PV_KIND_FALSE, PVP_PAYLOAD_NONE)
+#define PVP_FLAGS_TRUE      PVP_MAKE_FLAGS(PV_KIND_TRUE, PVP_PAYLOAD_NONE)
+
 const pv PV_NULL = {PVP_FLAGS_NULL, 0, 0, 0, {0}};
-const pv PV_INVALID = {PVP_FLAGS_INVALID, 0, 0, 0, {0}};
 const pv PV_FALSE = {PVP_FLAGS_FALSE, 0, 0, 0, {0}};
 const pv PV_TRUE = {PVP_FLAGS_TRUE, 0, 0, 0, {0}};
 

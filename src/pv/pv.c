@@ -51,48 +51,23 @@
  * Internal refcounting helpers
  */
 
-typedef struct pv_refcnt {
-  int count;
-} pv_refcnt;
-
-static const pv_refcnt PV_REFCNT_INIT = {1};
+//static const pv_refcnt PV_REFCNT_INIT = {1};
 
 static void pvp_refcnt_inc(pv_refcnt* c) {
   c->count++;
 }
 
-static int pvp_refcnt_dec(pv_refcnt* c) {
+int pvp_refcnt_dec(pv_refcnt* c) {
   c->count--;
   return c->count == 0;
 }
 
-static int pvp_refcnt_unshared(pv_refcnt* c) {
+int pvp_refcnt_unshared(pv_refcnt* c) {
   assert(c->count > 0);
   return c->count == 1;
 }
 
-#define KIND_MASK   0x1F
-#define PFLAGS_MASK 0xE0
-
-typedef enum {
-  PVP_PAYLOAD_NONE = 0,
-  PVP_PAYLOAD_ALLOCATED = 0x80,
-} payload_flags;
-
-#define PVP_MAKE_FLAGS(kind, pflags) ((kind & KIND_MASK) | (pflags & PFLAGS_MASK))
-
-#define PVP_FLAGS(j)  ((j).kind_flags)
-#define PVP_KIND(j)   (PVP_FLAGS(j) & KIND_MASK)
-
-#define PVP_HAS_FLAGS(j, flags) (PVP_FLAGS(j) == flags)
-#define PVP_HAS_KIND(j, kind)   (PVP_KIND(j) == kind)
-
 #define PVP_IS_ALLOCATED(j) (j.kind_flags & PVP_PAYLOAD_ALLOCATED)
-
-#define PVP_FLAGS_NULL      PVP_MAKE_FLAGS(PV_KIND_NULL, PVP_PAYLOAD_NONE)
-#define PVP_FLAGS_INVALID   PVP_MAKE_FLAGS(PV_KIND_INVALID, PVP_PAYLOAD_NONE)
-#define PVP_FLAGS_FALSE     PVP_MAKE_FLAGS(PV_KIND_FALSE, PVP_PAYLOAD_NONE)
-#define PVP_FLAGS_TRUE      PVP_MAKE_FLAGS(PV_KIND_TRUE, PVP_PAYLOAD_NONE)
 
 pv_kind pv_get_kind(pv x) {
   return PVP_KIND(x);

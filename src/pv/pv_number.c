@@ -1,5 +1,11 @@
 #include "pv_number.h"
 
+#include "pvp.h"
+
+#include <assert.h>
+#include <math.h>
+#include <float.h>
+
 /*
  * Numbers
  */

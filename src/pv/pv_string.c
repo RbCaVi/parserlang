@@ -1,5 +1,16 @@
 #include "pv_string.h"
 
+#include "pv_invalid.h"
+#include "pv_number.h"
+#include "pv_array.h"
+#include "pv_alloc.h"
+#include "pv_unicode.h"
+#include "pvp.h"
+#include "util.h"
+
+#include <string.h>
+#include <assert.h>
+
 /*
  * Strings (internal helpers)
  */
@@ -121,7 +132,7 @@ static uint32_t rotl32 (uint32_t x, int8_t r){
   return (x << r) | (x >> (32 - r));
 }
 
-static uint32_t pvp_string_hash(pv jstr) {
+uint32_t pvp_string_hash(pv jstr) {
   pvp_string* str = pvp_string_ptr(jstr);
   if (str->length_hashed & 1)
     return str->hash;
@@ -180,7 +191,7 @@ static uint32_t pvp_string_hash(pv jstr) {
 }
 
 
-static int pvp_string_equal(pv a, pv b) {
+int pvp_string_equal(pv a, pv b) {
   assert(PVP_HAS_KIND(a, PV_KIND_STRING));
   assert(PVP_HAS_KIND(b, PV_KIND_STRING));
   pvp_string* stra = pvp_string_ptr(a);

@@ -1,6 +1,18 @@
+#include "pv_invalid.h"
+
+#include "pvp.h"
+#include "pv_constants.h"
+#include "pv_alloc.h"
+
+#include <assert.h>
+
 /*
  * Invalid objects, with optional error messages
  */
+
+#define PVP_FLAGS_INVALID   PVP_MAKE_FLAGS(PV_KIND_INVALID, PVP_PAYLOAD_NONE)
+
+const pv PV_INVALID = {PVP_FLAGS_INVALID, 0, 0, 0, {0}};
 
 #define PVP_FLAGS_INVALID_MSG   PVP_MAKE_FLAGS(PV_KIND_INVALID, PVP_PAYLOAD_ALLOCATED)
 

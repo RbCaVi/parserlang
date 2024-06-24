@@ -1,5 +1,13 @@
 #include "pv_object.h"
 
+#include "pv_invalid.h"
+#include "pv_constants.h"
+#include "pv_alloc.h"
+#include "pvp.h"
+
+#include <string.h>
+#include <assert.h>
+
 /*
  * Objects (internal helpers)
  */
@@ -223,7 +231,7 @@ static int pvp_object_length(pv object) {
   }
   return n;
 }
-
+/*
 static int pvp_object_equal(pv o1, pv o2) {
   int len2 = pvp_object_length(o2);
   int len1 = 0;
@@ -238,7 +246,7 @@ static int pvp_object_equal(pv o1, pv o2) {
   }
   return len1 == len2;
 }
-
+*//*
 static int pvp_object_contains(pv a, pv b) {
   assert(PVP_HAS_KIND(a, PV_KIND_OBJECT));
   assert(PVP_HAS_KIND(b, PV_KIND_OBJECT));
@@ -253,7 +261,7 @@ static int pvp_object_contains(pv a, pv b) {
   }
   return r;
 }
-
+*/
 /*
  * Objects (public interface)
  */
