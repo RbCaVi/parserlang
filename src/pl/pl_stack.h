@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include "pv/pv.h"
+#include "pl/pl_dump.h"
 
 /*
  * The stack
@@ -32,5 +33,8 @@ pl_stack pl_stack_ref(pl_stack);
 void pl_stack_unref(pl_stack);
 
 pv pl_stack_frames(pl_stack);
+
+#define pl_dump_stack(val) pl_dump_stack_prefixed(val, pl_dump_new_prefix())
+void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts);
 
 #endif
