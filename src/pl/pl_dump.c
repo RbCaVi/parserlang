@@ -26,12 +26,12 @@ static void print_prefix(pl_dump_prefix parts) {
 	printf(": ");
 }
 
-void pl_dump_pv(pv val) {
+pl_dump_prefix pl_dump_new_prefix() {
 	pl_dump_prefix parts;
 	parts.data = checked_malloc(sizeof(size_t) + sizeof(pl_dump_prefix_part) * 4);
 	parts.data->size = 4;
 	parts.count = 0;
-	pl_dump_pv_prefixed(val, parts);
+	return parts;
 }
 
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {

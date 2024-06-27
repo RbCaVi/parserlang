@@ -24,7 +24,9 @@ typedef struct {
 	size_t count;
 } pl_dump_prefix;
 
-void pl_dump_pv(pv val);
+pl_dump_prefix pl_dump_new_prefix();
+
+#define pl_dump_pv(val) pl_dump_pv_prefixed(val, pl_dump_new_prefix())
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts);
 
 void pl_dump_stack(pl_stack);
