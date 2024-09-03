@@ -1,18 +1,22 @@
 static const char *kind_names[256];
+static void (*kind_free[256])(pv);
 
 pv_kind pv_kind(pv val) {
   return val.kind;
 }
 
-int pv_register_kind(const char *name, pv_kind* kind_out) {
-  while (kind_names[*kind_out] != 0) {
-    if (*kind_out == 255) {
-      *kind_out = 0;
+int pv_register_kind(pv_kind *kind_out, const char *name, void (*kfree)(pv)) {
+  pv_kind kind = kind_out;
+  while (kind_names[kind] != 0) {
+    if (kind == 255) {
+      kind = 0;
     } else {
-      *kind_out++;
+      kind++;
     }
   }
-  kind_names[*kind_out] = name;
+  kind_names[kind] = name;
+  kind_free[kind] = kfree;
+  *kind_out = kind;
   return 0;
 }
 

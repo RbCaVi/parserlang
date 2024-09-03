@@ -25,7 +25,7 @@ typedef struct {
 } pv;
 
 pv_kind pv_kind(pv);
-int pv_register_kind(const char*, pv_kind*);
+int pv_register_kind(pv_kind*, const char*, void (*)(pv));
 const char *pv_kind_name(pv_kind);
 
 #define PV_FLAG_ALLOCATED 0x01
