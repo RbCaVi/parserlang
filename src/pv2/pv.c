@@ -33,5 +33,4 @@ static inline pv_is_allocated(pv val) {
 }
 
 pv pv_copy(pv);
-pv pv_move(pv);
 void pv_free(pv);

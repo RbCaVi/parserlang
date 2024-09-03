@@ -31,5 +31,4 @@ const char *pv_kind_name(pv_kind);
 #define PV_FLAG_ALLOCATED 0x01
 
 pv pv_copy(pv);
-pv pv_move(pv);
 void pv_free(pv);
