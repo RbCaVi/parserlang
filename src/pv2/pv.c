@@ -1,5 +1,5 @@
 static const char *kind_names[256];
-static void (*kind_free[256])(pv);
+static pv_free_func kind_free[256];
 
 pv_kind pv_kind(pv val) {
   return val.kind;

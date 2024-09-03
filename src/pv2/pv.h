@@ -30,5 +30,7 @@ const char *pv_kind_name(pv_kind);
 
 #define PV_FLAG_ALLOCATED 0x01
 
+typedef void (*pv_free_func)(pv);
+
 pv pv_copy(pv);
 void pv_free(pv);
