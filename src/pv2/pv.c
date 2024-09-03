@@ -1,3 +1,5 @@
+#include "pv.h"
+
 static const char *kind_names[256];
 static pv_free_func kind_free[256];
 
@@ -32,9 +34,16 @@ typedef struct pv_refcnt {
   int count;
 } pv_refcnt;
 
-static inline pv_is_allocated(pv val) {
-  return (val & PV_FLAG_ALLOCATED) == PV_FLAG_ALLOCATED;
+pv pv_copy(pv val) {
+  if (PV_IS_ALLOCATED(val)) {
+    pvp_incref(val.data);
+  }
+  return val;
 }
 
-pv pv_copy(pv);
-void pv_free(pv);
+void pv_free(pv val) {
+  if (PV_IS_ALLOCATED(val)) {
+    pvp_decref(val.data);
+  }
+  kind_free[pv_kind(val)](val);
+}
