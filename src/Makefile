@@ -7,6 +7,8 @@
 compilecmd := gcc -MD -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
 # compilecmd := gcc -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
 
+ifeq ("x","y")
+#https://stackoverflow.com/a/4493447
 %.o: %.c # ignore the "implicit" rule from make
 %.o: %.c %.h
 	$(compilecmd) $< -o $@
@@ -51,3 +53,4 @@ clean:
 	rm -f *.{o,d}
 	rm -f pl/*.{o,d}
 	rm -f pv/*.{o,d}
+endif
