@@ -30,10 +30,6 @@ const char *pv_kind_name(pv_kind kind) {
   return NULL;
 }
 
-typedef struct pv_refcnt {
-  int count;
-} pv_refcnt;
-
 pv pv_copy(pv val) {
   if (PV_IS_ALLOCATED(val)) {
     pvp_incref(val.data);
