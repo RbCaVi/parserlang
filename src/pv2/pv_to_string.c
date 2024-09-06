@@ -29,7 +29,11 @@ char *pv_to_string(pv val) {
 		snprintf(str + 16, 4, "%.2x>", kind);
 		return str;
 	} else {
-		int length = snprintf(NULL, 0, "<kind %s>", kind_name);
+		// printf type functions can have a negative return if there is an error
+		// how am i handling it?
+		// uhhhhhhhhhhh
+		// oh look a segmentation fault i have to fix that
+		size_t length = snprintf(NULL, 0, "<kind %s>", kind_name);
 		char* str = malloc(length + 1);
 		snprintf(str, length + 1, "<kind %s>", kind_name);
 		return str;
