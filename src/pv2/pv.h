@@ -17,7 +17,8 @@ typedef unsigned char pv_kind;
 struct pv_refcnt;
 
 // stripped version of jv
-// please do not touch
+// please do not touch flags and data
+// only read kind
 typedef struct {
   pv_kind kind;
   unsigned char flags;
