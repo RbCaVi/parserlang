@@ -4,8 +4,8 @@
 #   cat $f |tr '\\' ' '|tr '\n' ' '|grep -Eo ' \b[^ ]+'|sort|tr -s '\n' ' '
 #   echo 
 # done | sed -E 's/^([^.]+)\.o(.*)\1.c \1.h(.*)$/\1.o\2\3/;s/  / /'
-compilecmd := gcc -MD -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
-# compilecmd := gcc -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
+# compilecmd := gcc -MD -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
+compilecmd := gcc -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I pv2 -c
 
 ifeq ("x","y")
 #https://stackoverflow.com/a/4493447
@@ -54,3 +54,11 @@ clean:
 	rm -f pl/*.{o,d}
 	rm -f pv/*.{o,d}
 endif
+
+%.o: %.c
+	$(compilecmd) $< -o $@
+
+pv2/pv.o: pv2/pv.h pv2/pv_private.h
+
+pv2_test: pv2_main.o pv2_number.o
+	gcc $^ -o $@
