@@ -1,13 +1,33 @@
 #include "pv.h"
 #include "pv_number.h"
+#include "pv_singletons.h"
 #include "pv_to_string.h"
 
 #include <stdio.h>
 
 int main(int argc, char **argv) {
-	pv val = pv_number(15);
-	char *s = pv_to_string(val);
-	double num = pv_number_value(val);
-	printf("%f, %s\n", num, s);
-	printf("%s\n", pv_kind_name(0));
+	pv_number_install();
+	pv_singletons_install();
+	{
+		pv val = pv_number(15);
+		char *s = pv_to_string(val);
+		double num = pv_number_value(val);
+		printf("%f, %s\n", num, s);
+	}
+	{
+		pv val = pv_true();
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+	}
+	{
+		pv val = pv_false();
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+	}
+	{
+		pv val = pv_null();
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+		printf("%s\n", pv_kind_name(0));
+	}
 }
