@@ -26,7 +26,7 @@ char *pv_to_string(pv val) {
 	const char *kind_name = pv_kind_name(kind);
 	if (kind_name == NULL) {
 		char *str = strdup("<unknown kind 0x   ");
-		snprintf(str + 16, 3, "%.2x>", kind);
+		snprintf(str + 16, 4, "%.2x>", kind);
 		return str;
 	} else {
 		int length = snprintf(NULL, 0, "<kind %s>", kind_name);
