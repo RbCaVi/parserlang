@@ -25,7 +25,7 @@ char *pv_to_string(pv val) {
 	pv_kind kind = pv_get_kind(val);
 	const char *kind_name = pv_kind_name(kind);
 	if (kind_name == NULL) {
-		char *str = strdup("<unknown kind 0x   ");
+		char *str = strdup("<value of unknown kind 0x   ");
 		snprintf(str + 16, 4, "%.2x>", kind);
 		return str;
 	} else {
@@ -33,9 +33,9 @@ char *pv_to_string(pv val) {
 		// how am i handling it?
 		// uhhhhhhhhhhh
 		// oh look a segmentation fault i have to fix that
-		size_t length = snprintf(NULL, 0, "<kind %s>", kind_name);
+		size_t length = snprintf(NULL, 0, "<value of kind %s>", kind_name);
 		char* str = malloc(length + 1);
-		snprintf(str, length + 1, "<kind %s>", kind_name);
+		snprintf(str, length + 1, "<value of kind %s>", kind_name);
 		return str;
 	}
 }
