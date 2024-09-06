@@ -25,13 +25,13 @@ char *pv_to_string(pv val) {
 	pv_kind kind = pv_get_kind(val);
 	const char *kind_name = pv_kind_name(kind);
 	if (kind_name == NULL) {
-		char *str = strdup("<unknown kind 0x  >");
-		snprintf(str + 16, 2, "%02x", kind);
+		char *str = strdup("<unknown kind 0x   ");
+		snprintf(str + 16, 3, "%.2x>", kind);
 		return str;
 	} else {
 		int length = snprintf(NULL, 0, "<kind %s>", kind_name);
 		char* str = malloc(length + 1);
-		snprintf(str, length, "<kind %s>", kind_name);
+		snprintf(str, length + 1, "<kind %s>", kind_name);
 		return str;
 	}
 }
