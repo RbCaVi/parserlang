@@ -3,7 +3,7 @@
 static const char *kind_names[256];
 static pv_free_func kind_free[256];
 
-pv_kind pv_kind(pv val) {
+pv_kind pv_get_kind(pv val) {
   return val.kind;
 }
 
@@ -45,7 +45,7 @@ void pv_free(pv val) {
   if (PV_IS_ALLOCATED(val)) {
     pvp_decref(val.data);
   }
-  pv_free_func kfree = kind_free[pv_kind(val)];
+  pv_free_func kfree = kind_free[pv_get_kind(val)];
   if (kfree != 0 && kfree != NULL) { // NULL != 0 ahh condition
     kfree(val);
   }

@@ -27,7 +27,7 @@ typedef struct {
   struct pv_refcnt* data; // may be kind specific data instead of a pointer if flags does not contain PV_FLAG_ALLOCATED
 } pv;
 
-pv_kind pv_kind(pv);
+pv_kind pv_get_kind(pv);
 int pv_register_kind(pv_kind*, const char*, void (*)(pv));
 const char *pv_kind_name(pv_kind);
 
