@@ -5,9 +5,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-static char *(*pv_to_string_table[256])(pv);
+static pv_to_string_func pv_to_string_table[256];
 
-void pv_register_to_string(pv_kind kind, char *(*f)(pv)) {
+void pv_register_to_string(pv_kind kind, pv_to_string_func f) {
 	pv_to_string_table[kind] = f;
 }
 

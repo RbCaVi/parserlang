@@ -3,7 +3,9 @@
 
 #include "pv.h"
 
-void pv_register_to_string(pv_kind, char *(*)(pv));
+typedef char *(*pv_to_string_func)(pv);
+
+void pv_register_to_string(pv_kind, pv_to_string_func);
 char *pv_to_string(pv);
 
 #endif

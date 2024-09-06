@@ -11,7 +11,7 @@ pv_kind pv_get_kind(pv val) {
   return val.kind;
 }
 
-int pv_register_kind(pv_kind *kind_out, const char *name, void (*kfree)(pv)) {
+int pv_register_kind(pv_kind *kind_out, const char *name, pv_free_func kfree) {
   pv_kind kind = *kind_out;
   while (kind_names[kind] != 0) {
     if (kind == 255) {
