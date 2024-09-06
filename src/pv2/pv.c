@@ -1,4 +1,8 @@
 #include "pv.h"
+#include "pv_private.h"
+
+#include <stddef.h>
+#include <stdlib.h>
 
 static const char *kind_names[256];
 static pv_free_func kind_free[256];
@@ -8,7 +12,7 @@ pv_kind pv_get_kind(pv val) {
 }
 
 int pv_register_kind(pv_kind *kind_out, const char *name, void (*kfree)(pv)) {
-  pv_kind kind = kind_out;
+  pv_kind kind = *kind_out;
   while (kind_names[kind] != 0) {
     if (kind == 255) {
       kind = 0;

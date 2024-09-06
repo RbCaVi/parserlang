@@ -1,13 +1,16 @@
 #include "pv_number.h"
 
 #include <assert.h>
+#include <stddef.h>
+
+pv_kind number_kind;
 
 // this needs a test at some point
 
 static struct pv_refcnt *cast_double_to_pointer(double val) {
 	// illegal
 	// arrest this man
-	assert(sizeof(double) == sizeof(struct pv_refcnt*))
+	assert(sizeof(double) == sizeof(struct pv_refcnt*));
 	union {
 		struct pv_refcnt *ptr; // only used for casting
 		double val;
@@ -19,7 +22,7 @@ static struct pv_refcnt *cast_double_to_pointer(double val) {
 static double cast_pointer_to_double(struct pv_refcnt *ptr) {
 	// illegal
 	// arrest this man
-	assert(sizeof(double) == sizeof(struct pv_refcnt*))
+	assert(sizeof(double) == sizeof(struct pv_refcnt*));
 	union {
 		struct pv_refcnt *ptr; // only used for casting
 		double val;
@@ -33,7 +36,7 @@ void pv_number_install() {
 }
 
 pv pv_number(double num) {
-	pv val = {number_kind, 0, cast_number_data(num)};
+	pv val = {number_kind, 0, cast_double_to_pointer(num)};
 	return val;
 }
 

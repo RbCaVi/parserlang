@@ -32,7 +32,7 @@ int pv_register_kind(pv_kind*, const char*, void (*)(pv));
 const char *pv_kind_name(pv_kind);
 
 #define PV_FLAG_ALLOCATED 0x01
-#define PV_IS_ALLOCATED(val) ((val & PV_FLAG_ALLOCATED) == PV_FLAG_ALLOCATED)
+#define PV_IS_ALLOCATED(val) (((val).flags & PV_FLAG_ALLOCATED) == PV_FLAG_ALLOCATED)
 
 typedef void (*pv_free_func)(pv);
 

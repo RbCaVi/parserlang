@@ -1,6 +1,6 @@
 #include "pv.h"
 
-pv_kind number_kind;
+extern pv_kind number_kind;
 
 void pv_number_install();
 
