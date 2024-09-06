@@ -60,5 +60,5 @@ endif
 
 pv2/pv.o: pv2/pv.h pv2/pv_private.h
 
-pv2_test: pv2_main.o pv2_number.o
+pv2_test: pv2_main.o pv2/pv_number.o pv2/pv_to_string.o pv2/pv.o pv2/pv_private.o
 	gcc $^ -o $@
