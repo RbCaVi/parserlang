@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-static const char *kind_names[256];
+static const char *kind_names[256] = {"INVALID"};
 static pv_free_func kind_free[256];
 
 pv_kind pv_get_kind(pv val) {
