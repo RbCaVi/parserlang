@@ -3,6 +3,8 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 pv_kind number_kind;
 
