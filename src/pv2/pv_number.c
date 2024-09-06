@@ -10,9 +10,8 @@ pv_kind number_kind;
 static struct pv_refcnt *cast_double_to_pointer(double val) {
 	// illegal
 	// arrest this man
-	assert(sizeof(double) == sizeof(struct pv_refcnt*));
 	union {
-		struct pv_refcnt *ptr; // only used for casting
+		struct pv_refcnt *ptr;
 		double val;
 	} u;
 	u.val = val;
@@ -22,9 +21,8 @@ static struct pv_refcnt *cast_double_to_pointer(double val) {
 static double cast_pointer_to_double(struct pv_refcnt *ptr) {
 	// illegal
 	// arrest this man
-	assert(sizeof(double) == sizeof(struct pv_refcnt*));
 	union {
-		struct pv_refcnt *ptr; // only used for casting
+		struct pv_refcnt *ptr;
 		double val;
 	} u;
 	u.ptr = ptr;
@@ -32,6 +30,8 @@ static double cast_pointer_to_double(struct pv_refcnt *ptr) {
 }
 
 void pv_number_install() {
+	// be nice if there was a static assert but
+	assert(sizeof(double) <= sizeof(struct pv_refcnt*));
 	pv_register_kind(&number_kind, "number", NULL);
 }
 
