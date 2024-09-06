@@ -1,3 +1,5 @@
+#ifndef PV_H
+#define PV_H
 // builtin types:
 // invalid
 // bool
@@ -36,3 +38,4 @@ typedef void (*pv_free_func)(pv);
 
 pv pv_copy(pv);
 void pv_free(pv);
+#endif
