@@ -1,5 +1,8 @@
 #include "pv_singletons.h"
 
+#include <assert.h>
+#include <stddef.h>
+
 pv_kind null_kind;
 pv_kind bool_kind;
 
@@ -52,4 +55,9 @@ pv pv_false() {
 pv pv_bool(int b) {
 	pv val = {bool_kind, 0, cast_int_to_pointer(b ? 1 : -1)};
 	return val;
+}
+
+int pv_bool_value(pv val) {
+	assert(val.kind == bool_kind);
+	return (cast_pointer_to_int(val.data) > 0) ? 1 : -1;
 }

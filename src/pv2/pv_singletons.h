@@ -13,4 +13,6 @@ pv pv_true(void);
 pv pv_false(void);
 pv pv_bool(int);
 
+int pv_bool_value(pv);
+
 #endif
