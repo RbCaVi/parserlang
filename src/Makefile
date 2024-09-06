@@ -62,6 +62,7 @@ pv2/pv.o: pv2/pv.h pv2/pv_private.h
 pv2/pv_number.o: pv2/pv_number.h pv2/pv.h
 pv2/pv_to_string.o: pv2/pv_to_string.h pv2/pv.h
 pv2/pv_private.o: pv2/pv_private.h pv2/pv.h
+pv2/pv_singletons.o: pv2/pv_singletons.h pv2/pv.h
 
 pv2_test: pv2_main.o pv2/pv_number.o pv2/pv_to_string.o pv2/pv.o pv2/pv_private.o
 	gcc $^ -o $@
