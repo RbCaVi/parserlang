@@ -51,6 +51,7 @@ void pv_free(pv val) {
   pv_free_func kfree = kind_free[pv_get_kind(val)];
   if (kfree != 0 && kfree != NULL) { // NULL != 0 ahh condition
     kfree(val);
+    return;
   }
   if (!PV_IS_ALLOCATED(val)) {
     return; // they don't have any allocated memory anyway
