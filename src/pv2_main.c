@@ -36,5 +36,11 @@ int main(int argc, char **argv) {
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	{
+		pv val1 = pv_string("cheesy");
+		pv val2 = pv_string("burger");
+		char *s = pv_to_string(pv_string_concat(val1, val2));
+		printf("%s\n", s);
+	}
 	printf("%s\n", pv_kind_name(0));
 }
