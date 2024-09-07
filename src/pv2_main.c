@@ -1,6 +1,7 @@
 #include "pv.h"
 #include "pv_number.h"
 #include "pv_singletons.h"
+#include "pv_string.h"
 #include "pv_to_string.h"
 
 #include <stdio.h>
@@ -8,6 +9,7 @@
 int main(int argc, char **argv) {
 	pv_number_install();
 	pv_singletons_install();
+	pv_string_install();
 	{
 		pv val = pv_number(15);
 		char *s = pv_to_string(val);
@@ -28,6 +30,11 @@ int main(int argc, char **argv) {
 		pv val = pv_null();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
-		printf("%s\n", pv_kind_name(0));
 	}
+	{
+		pv val = pv_string("cheesy");
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+	}
+	printf("%s\n", pv_kind_name(0));
 }
