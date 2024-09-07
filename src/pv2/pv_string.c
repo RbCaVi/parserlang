@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 pv_kind string_kind;
 
@@ -19,6 +20,29 @@ typedef struct {
   uint32_t alloc_length;
   char data[];
 } pv_string_data;
+
+static pv_string_data *pvp_string_get_data(pv val) {
+	assert(val.kind == string_kind);
+	pv_string_data *s = val.data;
+	return s;
+}
+
+static void pv_string_free(pv val) {
+	free(pvp_string_get_data(val));
+}
+
+static uint32_t pvp_string_length(pv_string_data *s) {
+	return s->length_hashed >> 1;
+}
+
+static char *pv_string_to_string(pv val) {
+	pv_string_data *s = pvp_string_get_data(val);
+	int len = pvp_string_length(s);
+	char *str = pv_alloc(len + 1);
+	memcpy(str, s->data, len);
+	pv_free(val);
+	return str;
+}
 
 void pv_string_install() {
 	pv_register_kind(&string_kind, "string", pv_string_free);
@@ -39,16 +63,6 @@ pv pv_string(const char *str) {
   s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string
   pv val = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
   return val;
-}
-
-static uint32_t pvp_string_length(pv_string_data *s) {
-	return s->length_hashed >> 1;
-}
-
-static pv_string_data *pvp_string_get_data(pv val) {
-	assert(val.kind == string_kind);
-	pv_string_data *s = val.data;
-	return s;
 }
 
 int pv_string_length(pv val) {
