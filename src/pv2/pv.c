@@ -43,7 +43,10 @@ pv pv_copy(pv val) {
 
 void pv_free(pv val) {
   if (PV_IS_ALLOCATED(val)) {
-    pvp_decref(val.data);
+    if (!pvp_decref(val.data)) {
+      // not actually freed
+      return;
+    }
   }
   pv_free_func kfree = kind_free[pv_get_kind(val)];
   if (kfree != 0 && kfree != NULL) { // NULL != 0 ahh condition
