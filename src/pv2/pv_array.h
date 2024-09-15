@@ -8,6 +8,7 @@
 extern pv_kind array_kind;
 
 pv pv_array(void);
+pv pv_array_sized(int);
 int pv_array_length(pv);
 pv pv_array_get(pv, int);
 pv pv_array_set(pv, int, pv);
