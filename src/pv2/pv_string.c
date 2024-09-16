@@ -22,7 +22,7 @@ typedef struct {
 } pv_string_data;
 
 static pv_string_data *pvp_string_get_data(pv val) {
-	pv_string_data *s = val.data;
+	pv_string_data *s = (pv_string_data*)val.data;
 	return s;
 }
 
@@ -36,7 +36,7 @@ static uint32_t pvp_string_length(pv_string_data *s) {
 
 static char *pv_string_to_string(pv val) {
 	pv_string_data *s = pvp_string_get_data(val);
-	int len = pvp_string_length(s);
+	uint32_t len = pvp_string_length(s);
 	char *str = pv_alloc(len + 1);
 	memcpy(str, s->data, len);
 	pv_free(val);
@@ -51,12 +51,12 @@ void pv_string_install() {
 static pv_string_data *pv_string_alloc(size_t size) {
 	pv_string_data *s = pv_alloc(sizeof(pv_string_data) + size + 1);
 	s->refcnt = PV_REFCNT_INIT;
-  s->alloc_length = size;
+  s->alloc_length = (uint32_t)size;
   return s;
 }
 
 pv pv_string(const char *str) {
-	uint32_t len = strlen(str);
+	uint32_t len = (uint32_t)strlen(str);
 	pv_string_data *s = pv_string_alloc(len * 2);
   memcpy(s->data, str, len);
   s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string
@@ -64,15 +64,15 @@ pv pv_string(const char *str) {
   return val;
 }
 
-int pv_string_length(pv val) {
+uint32_t pv_string_length(pv val) {
 	assert(val.kind == string_kind);
 	return pvp_string_length(pvp_string_get_data(val));
 }
 
-//unsigned long pv_string_hash(pv val) {
+//uint32_t pv_string_hash(pv val) {
 //	assert(val.kind == string_kind);
 //	pv_string_data *s = pvp_string_get_data(val);
-//	// uhhhh i have to implement this
+//	// uhhhh i have to implement this at some point
 //}
 
 pv pv_string_concat(pv val1, pv val2) {
