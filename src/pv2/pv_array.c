@@ -59,8 +59,11 @@ static char *pv_array_to_string(pv val) {
 	for (uint32_t i = 0; i < l; i++) {
 		uint32_t len = lens[i];
 		memcpy(str + pos, strs[i], len);
-		memcpy(str + pos + len, ", ", 2);
-		pos += len + 2;
+		pos += len;
+		if (i < l - 1) {
+			memcpy(str + pos, ", ", 2);
+			pos += 2;
+		}
 	}
 	str[pos] = ']';
 	str[pos + 1] = '\0';
@@ -150,6 +153,7 @@ pv pv_array_append(pv val, pv cell) {
 	pv_array_data *a = pvp_array_get_data(val);
 	uint32_t l = pvp_array_length(a);
 	pv_array_data *newa = pvp_array_realloc(a, max(a->alloc_length, l + 1));
+	newa->length = l + 1;
 	newa->elements[l] = cell;
   pv newval = {array_kind, PV_FLAG_ALLOCATED, &(newa->refcnt)};
 	return newval;
@@ -163,6 +167,7 @@ pv pv_array_concat(pv val1, pv val2) {
 	uint32_t l1 = pvp_array_length(a1);
 	uint32_t l2 = pvp_array_length(a2);
 	pv_array_data *a = pvp_array_realloc(a1, max(a1->alloc_length, l1 + l2));
+	a->length = l1 + l2;
 	for (int i = 0; i < l2; i++) {
 		a->elements[l1 + i] = pv_copy(a2->elements[i]);
 	}
