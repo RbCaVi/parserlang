@@ -16,5 +16,6 @@ void pvp_incref(pv_refcnt* c);
 int pvp_refcnt_unshared(pv_refcnt* c);
 
 void *pv_alloc(size_t size);
+void *pv_realloc(void *ptr, size_t size);
 
 #endif

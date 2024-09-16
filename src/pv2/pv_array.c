@@ -2,6 +2,10 @@
 #include "pv_private.h"
 #include "pv_to_string.h"
 
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
 pv_kind array_kind;
@@ -25,8 +29,8 @@ static uint32_t pvp_array_length(pv_array_data *a) {
 
 static void pv_array_free(pv val) {
 	pv_array_data *a = pvp_array_get_data(val);
-	int l = pvp_array_length(a);
-	for (int i = 0; i < l; i++) {
+	uint32_t l = pvp_array_length(a);
+	for (uint32_t i = 0; i < l; i++) {
 		pv_free(a->elements[i]);
 	}
 	free(a);
@@ -34,15 +38,15 @@ static void pv_array_free(pv val) {
 
 static char *pv_array_to_string(pv val) {
 	pv_array_data *a = pvp_array_get_data(val);
-	int l = pvp_array_length(a);
+	uint32_t l = pvp_array_length(a);
 
-	int tlen = 1 + 2 * (l - 1) + 1; // "[" + ", "... + "]"
+	uint32_t tlen = 1 + 2 * (l - 1) + 1; // "[" + ", "... + "]"
 	char **strs = pv_alloc(sizeof(char*) * l);
-	int *lens = pv_alloc(sizeof(int) * l);
+	uint32_t *lens = pv_alloc(sizeof(uint32_t) * l);
 
-	for (int i = 0; i < l; i++) {
-		str = pv_to_string(pv_ref(a->elements[i]));
-		len = strlen(str);
+	for (uint32_t i = 0; i < l; i++) {
+		char *str = pv_to_string(pv_copy(a->elements[i]));
+		uint32_t len = strlen(str);
 		tlen += len;
 		strs[i] = str;
 		lens[i] = len;
@@ -50,10 +54,10 @@ static char *pv_array_to_string(pv val) {
 
 	char *str = pv_alloc(tlen + 1);
 	str[0] = '[';
-	int pos = 1;
+	uint32_t pos = 1;
 
-	for (int i = 0; i < l; i++) {
-		int len = lens[i];
+	for (uint32_t i = 0; i < l; i++) {
+		uint32_t len = lens[i];
 		memcpy(str + pos, strs[i], len);
 		memcpy(str + pos + len, ", ", 2);
 		pos += len + 2;
@@ -74,7 +78,7 @@ static pv_array_data *pvp_array_alloc(size_t size) {
 	pv_array_data *a = pv_alloc(sizeof(pv_array_data) + sizeof(pv) * size);
 	a->refcnt = PV_REFCNT_INIT;
   a->alloc_length = size;
-  return s;
+  return a;
 }
 
 static pv_array_data *pvp_array_realloc(pv_array_data *ain, size_t size) {
@@ -92,7 +96,7 @@ static pv_array_data *pvp_array_realloc(pv_array_data *ain, size_t size) {
 		a = pv_alloc(sizeof(pv_array_data) + sizeof(pv) * size);
 		memcpy(a, ain, sizeof(pv_array_data) + sizeof(pv) * size);
 		for (int i = 0; i < pvp_array_length(a); i++) {
-			pvp_incref(a->elements[i]->refcnt);
+			pv_copy(a->elements[i]);
 		}
 		pvp_decref(&(ain->refcnt));
 	}
@@ -116,7 +120,7 @@ pv pv_array_sized(int size) {
   return val;
 }
 
-int pv_array_length(pv val) {
+uint32_t pv_array_length(pv val) {
 	assert(val.kind == array_kind);
 	return pvp_array_length(pvp_array_get_data(val));
 }
@@ -125,7 +129,7 @@ pv pv_array_get(pv val, int i) {
 	assert(val.kind == array_kind);
 	pv_array_data *a = pvp_array_get_data(val);
 	assert(i < a->length);
-	return pv_ref(a->elements[i]);
+	return pv_copy(a->elements[i]);
 }
 
 // slightly different from jq (jq extends arrays with null on out of bounds write)
@@ -135,7 +139,7 @@ pv pv_array_set(pv val, int i, pv cell) {
 	uint32_t l = pvp_array_length(a);
 	assert(i < l); // out of bounds write is an error
 	pv_array_data *newa = pvp_array_realloc(a, a->alloc_length);
-	pv_unref(a->elements[i]);
+	pv_free(a->elements[i]);
 	newa->elements[i] = cell;
   pv newval = {array_kind, PV_FLAG_ALLOCATED, &(newa->refcnt)};
 	return newval;
@@ -160,7 +164,7 @@ pv pv_array_concat(pv val1, pv val2) {
 	uint32_t l2 = pvp_array_length(a2);
 	pv_array_data *a = pvp_array_realloc(a1, max(a1->alloc_length, l1 + l2));
 	for (int i = 0; i < l2; i++) {
-		a.elements[l + i] = pv_ref(a2.elements[i]);
+		a->elements[l1 + i] = pv_copy(a2->elements[i]);
 	}
   pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
 	return val;

@@ -23,3 +23,11 @@ void *pv_alloc(size_t size) {
   }
   return p;
 }
+
+void *pv_realloc(void *ptr, size_t size) {
+  void *p = realloc(ptr, size);
+  if (p == NULL) {
+    abort();
+  }
+  return p;
+}
