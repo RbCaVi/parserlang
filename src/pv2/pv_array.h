@@ -7,6 +7,8 @@
 
 extern pv_kind array_kind;
 
+void pv_array_install();
+
 pv pv_array(void);
 pv pv_array_sized(int);
 int pv_array_length(pv);

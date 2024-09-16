@@ -15,13 +15,59 @@ typedef struct {
 } pv_array_data;
 
 static pv_array_data *pvp_array_get_data(pv val) {
-	assert(val.kind == array_kind);
 	pv_array_data *a = val.data;
 	return a;
 }
 
 static uint32_t pvp_array_length(pv_array_data *a) {
-	returna->length;
+	return a->length;
+}
+
+static void pv_array_free(pv val) {
+	pv_array_data *a = pvp_array_get_data(val);
+	int l = pvp_array_length(a);
+	for (int i = 0; i < l; i++) {
+		pv_free(a->elements[i]);
+	}
+	free(a);
+}
+
+static char *pv_array_to_string(pv val) {
+	pv_array_data *a = pvp_array_get_data(val);
+	int l = pvp_array_length(a);
+
+	int tlen = 1 + 2 * (l - 1) + 1; // "[" + ", "... + "]"
+	char **strs = pv_alloc(sizeof(char*) * l);
+	int *lens = pv_alloc(sizeof(int) * l);
+
+	for (int i = 0; i < l; i++) {
+		str = pv_to_string(pv_ref(a->elements[i]));
+		len = strlen(str);
+		tlen += len;
+		strs[i] = str;
+		lens[i] = len;
+	}
+
+	char *str = pv_alloc(tlen + 1);
+	str[0] = '[';
+	int pos = 1;
+
+	for (int i = 0; i < l; i++) {
+		int len = lens[i];
+		memcpy(str + pos, strs[i], len);
+		memcpy(str + pos + len, ", ", 2);
+		pos += len + 2;
+	}
+	str[pos] = ']';
+	str[pos + 1] = '\0';
+
+	pv_free(val);
+	return str;
+}
+
+void pv_array_install() {
+	pv_register_kind(&array_kind, "array", pv_array_free);
+	pv_register_to_string(array_kind, pv_array_to_string);
 }
 
 static pv_array_data *pvp_array_alloc(size_t size) {
@@ -108,14 +154,13 @@ pv pv_array_append(pv val, pv cell) {
 pv pv_array_concat(pv val1, pv val2) {
 	assert(val1.kind == array_kind);
 	assert(val2.kind == array_kind);
-	assert(val.kind == array_kind);
 	pv_array_data *a1 = pvp_array_get_data(val1);
 	pv_array_data *a2 = pvp_array_get_data(val2);
 	uint32_t l1 = pvp_array_length(a1);
 	uint32_t l2 = pvp_array_length(a2);
 	pv_array_data *a = pvp_array_realloc(a1, max(a1->alloc_length, l1 + l2));
 	for (int i = 0; i < l2; i++) {
-		a.elements[l + i] = a2.elements[i];
+		a.elements[l + i] = pv_ref(a2.elements[i]);
 	}
   pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
 	return val;
