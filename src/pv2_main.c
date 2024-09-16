@@ -51,8 +51,28 @@ int main(int argc, char **argv) {
 	}
 	{
 		pv val = PV_ARRAY(pv_string("cheesy"));
-		char *s = pv_to_string(pv_copy(val));
-		printf("%s %i\n", s, pv_array_length(val));
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+	}
+	{
+		pv val = PV_ARRAY(pv_string("cheesy"), pv_string("burger"));
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+	}
+	{
+		pv val1 = PV_ARRAY(pv_string("cheesy"));
+		pv val2 = PV_ARRAY(pv_string("burger"));
+		char *s = pv_to_string(pv_array_concat(val1, val2));
+		printf("%s\n", s);
+	}
+	{
+		pv val1 = PV_ARRAY(pv_string("cheesy"));
+		pv val2 = PV_ARRAY(pv_string("burger"));
+		pv val = pv_array_concat(pv_copy(val1), val2);
+		val = pv_array_concat(val, pv_copy(val1));
+		val = pv_array_set(val, 1, val1);
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
 	}
 	printf("%s\n", pv_kind_name(0));
 }
