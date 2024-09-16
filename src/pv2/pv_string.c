@@ -22,7 +22,6 @@ typedef struct {
 } pv_string_data;
 
 static pv_string_data *pvp_string_get_data(pv val) {
-	assert(val.kind == string_kind);
 	pv_string_data *s = val.data;
 	return s;
 }
@@ -66,6 +65,7 @@ pv pv_string(const char *str) {
 }
 
 int pv_string_length(pv val) {
+	assert(val.kind == string_kind);
 	return pvp_string_length(pvp_string_get_data(val));
 }
 
@@ -84,7 +84,7 @@ pv pv_string_concat(pv val1, pv val2) {
 	pv val;
 	uint32_t l1 = pvp_string_length(s1);
 	uint32_t l2 = pvp_string_length(s2);
-	if (pvp_refcnt_unshared(&(s1->data)) && s1->alloc_length > l1 + l2) {
+	if (pvp_refcnt_unshared(&(s1->refcnt)) && s1->alloc_length > l1 + l2) {
 		memcpy(s1->data + l1, s2->data, l2);
 		s = s1;
 		val = val1;
