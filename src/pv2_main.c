@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
 	pv_number_install();
 	pv_singletons_install();
 	pv_string_install();
+	pv_array_install();
 	{
 		pv val = pv_number(15);
 		char *s = pv_to_string(val);
@@ -47,6 +48,11 @@ int main(int argc, char **argv) {
 		pv val = pv_array();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+	}
+	{
+		pv val = PV_ARRAY(pv_string("cheesy"));
+		char *s = pv_to_string(pv_copy(val));
+		printf("%s %i\n", s, pv_array_length(val));
 	}
 	printf("%s\n", pv_kind_name(0));
 }
