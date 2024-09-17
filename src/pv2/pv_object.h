@@ -7,6 +7,8 @@
 
 extern pv_kind object_kind;
 
+void pv_object_install();
+
 pv pv_object(void);
 pv pv_object_get(pv object, pv key);
 int pv_object_has(pv object, pv key);
