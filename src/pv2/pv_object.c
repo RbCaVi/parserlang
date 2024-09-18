@@ -20,6 +20,7 @@ typedef struct {
   int next_free;
   int last_free;
   int length;
+  int alloc_size;
   struct object_slot elements[];
 } pvp_object_data;
 
@@ -27,7 +28,7 @@ void pv_object_install();
 
 static pv_object_data *pvp_object_alloc(size_t size) {
 	// size is the number of slots to use
-	// must be a power of 2 for slightly simpler code
+	// must be a power of 2 for simpler (and probably faster) code
 	assert(size > 0 && (size & (size - 1)) == 0);
 	
 	size_t nslots = size;
@@ -103,9 +104,26 @@ int pv_object_has(pv obj, pv key) {
 	return out;
 }
 
-pv pv_object_set(pv object, pv key, pv value);
+pv pv_object_set(pv obj, pv key, pv value) {
+	assert(obj.kind == object_kind);
+	
+	pvp_object_data *o = pvp_object_get_data(obj);
+	
+	object_slot *slot = pvp_object_get_slot(o, key);
+	
+	pv_free(obj);
+	pv_free(key);
 
-pv pv_object_delete(pv object, pv key) {
+	o = pvp_object_unshare(o); // simpler than uh
+	
+	if (slot == NULL) {
+		// use next_free
+		// insert before slots[bucket] (in the linked list structure)
+		// next_free = the.next
+	}
+}
+
+pv pv_object_delete(pv obj, pv key) {
 	assert(obj.kind == object_kind);
 	
 	pvp_object_data *o = pvp_object_get_data(obj);
@@ -116,8 +134,10 @@ pv pv_object_delete(pv object, pv key) {
 	pv_free(key);
 	
 	if (slot == NULL) {
-		return 0;
+		return obj;
 	}
+
+	o = pvp_object_unshare(o); // simpler than uh
 	
 	pv_free(slot->key);
 	pv_free(slot->value);
@@ -125,8 +145,10 @@ pv pv_object_delete(pv object, pv key) {
 	o->slots[o->last_free].next = sloti;
 	o->last_free = sloti;
 	o->size--;
+
+	pv newobj = {object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)}
 	
-	return 1;
+	return newobj;
 }
 
 int pv_object_length(pv object);
