@@ -11,7 +11,7 @@ pv_kind object_kind;
 struct object_slot {
   int next; /* next slot with same hash, for collisions */
   uint32_t hash;
-  pv string;
+  pv key;
   pv value;
 };
 
@@ -41,7 +41,7 @@ static pv_object_data *pvp_object_alloc(size_t size) {
 	for (int i = 0; i < nslots; i++) {
 		o->elements[i].next = i + 1; // the last one will point outside (but thats ok)
 		o->elements[i].hash = 0;
-		o->elements[i].string = pv_invalid();
+		o->elements[i].key = pv_invalid();
 		o->elements[i].value = pv_invalid();
 	}
 	int *buckets = (int*)(&o->elements[size]);
@@ -58,7 +58,7 @@ pv pv_object(void) {
 }
 
 object_slot *pvp_object_get_slot(pvp_object_data *o, pv key) {
-	uint32_t hash = pv_hash(key);
+	uint32_t hash = pv_hash(pv_copy(key));
 	
 	uint32_t bucket = pvp_object_get_bucket(o, hash);
 	int sloti = pvp_object_buckets(o)[bucket];
@@ -66,11 +66,13 @@ object_slot *pvp_object_get_slot(pvp_object_data *o, pv key) {
 	
 	while (sloti != -1) {
 		slot = o->slots + sloti;
-		if (slot->hash == hash && pv_equal(key, slot->string)) {
+		if (slot->hash == hash && pv_equal(pv_copy(key), pv_copy(slot->key))) {
+			pv_free(key);
 			return slot;
 		}
 		sloti = slot.next;
 	}
+	pv_free(key);
 	return NULL;
 }
 
@@ -82,7 +84,6 @@ pv pv_object_get(pv obj, pv key) {
 	object_slot *slot = pvp_object_get_slot(o, key);
 	
 	pv_free(obj);
-	pv_free(key);
 	
 	if (slot == NULL) {
 		return pv_invalid();
@@ -99,7 +100,6 @@ int pv_object_has(pv obj, pv key) {
 	int out = pvp_object_get_slot(o, key) != NULL;
 	
 	pv_free(obj);
-	pv_free(key);
 	
 	return out;
 }
@@ -109,10 +109,9 @@ pv pv_object_set(pv obj, pv key, pv value) {
 	
 	pvp_object_data *o = pvp_object_get_data(obj);
 	
-	object_slot *slot = pvp_object_get_slot(o, key);
+	object_slot *slot = pvp_object_get_slot(o, pv_copy(key));
 	
 	pv_free(obj);
-	pv_free(key);
 
 	o = pvp_object_unshare(o); // simpler than uh
 	
