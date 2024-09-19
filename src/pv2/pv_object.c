@@ -119,7 +119,26 @@ pv pv_object_set(pv obj, pv key, pv value) {
 		// use next_free
 		// insert before slots[bucket] (in the linked list structure)
 		// next_free = the.next
+		int bucket = get bucket;
+
+		int newsloti = o->next_free;
+		o->next_free = o->elements[newsloti].next;
+
+		o->elements[newsloti].next = buckets[bucket];
+		buckets[bucket] = newsloti;
+		
+		o->elements[newsloti].hash = hash;
+		o->elements[newsloti].key = key;
+		o->elements[newsloti].value = value;
+	} else {
+		// replace the value (it's as shrimple as that)
+		// and free the key
+		pv_free(slot->value);
+		slot->value = value;
+		pv_free(key);
 	}
+  pv val = {object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)};
+  return val;
 }
 
 pv pv_object_delete(pv obj, pv key) {
