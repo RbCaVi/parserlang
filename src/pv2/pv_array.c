@@ -19,7 +19,7 @@ typedef struct {
 } pv_array_data;
 
 static pv_array_data *pvp_array_get_data(pv val) {
-	pv_array_data *a = val.data;
+	pv_array_data *a = (pv_array_data*)val.data;
 	return a;
 }
 
@@ -46,7 +46,7 @@ static char *pv_array_to_string(pv val) {
 
 	for (uint32_t i = 0; i < l; i++) {
 		char *str = pv_to_string(pv_copy(a->elements[i]));
-		uint32_t len = strlen(str);
+		uint32_t len = (uint32_t)strlen(str);
 		tlen += len;
 		strs[i] = str;
 		lens[i] = len;
@@ -80,7 +80,7 @@ void pv_array_install() {
 static pv_array_data *pvp_array_alloc(size_t size) {
 	pv_array_data *a = pv_alloc(sizeof(pv_array_data) + sizeof(pv) * size);
 	a->refcnt = PV_REFCNT_INIT;
-  a->alloc_length = size;
+  a->alloc_length = (uint32_t)size;
   return a;
 }
 
@@ -98,12 +98,12 @@ static pv_array_data *pvp_array_realloc(pv_array_data *ain, size_t size) {
 		// there is more then one copy of this pv, so i have to 
 		a = pv_alloc(sizeof(pv_array_data) + sizeof(pv) * size);
 		memcpy(a, ain, sizeof(pv_array_data) + sizeof(pv) * size);
-		for (int i = 0; i < pvp_array_length(a); i++) {
+		for (uint32_t i = 0; i < pvp_array_length(a); i++) {
 			pv_copy(a->elements[i]);
 		}
 		pvp_decref(&(ain->refcnt));
 	}
-  a->alloc_length = size;
+  a->alloc_length = (uint32_t)size;
   return a;
 }
 
@@ -115,7 +115,7 @@ pv pv_array(void) {
   return val;
 }
 
-pv pv_array_sized(int size) {
+pv pv_array_sized(uint32_t size) {
 	// slightly simpler than pv_string
 	pv_array_data *a = pvp_array_alloc(size);
   a->length = 0;
@@ -128,7 +128,7 @@ uint32_t pv_array_length(pv val) {
 	return pvp_array_length(pvp_array_get_data(val));
 }
 
-pv pv_array_get(pv val, int i) {
+pv pv_array_get(pv val, uint32_t i) {
 	assert(val.kind == array_kind);
 	pv_array_data *a = pvp_array_get_data(val);
 	assert(i < a->length);
@@ -136,7 +136,7 @@ pv pv_array_get(pv val, int i) {
 }
 
 // slightly different from jq (jq extends arrays with null on out of bounds write)
-pv pv_array_set(pv val, int i, pv cell) {
+pv pv_array_set(pv val, uint32_t i, pv cell) {
 	assert(val.kind == array_kind);
 	pv_array_data *a = pvp_array_get_data(val);
 	uint32_t l = pvp_array_length(a);
@@ -168,7 +168,7 @@ pv pv_array_concat(pv val1, pv val2) {
 	uint32_t l2 = pvp_array_length(a2);
 	pv_array_data *a = pvp_array_realloc(a1, max(a1->alloc_length, l1 + l2));
 	a->length = l1 + l2;
-	for (int i = 0; i < l2; i++) {
+	for (uint32_t i = 0; i < l2; i++) {
 		a->elements[l1 + i] = pv_copy(a2->elements[i]);
 	}
   pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};

@@ -3,6 +3,7 @@
 #include "pv_singletons.h"
 #include "pv_string.h"
 #include "pv_array.h"
+#include "pv_object.h"
 #include "pv_to_string.h"
 
 #include <stdio.h>
@@ -12,6 +13,7 @@ int main(int argc, char **argv) {
 	pv_singletons_install();
 	pv_string_install();
 	pv_array_install();
+	pv_object_install();
 	{
 		pv val = pv_number(15);
 		char *s = pv_to_string(val);

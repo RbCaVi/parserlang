@@ -12,10 +12,10 @@ extern pv_kind array_kind;
 void pv_array_install();
 
 pv pv_array(void);
-pv pv_array_sized(int);
+pv pv_array_sized(uint32_t);
 uint32_t pv_array_length(pv);
-pv pv_array_get(pv, int);
-pv pv_array_set(pv, int, pv);
+pv pv_array_get(pv, uint32_t);
+pv pv_array_set(pv, uint32_t, pv);
 pv pv_array_append(pv, pv);
 pv pv_array_concat(pv, pv);
 //pv pv_array_elements(int, ...); // count + elements (be careful?)

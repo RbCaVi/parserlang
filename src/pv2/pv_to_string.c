@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 static pv_to_string_func pv_to_string_table[256];
 
@@ -33,7 +34,9 @@ char *pv_to_string(pv val) {
 		// how am i handling it?
 		// uhhhhhhhhhhh
 		// oh look a segmentation fault i have to fix that
-		size_t length = snprintf(NULL, 0, "<value of kind %s>", kind_name);
+		int l = snprintf(NULL, 0, "<value of kind %s>", kind_name);
+		assert(l >= 0); // (death)
+		size_t length = (size_t)l;
 		char* str = malloc(length + 1);
 		snprintf(str, length + 1, "<value of kind %s>", kind_name);
 		return str;

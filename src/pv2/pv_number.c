@@ -34,7 +34,9 @@ static double cast_pointer_to_double(struct pv_refcnt *ptr) {
 
 static char *pv_number_to_string(pv val) {
 	double num = pv_number_value(val);
-	size_t length = snprintf(NULL, 0, "%f", num);
+	int l = snprintf(NULL, 0, "%f", num);
+	assert(l >= 0);
+	size_t length = (size_t)l;
 	char* str = malloc(length + 1);
 	snprintf(str, length + 1, "%f", num);
 	return str;
