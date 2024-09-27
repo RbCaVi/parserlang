@@ -67,10 +67,21 @@ static uint32_t pvp_object_get_bucket(pvp_object_data *o, uint32_t hash) {
 	return hash & (o->alloc_size - 1);
 }
 
+static uint32_t round_up_next_pow2(uint32_t v) {
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+	return v;
+}
+
 static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) {
 	assert(size >= oin->length);
 
-	uint32_t newsize = size_but_rounded_up_to_the_next_power_of_2; // have to have enough space for one more
+	uint32_t newsize = round_up_next_pow2(size + 1); // have to have enough space for one more
 
 	pvp_object_data *o = pvp_object_alloc(newsize);
 
@@ -106,7 +117,26 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
   return o;
 }
 
-void pv_object_install();
+static void pv_object_free(pv obj) {
+	pvp_object_data *o = pvp_object_get_data(obj);
+
+	int *buckets = pvp_object_buckets(o);
+	for (uint32_t i = 0; i < o->alloc_size * 2; i++) {
+		if (buckets[i] == -1) {
+			continue;
+		}
+		struct object_slot *slot;
+		int sloti;
+		for ((sloti = buckets[i]), (slot = &(o->elements[sloti])); sloti !=-1; (sloti = (int)slot->next), (slot = &(o->elements[sloti]))) {
+			pv_free(slot->key);
+			pv_free(slot->value);
+		}
+	}
+}
+
+void pv_object_install() {
+	pv_register_kind(&object_kind, "object", pv_object_free);
+}
 
 pv pv_object(void) {
 	pvp_object_data *o = pvp_object_alloc(8);
@@ -212,6 +242,7 @@ pv pv_object_delete(pv obj, pv key) {
 		return obj;
 	}
 	
+	// probably should reset the slot for no double free / writing unallocated memory shenanigans in pv_free()
 	pv_free(slot->key);
 	pv_free(slot->value);
 	uint32_t sloti = (uint32_t)(slot - o->elements); // if it doesn't fit into an int, you probably have a problem

@@ -8,7 +8,8 @@ static const char *kind_names[256] = {"INVALID"};
 static pv_free_func kind_free[256];
 
 pv_kind pv_get_kind(pv val) {
-  return val.kind;
+  pv_kind out = val.kind;
+  return out;
 }
 
 int pv_register_kind(pv_kind *kind_out, const char *name, pv_free_func kfree) {
@@ -58,4 +59,9 @@ void pv_free(pv val) {
   }
   // aaaaaaaaaa somebody's not freeing their memory
   abort();
+}
+
+pv pv_invalid(void) {
+  pv val = {0, 0, NULL}; // invalid kind is always 0;
+  return val;
 }
