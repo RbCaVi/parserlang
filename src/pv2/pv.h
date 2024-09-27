@@ -40,4 +40,6 @@ const char *pv_kind_name(pv_kind);
 pv pv_copy(pv);
 void pv_free(pv);
 
+pv pv_invalid();
+
 #endif
