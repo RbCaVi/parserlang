@@ -2,7 +2,7 @@
 
 static pv_equal_func pv_equal_table[256][256];
 
-void pv_register_self_equal(pv_kind kind, pv_equal_func f) {
+void pv_register_equal_self(pv_kind kind, pv_equal_func f) {
 	pv_equal_table[kind][kind] = f;
 }
 
