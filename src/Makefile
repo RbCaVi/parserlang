@@ -70,7 +70,7 @@ pv2/pv_equal.o: pv2/pv_equal.h pv2/pv.h
 # kinds
 pv2/pv_number.o: pv2/pv_number.h pv2/pv_to_string.h pv2/pv.h
 pv2/pv_singletons.o: pv2/pv_singletons.h pv2/pv_to_string.h pv2/pv.h
-pv2/pv_string.o: pv2/pv_string.h pv2/pv_private.h pv2/pv_to_string.h pv2/pv.h
+pv2/pv_string.o: pv2/pv_string.h pv2/pv_private.h pv2/pv_to_string.h pv2/pv_hash.h pv2/pv.h
 pv2/pv_array.o: pv2/pv_array.h pv2/pv_private.h pv2/pv_to_string.h pv2/pv.h
 pv2/pv_object.o: pv2/pv_object.h pv2/pv_private.h pv2/pv_to_string.h pv2/pv_hash.h pv2/pv_equal.h pv2/pv.h
 
