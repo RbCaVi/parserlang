@@ -1,6 +1,7 @@
 #include "pv_string.h"
 #include "pv_private.h"
 #include "pv_to_string.h"
+#include "pv_hash.h"
 
 #include <string.h>
 #include <stddef.h>
@@ -43,9 +44,40 @@ static char *pv_string_to_string(pv val) {
 	return str;
 }
 
+/*
+    cyrb53a beta (c) 2023 bryc (github.com/bryc)
+    License: Public domain (or MIT if needed). Attribution appreciated.
+    This is a work-in-progress, and changes to the algorithm are expected.
+    The original cyrb53 has a slight mixing bias in the low bits of h1.
+    This doesn't affect collision rate, but I want to try to improve it.
+    This new version has preliminary improvements in avalanche behavior.
+*/
+// i (rbcavi) ported it to c (obviously)
+// i also changed the output a bit
+// (i have no knowledge of hash algorithms, i just picked this one because i found it on stack overflow)
+static uint32_t pv_string_hash(pv val) {
+	pv_string_data *s = pvp_string_get_data(val);
+	uint32_t len = pvp_string_length(s);
+	// this algorithm assumes overflow is wrapped
+  uint32_t h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (uint32_t i = 0; i < len; i++) {
+  	unsigned char c = (unsigned char)s->data[i];
+    h1 = (h1 ^ c) * 0x85ebca77;
+    h2 = (h2 ^ c) * 0xc2b2ae3d;
+  }
+  h1 ^= (h1 ^ (h2 >> 15)) * 0x735a2d97;
+  h2 ^= (h2 ^ (h1 >> 15)) * 0xcaf649a9;
+  h1 ^= h2 >> 16;
+  h2 ^= h1 >> 16;
+  return h1;
+  //return 2097152 * (h2 >>> 0) + (h1 >>> 11);
+}
+
+
 void pv_string_install() {
 	pv_register_kind(&string_kind, "string", pv_string_free);
 	pv_register_to_string(string_kind, pv_string_to_string);
+	pv_register_hash(string_kind, pv_string_hash);
 }
 
 static pv_string_data *pv_string_alloc(size_t size) {
@@ -59,7 +91,7 @@ pv pv_string(const char *str) {
 	uint32_t len = (uint32_t)strlen(str);
 	pv_string_data *s = pv_string_alloc(len * 2);
   memcpy(s->data, str, len);
-  s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string
+  s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string and cause overflow
   pv val = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
   return val;
 }

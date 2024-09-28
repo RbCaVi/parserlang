@@ -11,7 +11,6 @@ void pv_string_install();
 
 pv pv_string(const char*);
 uint32_t pv_string_length(pv);
-uint32_t pv_string_hash(pv);
 pv pv_string_concat(pv, pv);
 
 #endif
