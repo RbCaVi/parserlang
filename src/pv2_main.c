@@ -77,5 +77,27 @@ int main(int argc, char **argv) {
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	{
+		pv val = pv_object();
+		char *s = pv_to_string(val);
+		printf("%s %s\n", s);
+	}
+	{
+		pv val1 = pv_string("cheesy");
+		pv val2 = pv_string("burger");
+		pv val3 = pv_object();
+		char *s1 = pv_to_string(pv_object_get(pv_copy(val3), val1));
+		char *s2 = pv_to_string(val3);
+		printf("%s %s\n", s1, s2);
+	}
+	{
+		pv val1 = pv_string("cheesy");
+		pv val2 = pv_string("burger");
+		pv val3 = pv_object();
+		val3 = pv_object_set(val3, pv_copy(val1), val2);
+		char *s1 = pv_to_string(pv_object_get(pv_copy(val3), val1));
+		char *s2 = pv_to_string(val3);
+		printf("%s %s\n", s1, s2);
+	}
 	printf("%s\n", pv_kind_name(0));
 }
