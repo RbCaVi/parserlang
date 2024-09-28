@@ -21,9 +21,11 @@ int pv_equal(pv val1, pv val2) {
 		return f(val1, val2);
 	}
 
-	// boring equality but easy
 	// the pvs can be freed first because the pointer won't be used
 	pv_free(val1);
 	pv_free(val2);
-	return pv_get_kind(val1) == pv_get_kind(val2) && val1.data == val2.data;
+	// boring equality but easy
+	//return pv_get_kind(val1) == pv_get_kind(val2) && val1.data == val2.data;
+	// or just no pvs are equal to stop the issue of "these objects look identical but don't compare equal????"
+	return 0;
 }
