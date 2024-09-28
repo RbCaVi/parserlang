@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 int main(int argc, char **argv) {
+	(void)argc, (void)argv;
 	pv_number_install();
 	pv_singletons_install();
 	pv_string_install();
