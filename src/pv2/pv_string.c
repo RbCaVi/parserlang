@@ -2,6 +2,7 @@
 #include "pv_private.h"
 #include "pv_to_string.h"
 #include "pv_hash.h"
+#include "pv_equal.h"
 
 #include <string.h>
 #include <stddef.h>
@@ -35,6 +36,19 @@ static uint32_t pvp_string_length(pv_string_data *s) {
 	return s->length_hashed >> 1;
 }
 
+static int pvp_string_hashed(pv_string_data *s) {
+	return s->length_hashed & 1;
+}
+
+static void pvp_string_sethash(pv_string_data *s, uint32_t hash) {
+	s->length_hashed |= 1; // set the hashed bit
+	s->hash = hash;
+}
+
+static void pvp_string_unhash(pv_string_data *s) {
+	s->length_hashed &= ~1U; // unset the hashed bit
+}
+
 static char *pv_string_to_string(pv val) {
 	pv_string_data *s = pvp_string_get_data(val);
 	uint32_t len = pvp_string_length(s);
@@ -57,6 +71,9 @@ static char *pv_string_to_string(pv val) {
 // (i have no knowledge of hash algorithms, i just picked this one because i found it on stack overflow)
 static uint32_t pv_string_hash(pv val) {
 	pv_string_data *s = pvp_string_get_data(val);
+	if (pvp_string_hashed(s)) {
+		return s->hash;
+	}
 	uint32_t len = pvp_string_length(s);
 	// this algorithm assumes overflow is wrapped
   uint32_t h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -69,15 +86,33 @@ static uint32_t pv_string_hash(pv val) {
   h2 ^= (h2 ^ (h1 >> 15)) * 0xcaf649a9;
   h1 ^= h2 >> 16;
   h2 ^= h1 >> 16;
+  pvp_string_sethash(s, h1);
   return h1;
   //return 2097152 * (h2 >>> 0) + (h1 >>> 11);
 }
 
+int pv_string_equal_self(pv val1, pv val2) {
+	pv_string_data *s1 = pvp_string_get_data(val1);
+	pv_string_data *s2 = pvp_string_get_data(val2);
+	uint32_t len1 = pvp_string_length(s1);
+	uint32_t len2 = pvp_string_length(s2);
+	int out;
+	if (s1 == s2) {
+		// that was easy
+		out = 1;
+	} else if (len1 != len2) {
+		out = 0;
+	} else if (s1)
+	pv_free(val1);
+	pv_free(val2);
+	return out;
+}
 
 void pv_string_install() {
 	pv_register_kind(&string_kind, "string", pv_string_free);
 	pv_register_to_string(string_kind, pv_string_to_string);
 	pv_register_hash(string_kind, pv_string_hash);
+	pv_register_equal_self(string_kind, pv_string_equal_self);
 }
 
 static pv_string_data *pv_string_alloc(size_t size) {
