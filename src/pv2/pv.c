@@ -61,6 +61,10 @@ void pv_free(pv val) {
   abort();
 }
 
+int pv_get_refcount(pv val) {
+  return pvp_getref(val.data);
+}
+
 pv pv_invalid(void) {
   pv val = {0, 0, NULL}; // invalid kind is always 0;
   return val;

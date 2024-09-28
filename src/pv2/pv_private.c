@@ -2,6 +2,10 @@
 
 #include <stdlib.h>
 
+int pvp_getref(pv_refcnt* c) {
+  return c->count;
+}
+
 int pvp_decref(pv_refcnt* c) {
   c->count--;
   return c->count == 0;
