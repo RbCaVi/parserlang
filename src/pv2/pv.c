@@ -1,6 +1,10 @@
 #include "pv.h"
 #include "pv_private.h"
 
+#include "pv_to_string.h"
+#include "pv_hash.h"
+#include <stdio.h>
+
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -42,7 +46,19 @@ pv pv_copy(pv val) {
   return val;
 }
 
+static int freeing = 0;
+
 void pv_free(pv val) {
+  //* // debug free
+  if (!freeing) {
+    freeing = 1;
+    const char *s = pv_to_string(pv_copy(val));
+    uint32_t hash = pv_hash(pv_copy(val));
+    printf("freed %s pv with hash %x and refcount %i: %s\n", pv_kind_name(pv_get_kind(val)), hash, pv_get_refcount(val), s);
+    free(s);
+    freeing = 0;
+  }
+  //*/
   if (PV_IS_ALLOCATED(val)) {
     if (!pvp_decref(val.data)) {
       // not actually freed
