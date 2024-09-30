@@ -21,53 +21,74 @@ int main(int argc, char **argv) {
 		double num = pv_number_value(val);
 		printf("%f, %s\n", num, s);
 	}
+	printf("\n");
 	{
 		pv val = pv_true();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val = pv_false();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val = pv_null();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
+		printf("freeing a string\n");
 		pv val = pv_string("cheesy");
-		char *s = pv_to_string(val);
-		printf("%s\n", s);
+		pv_free(val);
+		printf("freed a string\n");
 	}
+	printf("\n");
+	{
+		printf("tostring a string\n");
+		pv val = pv_string("cheesy");
+		printf("%i\n", pv_get_refcount(val));
+		char *s = pv_to_string(val);
+		printf("%i\n", pv_get_refcount(val));
+		printf("%s\n", s);
+		printf("tostringd a string\n");
+	}
+	printf("\n");
 	{
 		pv val1 = pv_string("cheesy");
 		pv val2 = pv_string("burger");
 		char *s = pv_to_string(pv_string_concat(val1, val2));
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val = pv_array();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val = PV_ARRAY(pv_string("cheesy"));
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val = PV_ARRAY(pv_string("cheesy"), pv_string("burger"));
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val1 = PV_ARRAY(pv_string("cheesy"));
 		pv val2 = PV_ARRAY(pv_string("burger"));
 		char *s = pv_to_string(pv_array_concat(val1, val2));
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val1 = PV_ARRAY(pv_string("cheesy"));
 		pv val2 = PV_ARRAY(pv_string("burger"));
@@ -77,24 +98,32 @@ int main(int argc, char **argv) {
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val = pv_object();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
+	printf("\n");
 	{
 		pv val1 = pv_string("cheesy");
 		pv val = pv_object();
+		printf("i get %i\n", pv_get_refcount(val1));
 		char *s1 = pv_to_string(pv_object_get(pv_copy(val), val1));
+		printf("i get dead\n");
 		char *s2 = pv_to_string(val);
 		printf("%s %s\n", s1, s2);
 	}
+	printf("\n");
 	{
 		pv val1 = pv_string("cheesy");
 		pv val2 = pv_string("burger");
 		pv val3 = pv_object();
+		printf("i set\n");
 		val3 = pv_object_set(val3, pv_copy(val1), val2);
+		printf("i get\n");
 		char *s1 = pv_to_string(pv_object_get(pv_copy(val3), val1));
+		printf("and i die!!!\n");
 		char *s2 = pv_to_string(val3);
 		printf("%s %s\n", s1, s2);
 	}

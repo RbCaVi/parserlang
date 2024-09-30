@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+
 pv_kind string_kind;
 
 // this struct was copied straight out of jq
@@ -100,6 +102,7 @@ void pv_string_install() {
 static pv_string_data *pv_string_alloc(size_t size) {
 	pv_string_data *s = pv_alloc(sizeof(pv_string_data) + size + 1);
 	s->refcnt = PV_REFCNT_INIT;
+	printf("initialized string with refcount %i\n", s->refcnt);
   s->alloc_length = (uint32_t)size;
   return s;
 }
@@ -110,6 +113,7 @@ pv pv_string(const char *str) {
   memcpy(s->data, str, len);
   s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string and cause overflow
   pv val = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
+	printf("initialized string with refcount %i from get refcount\n", pv_get_refcount(val));
   return val;
 }
 

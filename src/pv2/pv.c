@@ -52,9 +52,12 @@ void pv_free(pv val) {
   //* // debug free
   if (!freeing) {
     freeing = 1;
+    int refcnt = pv_get_refcount(val);
     const char *s = pv_to_string(pv_copy(val));
+    int refcnt2 = pv_get_refcount(val);
     uint32_t hash = pv_hash(pv_copy(val));
-    printf("freed %s pv with hash %x and refcount %i: %s\n", pv_kind_name(pv_get_kind(val)), hash, pv_get_refcount(val), s);
+    int refcnt3 = pv_get_refcount(val);
+    printf("freeing %s pv with hash %x and refcount %i -> %i -> %i: %s\n", pv_kind_name(pv_get_kind(val)), hash, refcnt, refcnt2, refcnt3, s);
     free(s);
     freeing = 0;
   }
@@ -67,6 +70,7 @@ void pv_free(pv val) {
   }
   pv_free_func kfree = kind_free[pv_get_kind(val)];
   if (kfree != 0 && kfree != NULL) { // NULL != 0 ahh condition
+    printf("IT FREED!!!\n");
     kfree(val);
     return;
   }
