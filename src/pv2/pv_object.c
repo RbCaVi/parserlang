@@ -169,6 +169,7 @@ pv pv_object_get(pv obj, pv key) {
 	struct object_slot *slot = pvp_object_get_slot(o, pv_hash(pv_copy(key)), key);
 	
 	if (slot == NULL) {
+		pv_free(obj);
 		return pv_invalid();
 	}
 	

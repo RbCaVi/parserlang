@@ -63,11 +63,13 @@ static char *pv_string_to_string(pv val) {
 static uint32_t pv_string_hash(pv val) {
 	pv_string_data *s = pvp_string_get_data(val);
 	if (pvp_string_hashed(s)) {
+  	pv_free(val);
 		return s->hash;
 	}
 	uint32_t len = pvp_string_length(s);
 	uint32_t hash = pvp_hash_data(s->data, len);
   pvp_string_sethash(s, hash);
+  pv_free(val);
   return hash;
 }
 

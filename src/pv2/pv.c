@@ -82,6 +82,9 @@ void pv_free(pv val) {
 }
 
 int pv_get_refcount(pv val) {
+  if (!PV_IS_ALLOCATED(val)) {
+    return -1; // no refcount
+  }
   return pvp_getref(val.data);
 }
 

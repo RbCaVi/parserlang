@@ -14,7 +14,7 @@ void pv_register_to_string(pv_kind kind, pv_to_string_func f) {
 
 char *pv_to_string(pv val) {
 	// get the function to use
-	char *(*f)(pv) = pv_to_string_table[pv_get_kind(pv_copy(val))];
+	char *(*f)(pv) = pv_to_string_table[pv_get_kind(val)];
 
 	// the table is initialized to all 0, so a nonzero f has been initialized
 	if (f != 0) {
@@ -25,6 +25,7 @@ char *pv_to_string(pv val) {
 	// default return value
 	pv_kind kind = pv_get_kind(val);
 	const char *kind_name = pv_kind_name(kind);
+	pv_free(val); // not needed anymore
 	if (kind_name == NULL) {
 		char *str = strdup("<value of unknown kind 0x   ");
 		snprintf(str + 16, 4, "%.2x>", kind);

@@ -8,13 +8,15 @@ void pv_register_hash(pv_kind kind, pv_hash_func f) {
 
 uint32_t pv_hash(pv val) {
 	// get the function to use
-	pv_hash_func f = pv_hash_table[pv_get_kind(pv_copy(val))];
+	pv_hash_func f = pv_hash_table[pv_get_kind(val)];
 
 	// the table is initialized to all 0, so a nonzero f has been initialized
 	if (f != 0) {
 		// use the function
 		return f(val);
 	}
+
+	pv_free(val);
 
 	// default return value
 	// what should this be anyway
