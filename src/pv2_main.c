@@ -108,9 +108,7 @@ int main(int argc, char **argv) {
 	{
 		pv val1 = pv_string("cheesy");
 		pv val = pv_object();
-		printf("i get %i\n", pv_get_refcount(val1));
 		char *s1 = pv_to_string(pv_object_get(pv_copy(val), val1));
-		printf("i get dead\n");
 		char *s2 = pv_to_string(val);
 		printf("%s %s\n", s1, s2);
 	}
@@ -119,11 +117,8 @@ int main(int argc, char **argv) {
 		pv val1 = pv_string("cheesy");
 		pv val2 = pv_string("burger");
 		pv val3 = pv_object();
-		printf("i set\n");
 		val3 = pv_object_set(val3, pv_copy(val1), val2);
-		printf("i get\n");
 		char *s1 = pv_to_string(pv_object_get(pv_copy(val3), val1));
-		printf("and i die!!!\n");
 		char *s2 = pv_to_string(val3);
 		printf("%s %s\n", s1, s2);
 	}
