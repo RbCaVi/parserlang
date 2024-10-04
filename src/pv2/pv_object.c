@@ -11,7 +11,7 @@ pv_kind object_kind;
 
 // struct copied straight out of jq
 struct object_slot {
-  uint32_t next; /* next slot with same hash, for collisions */
+  int next; /* next slot with same hash, for collisions */
   uint32_t hash;
   pv key;
   pv value;
@@ -48,7 +48,7 @@ static pvp_object_data *pvp_object_alloc(uint32_t size) {
 	o->last_free = nslots - 1;
 	o->length = 0;
 	o->alloc_size = size;
-	for (uint32_t i = 0; i < nslots; i++) {
+	for (int i = 0; i < (int)nslots; i++) {
 		o->elements[i].next = i + 1; // the last one will point outside (but thats ok)
 		o->elements[i].hash = 0;
 		o->elements[i].key = pv_invalid();
@@ -97,9 +97,9 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
 			uint32_t bucket = pvp_object_get_bucket(o, slot->hash);
 
 			uint32_t newsloti = o->next_free;
-			o->next_free = o->elements[newsloti].next;
+			o->next_free = (uint32_t)o->elements[newsloti].next;
 
-			o->elements[newsloti].next = (uint32_t)buckets[bucket];
+			o->elements[newsloti].next = buckets[bucket];
 			buckets[bucket] = (int)newsloti;
 
 			o->elements[newsloti].hash = slot->hash;
@@ -209,9 +209,9 @@ pv pv_object_set(pv obj, pv key, pv value) {
 		uint32_t bucket = pvp_object_get_bucket(o, hash);
 
 		uint32_t newsloti = o->next_free;
-		o->next_free = o->elements[newsloti].next;
+		o->next_free = (uint32_t)o->elements[newsloti].next;
 
-		o->elements[newsloti].next = (uint32_t)pvp_object_buckets(o)[bucket];
+		o->elements[newsloti].next = pvp_object_buckets(o)[bucket];
 		pvp_object_buckets(o)[bucket] = (int)newsloti;
 
 		o->elements[newsloti].hash = hash;
@@ -236,19 +236,33 @@ pv pv_object_delete(pv obj, pv key) {
 	pvp_object_data *o = pvp_object_get_data(obj);
 
 	o = pvp_object_realloc(o, o->length - 1); // simpler than uh
+
+	uint32_t hash = pv_hash(pv_copy(key));
+	uint32_t bucket = pvp_object_get_bucket(o, hash);
+	int *prevnext = &(pvp_object_buckets(o)[bucket]);
+	int sloti = *prevnext;
+	struct object_slot *slot;
 	
-	struct object_slot *slot = pvp_object_get_slot(o, pv_hash(pv_copy(key)), key);
-	
-	if (slot == NULL) {
+	while (sloti != -1) {
+		slot = o->elements + sloti;
+		if (slot->hash == hash && pv_equal(pv_copy(key), pv_copy(slot->key))) {
+			break;
+		}
+		prevnext = &(slot->next);
+		sloti = *prevnext;
+	}
+	pv_free(key);
+	if (sloti == -1) { // 404 - slot not found
 		return obj;
 	}
 	
 	// probably should reset the slot for no double free / writing unallocated memory shenanigans in pv_free()
 	pv_free(slot->key);
 	pv_free(slot->value);
-	uint32_t sloti = (uint32_t)(slot - o->elements); // if it doesn't fit into an int, you probably have a problem
+	*prevnext = slot->next;
+	sloti = (int)(slot - o->elements); // if it doesn't fit into an int, you probably have a problem
 	o->elements[o->last_free].next = sloti;
-	o->last_free = sloti;
+	o->last_free = (uint32_t)sloti; // it it's negative, that's a problem too
 	o->length--;
 
 	pv newobj = {object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)};
@@ -256,18 +270,99 @@ pv pv_object_delete(pv obj, pv key) {
 	return newobj;
 }
 
-int pv_object_length(pv object);
+uint32_t pv_object_length(pv obj) {
+	assert(obj.kind == object_kind);
+	
+	pvp_object_data *o = pvp_object_get_data(obj);
+
+	uint32_t l = o->length;
+
+	pv_free(obj);
+
+	return l;
+}
 
 pv pv_object_merge(pv, pv);
 
 pv pv_object_merge_recursive(pv, pv);
 
-int pv_object_iter(pv);
+int pvp_object_iter(pv obj) {
+	assert(obj.kind == object_kind);
 
-int pv_object_iter_next(pv, int);
+	pvp_object_data *o = pvp_object_get_data(obj);
 
-int pv_object_iter_valid(pv, int);
+	uint32_t l = o->length;
 
-pv pv_object_iter_key(pv, int);
+	if (l == 0) {
+		return -1;
+	}
 
-pv pv_object_iter_value(pv, int);
+	int *buckets = pvp_object_buckets(o);
+	for (uint32_t i = 0; i < o->alloc_size * 2; i++) {
+		if (buckets[i] != -1) {
+			pv_free(obj);
+			return buckets[i];
+		}
+	}
+
+	pv_free(obj);
+	return -1; // just in case
+}
+
+// walk each linked list until the end and switch to the next one
+int pvp_object_iter_next(pv obj, int iter) {
+	assert(obj.kind == object_kind);
+
+	pvp_object_data *o = pvp_object_get_data(obj);
+
+	if (o->elements[iter].next == -1) {
+		int *buckets = pvp_object_buckets(o);
+		for (uint32_t i = pvp_object_get_bucket(o, o->elements[iter].hash); i < o->alloc_size * 2; i++) {
+			if (buckets[i] != -1) {
+				pv_free(obj);
+				return buckets[i];
+			}
+		}
+		return -1;
+	}
+
+	int out = (int)o->elements[iter].next;
+
+	pv_free(obj);
+
+	return out;
+}
+
+int pvp_object_iter_valid(pv obj, int iter) {
+	assert(obj.kind == object_kind);
+
+	pv_free(obj);
+
+	return iter != -1;
+}
+
+pv pvp_object_iter_key(pv obj, int iter) {
+	assert(obj.kind == object_kind);
+	assert(iter != -1);
+
+	pvp_object_data *o = pvp_object_get_data(obj);
+
+	pv val = pv_copy(o->elements[iter].key);
+
+	pv_free(obj);
+
+	return val;
+}
+
+pv pvp_object_iter_value(pv obj, int iter) {
+	assert(obj.kind == object_kind);
+	assert(iter != -1);
+
+	pvp_object_data *o = pvp_object_get_data(obj);
+
+	pv val = pv_copy(o->elements[iter].value);
+
+	pv_free(obj);
+
+	return val;
+}
