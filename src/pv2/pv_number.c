@@ -1,5 +1,6 @@
 #include "pv_number.h"
 #include "pv_to_string.h"
+#include "pv_equal.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -42,11 +43,16 @@ static char *pv_number_to_string(pv val) {
 	return str;
 }
 
+static int pv_number_equal_self(pv val1, pv val2) {
+	return pv_number_value(val1) == pv_number_value(val2);
+}
+
 void pv_number_install() {
 	// be nice if there was a static assert but
 	assert(sizeof(double) <= sizeof(struct pv_refcnt*));
 	pv_register_kind(&number_kind, "number", NULL);
 	pv_register_to_string(number_kind, pv_number_to_string);
+	pv_register_equal_self(number_kind, pv_number_equal_self);
 }
 
 pv pv_number(double num) {

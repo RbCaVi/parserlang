@@ -1,5 +1,6 @@
 #include "pv_singletons.h"
 #include "pv_to_string.h"
+#include "pv_equal.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -43,6 +44,13 @@ static char *pv_singleton_to_string(pv val) {
 	}
 }
 
+static int pv_singleton_equal_self(pv val1, pv val2) {
+	if (pv_get_kind(val1) == null_kind) {
+		return 1;
+	}
+	return pv_bool_value(val1) == pv_bool_value(val2);
+}
+
 void pv_singletons_install() {
 	// be nice if there was a static assert but
 	assert(sizeof(int) <= sizeof(struct pv_refcnt*));
@@ -50,6 +58,8 @@ void pv_singletons_install() {
 	pv_register_kind(&bool_kind, "bool", NULL);
 	pv_register_to_string(null_kind, pv_singleton_to_string);
 	pv_register_to_string(bool_kind, pv_singleton_to_string);
+	pv_register_equal_self(null_kind, pv_singleton_equal_self);
+	pv_register_equal_self(bool_kind, pv_singleton_equal_self);
 }
 
 pv pv_null() {

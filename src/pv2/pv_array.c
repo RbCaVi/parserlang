@@ -1,6 +1,7 @@
 #include "pv_array.h"
 #include "pv_private.h"
 #include "pv_to_string.h"
+#include "pv_equal.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -72,9 +73,31 @@ static char *pv_array_to_string(pv val) {
 	return str;
 }
 
+static int pv_array_equal_self(pv val1, pv val2) {
+	pv_array_data *a1 = pvp_array_get_data(val1);
+	pv_array_data *a2 = pvp_array_get_data(val2);
+	uint32_t l1 = pvp_array_length(a1);
+	uint32_t l2 = pvp_array_length(a2);
+	if (l1 != l2) {
+		return 0;
+	}
+	uint32_t l = l1; // l2 is equal
+	int out = 1;
+	for (uint32_t i = 0; i < l; i++) {
+		if (!pv_equal(pv_copy(a1->elements[i]), pv_copy(a2->elements[i]))) {
+			out = 0;
+			break;
+		}
+	}
+	pv_array_free(val1);
+	pv_array_free(val2);
+	return out;
+}
+
 void pv_array_install() {
 	pv_register_kind(&array_kind, "array", pv_array_free);
 	pv_register_to_string(array_kind, pv_array_to_string);
+	pv_register_equal_self(array_kind, pv_array_equal_self);
 }
 
 static pv_array_data *pvp_array_alloc(size_t size) {
