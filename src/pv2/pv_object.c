@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 pv_kind object_kind;
 
@@ -134,8 +135,59 @@ static void pv_object_free(pv obj) {
 	}
 }
 
+static char *pv_object_to_string(pv val) {
+	uint32_t l = pv_object_length(pv_copy(val));
+
+	uint32_t tlen = 1 + 2 * l + 2 * (l - 1) + 1; // "{" + ": " + ", "... + "}"
+	char **kstrs = pv_alloc(sizeof(char*) * l);
+	uint32_t *klens = pv_alloc(sizeof(uint32_t) * l);
+	char **vstrs = pv_alloc(sizeof(char*) * l);
+	uint32_t *vlens = pv_alloc(sizeof(uint32_t) * l);
+
+	uint32_t i;
+	int iter;
+
+	for (i = 0, iter = pv_object_iter(pv_copy(val)); i < l && pv_object_iter_valid(pv_copy(val), iter); i++, iter = pv_object_iter_next(pv_copy(val), iter)) {
+		char *kstr = pv_to_string(pv_object_iter_key(pv_copy(val), iter));
+		char *vstr = pv_to_string(pv_object_iter_value(pv_copy(val), iter));
+		uint32_t klen = (uint32_t)strlen(kstr);
+		uint32_t vlen = (uint32_t)strlen(vstr);
+		tlen += klen;
+		tlen += vlen;
+		kstrs[i] = kstr;
+		klens[i] = klen;
+		vstrs[i] = vstr;
+		vlens[i] = vlen;
+	}
+
+	char *str = pv_alloc(tlen + 1);
+	str[0] = '{';
+	uint32_t pos = 1;
+
+	for (i = 0; i < l; i++) {
+		uint32_t klen = klens[i];
+		memcpy(str + pos, kstrs[i], klen);
+		pos += klen;
+		memcpy(str + pos, ": ", 2);
+		pos += 2;
+		uint32_t vlen = vlens[i];
+		memcpy(str + pos, vstrs[i], vlen);
+		pos += klen;
+		if (i < l - 1) {
+			memcpy(str + pos, ", ", 2);
+			pos += 2;
+		}
+	}
+	str[pos] = '}';
+	str[pos + 1] = '\0';
+
+	pv_free(val);
+	return str;
+}
+
 void pv_object_install() {
 	pv_register_kind(&object_kind, "object", pv_object_free);
+	pv_register_to_string(object_kind, pv_object_to_string);
 }
 
 pv pv_object(void) {
@@ -286,7 +338,7 @@ pv pv_object_merge(pv, pv);
 
 pv pv_object_merge_recursive(pv, pv);
 
-int pvp_object_iter(pv obj) {
+int pv_object_iter(pv obj) {
 	assert(obj.kind == object_kind);
 
 	pvp_object_data *o = pvp_object_get_data(obj);
@@ -310,7 +362,7 @@ int pvp_object_iter(pv obj) {
 }
 
 // walk each linked list until the end and switch to the next one
-int pvp_object_iter_next(pv obj, int iter) {
+int pv_object_iter_next(pv obj, int iter) {
 	assert(obj.kind == object_kind);
 
 	pvp_object_data *o = pvp_object_get_data(obj);
@@ -333,7 +385,7 @@ int pvp_object_iter_next(pv obj, int iter) {
 	return out;
 }
 
-int pvp_object_iter_valid(pv obj, int iter) {
+int pv_object_iter_valid(pv obj, int iter) {
 	assert(obj.kind == object_kind);
 
 	pv_free(obj);
@@ -341,7 +393,7 @@ int pvp_object_iter_valid(pv obj, int iter) {
 	return iter != -1;
 }
 
-pv pvp_object_iter_key(pv obj, int iter) {
+pv pv_object_iter_key(pv obj, int iter) {
 	assert(obj.kind == object_kind);
 	assert(iter != -1);
 
@@ -354,7 +406,7 @@ pv pvp_object_iter_key(pv obj, int iter) {
 	return val;
 }
 
-pv pvp_object_iter_value(pv obj, int iter) {
+pv pv_object_iter_value(pv obj, int iter) {
 	assert(obj.kind == object_kind);
 	assert(iter != -1);
 
