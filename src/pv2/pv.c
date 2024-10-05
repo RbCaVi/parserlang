@@ -42,8 +42,6 @@ pv pv_copy(pv val) {
   return val;
 }
 
-static int freeing = 0;
-
 void pv_free(pv val) {
   if (PV_IS_ALLOCATED(val)) {
     if (!pvp_decref(val.data)) {

@@ -45,10 +45,6 @@ static void pvp_string_sethash(pv_string_data *s, uint32_t hash) {
 	s->hash = hash;
 }
 
-static void pvp_string_unhash(pv_string_data *s) {
-	s->length_hashed &= ~1U; // unset the hashed bit
-}
-
 static char *pv_string_to_string(pv val) {
 	pv_string_data *s = pvp_string_get_data(val);
 	uint32_t len = pvp_string_length(s);
@@ -65,7 +61,7 @@ static uint32_t pv_string_hash(pv val) {
 		return s->hash;
 	}
 	uint32_t len = pvp_string_length(s);
-	uint32_t hash = pvp_hash_data(s->data, len);
+	uint32_t hash = pvp_hash_data((unsigned char*)s->data, len);
   pvp_string_sethash(s, hash);
   pv_free(val);
   return hash;
