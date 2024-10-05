@@ -24,8 +24,11 @@ char *pv_to_string(pv val) {
 
 	// default return value
 	pv_kind kind = pv_get_kind(val);
-	const char *kind_name = pv_kind_name(kind);
 	pv_free(val); // not needed anymore
+	if (kind == 0) {
+		return "<INVALID>";
+	}
+	const char *kind_name = pv_kind_name(kind);
 	if (kind_name == NULL) {
 		char *str = strdup("<value of unknown kind 0x   ");
 		snprintf(str + 16, 4, "%.2x>", kind);
