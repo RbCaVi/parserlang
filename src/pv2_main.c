@@ -64,31 +64,37 @@ int main(int argc, char **argv) {
 	}
 	printf("\n");
 	{
+		printf("string concat\n");
 		pv val1 = pv_string("cheesy");
 		pv val2 = pv_string("burger");
-		char *s = pv_to_string(pv_string_concat(val1, val2));
+		pv val3 = pv_string_concat(val1, val2);
+		char *s = pv_to_string(val3);
 		printf("%s\n", s);
 	}
 	printf("\n");
 	{
+		printf("array constructor\n");
 		pv val = pv_array();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
 	printf("\n");
 	{
+		printf("array constructor macro\n");
 		pv val = PV_ARRAY(pv_string("cheesy"));
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
 	printf("\n");
 	{
+		printf("array constructor macro 2\n");
 		pv val = PV_ARRAY(pv_string("cheesy"), pv_string("burger"));
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
 	}
 	printf("\n");
 	{
+		printf("array concatenate\n");
 		pv val1 = PV_ARRAY(pv_string("cheesy"));
 		pv val2 = PV_ARRAY(pv_string("burger"));
 		char *s = pv_to_string(pv_array_concat(val1, val2));
@@ -96,6 +102,7 @@ int main(int argc, char **argv) {
 	}
 	printf("\n");
 	{
+		printf("array set\n");
 		pv val1 = PV_ARRAY(pv_string("cheesy"));
 		pv val2 = PV_ARRAY(pv_string("burger"));
 		pv val = pv_array_concat(pv_copy(val1), val2);
@@ -106,6 +113,7 @@ int main(int argc, char **argv) {
 	}
 	printf("\n");
 	{
+		printf("object constructor\n");
 		pv val = pv_object();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
