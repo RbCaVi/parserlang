@@ -28,12 +28,15 @@ static pv_string_data *pvp_string_get_data(pv val) {
 	return s;
 }
 
-static void pv_string_free(pv val) {
-	free(pvp_string_get_data(val));
-}
-
 static uint32_t pvp_string_length(pv_string_data *s) {
 	return s->length_hashed >> 1;
+}
+
+static void pv_string_free(pv val) {
+	// if you uncomment this, comment out the free()
+	//pv_string_data *s = pvp_string_get_data(val);
+	//memset(s->data, 'A', pvp_string_length(s));
+	free(pvp_string_get_data(val));
 }
 
 static int pvp_string_hashed(pv_string_data *s) {

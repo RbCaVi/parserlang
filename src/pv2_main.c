@@ -54,6 +54,12 @@ int main(int argc, char **argv) {
 		char *s = pv_to_string(val);
 		printf("%i\n", pv_get_refcount(val));
 		printf("%s\n", s);
+		// test that the string is overwritten with AAAAAAA when freed
+		// edit pv_string_free() as well to test (debugging thing)
+		//char *s2 = pv_to_string(val);
+		//printf("%i\n", pv_get_refcount(val));
+		//pv_copy(val); // without this, segmentation fault???? (write to freed memory) (this resets it)
+		//printf("%s\n", s2);
 		printf("tostringd a string\n");
 	}
 	printf("\n");
