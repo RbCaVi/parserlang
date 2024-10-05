@@ -48,8 +48,11 @@ static void pvp_string_sethash(pv_string_data *s, uint32_t hash) {
 static char *pv_string_to_string(pv val) {
 	pv_string_data *s = pvp_string_get_data(val);
 	uint32_t len = pvp_string_length(s);
-	char *str = pv_alloc(len + 1);
-	memcpy(str, s->data, len);
+	char *str = pv_alloc(len + 3);
+	str[0] = '"';
+	memcpy(str + 1, s->data, len);
+	str[len + 1] = '"';
+	str[len + 2] = '\0';
 	pv_free(val);
 	return str;
 }
