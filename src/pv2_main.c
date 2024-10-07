@@ -5,16 +5,13 @@
 #include "pv_array.h"
 #include "pv_object.h"
 #include "pv_to_string.h"
+#include "pv_install.h"
 
 #include <stdio.h>
 
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
-	pv_number_install();
-	pv_singletons_install();
-	pv_string_install();
-	pv_array_install();
-	pv_object_install();
+	pv_install();
 	{
 		pv val = pv_number(15);
 		char *s = pv_to_string(val);
