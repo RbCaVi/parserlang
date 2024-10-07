@@ -29,6 +29,7 @@ all: pv_test main
 # core
 pv/pv.o: pv/pv.h pv/pv_private.h
 pv/pv_private.o: pv/pv_private.h pv/pv.h
+pv/pv_install.o: pv/pv_install.h pv/pv_singletons.h pv/pv_number.h pv/pv_string.h pv/pv_array.h pv/pv_object.h pv/pv.h
 
 # aux (the stuff you have to register your kind for)
 pv/pv_to_string.o: pv/pv_to_string.h pv/pv.h
