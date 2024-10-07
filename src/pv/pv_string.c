@@ -150,7 +150,7 @@ pv pv_string_concat(pv val1, pv val2) {
 	uint32_t l2 = pvp_string_length(s2);
 	if (pvp_refcnt_unshared(&(s1->refcnt)) && s1->alloc_length > l1 + l2) {
 		memcpy(s1->data + l1, s2->data, l2);
-		s->data[l1 + l2] = '\0';
+		s1->data[l1 + l2] = '\0';
 		s = s1;
 		val = val1;
 	} else {
