@@ -1,4 +1,5 @@
-pv is a modified version of jq's jv
+(c) 2024 Robert Vail
+pv is heavily based on jv from jq
 
 jq is copyright (C) 2012 Stephen Dolan
 
@@ -20,40 +21,3 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-jq incorporates David M. Gay's dtoa.c and g_fmt.c, which bear the
-following notices:
-
-dtoa.c:
-The author of this software is David M. Gay.
-
-Copyright (c) 1991, 2000, 2001 by Lucent Technologies.
-
-Permission to use, copy, modify, and distribute this software for any
-purpose without fee is hereby granted, provided that this entire notice
-is included in all copies of any software which is or includes a copy
-or modification of this software and in all copies of the supporting
-documentation for such software.
-
-THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-WARRANTY.  IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
-
-g_fmt.c:
-The author of this software is David M. Gay.
-
-Copyright (c) 1991, 1996 by Lucent Technologies.
-
-Permission to use, copy, modify, and distribute this software for any
-purpose without fee is hereby granted, provided that this entire notice
-is included in all copies of any software which is or includes a copy
-or modification of this software and in all copies of the supporting
-documentation for such software.
-
-THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-WARRANTY.  IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.

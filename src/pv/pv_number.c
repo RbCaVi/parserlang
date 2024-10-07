@@ -1,60 +1,68 @@
 #include "pv_number.h"
-
-#include "pvp.h"
+#include "pv_to_string.h"
+#include "pv_equal.h"
 
 #include <assert.h>
-#include <math.h>
-#include <float.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-/*
- * Numbers
- */
+pv_kind number_kind;
 
-pv pv_number(double x) {
-  pv j = {
-    PV_KIND_NUMBER,
-    0, 0, 0, {.number = x}
-  };
-  return j;
+// this needs a test at some point
+
+static struct pv_refcnt *cast_double_to_pointer(double val) {
+	// illegal
+	// arrest this man
+	union {
+		struct pv_refcnt *ptr;
+		double val;
+	} u;
+	u.val = val;
+	return u.ptr;
 }
 
-double pv_number_value(pv j) {
-  assert(PVP_HAS_KIND(j, PV_KIND_NUMBER));
-  return j.u.number;
+static double cast_pointer_to_double(struct pv_refcnt *ptr) {
+	// illegal
+	// arrest this man
+	union {
+		struct pv_refcnt *ptr;
+		double val;
+	} u;
+	u.ptr = ptr;
+	return u.val;
 }
 
-int pv_is_integer(pv j){
-  if (!PVP_HAS_KIND(j, PV_KIND_NUMBER)){
-    return 0;
-  }
-
-  double x = pv_number_value(j);
-
-  double ipart;
-  double fpart = modf(x, &ipart);
-
-  return fabs(fpart) < DBL_EPSILON;
+static char *pv_number_to_string(pv val) {
+	double num = pv_number_value(val);
+	int l = snprintf(NULL, 0, "%f", num);
+	assert(l >= 0);
+	size_t length = (size_t)l;
+	char* str = malloc(length + 1);
+	snprintf(str, length + 1, "%f", num);
+	return str;
 }
 
-int pvp_number_is_nan(pv n) {
-  assert(PVP_HAS_KIND(n, PV_KIND_NUMBER));
-  return n.u.number != n.u.number;
+static int pv_number_equal_self(pv val1, pv val2) {
+	return pv_number_value(val1) == pv_number_value(val2);
 }
 
-int pvp_number_cmp(pv a, pv b) {
-  assert(PVP_HAS_KIND(a, PV_KIND_NUMBER));
-  assert(PVP_HAS_KIND(b, PV_KIND_NUMBER));
-
-  double da = pv_number_value(a), db = pv_number_value(b);
-  if (da < db) {
-    return -1;
-  } else if (da == db) {
-    return 0;
-  } else {
-    return 1;
-  }
+void pv_number_install() {
+	// be nice if there was a static assert but
+	assert(sizeof(double) <= sizeof(struct pv_refcnt*));
+	pv_register_kind(&number_kind, "number", NULL);
+	pv_register_to_string(number_kind, pv_number_to_string);
+	pv_register_equal_self(number_kind, pv_number_equal_self);
 }
 
-static int pvp_number_equal(pv a, pv b) {
-  return pvp_number_cmp(a, b) == 0;
+pv pv_number(double num) {
+	pv val = {number_kind, 0, cast_double_to_pointer(num)};
+	return val;
+}
+
+double pv_number_value(pv val) {
+	// don't have to do a decref because number isn't allocated
+	assert(val.kind == number_kind);
+	double num = cast_pointer_to_double(val.data);
+	return num;
 }

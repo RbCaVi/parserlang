@@ -1,291 +1,199 @@
 #include "pv_array.h"
+#include "pv_private.h"
+#include "pv_to_string.h"
+#include "pv_equal.h"
 
-#include "pvp.h"
-#include "pv_constants.h"
-#include "pv_alloc.h"
-
-// #include <stdint.h>
-// #include <stddef.h>
 #include <assert.h>
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <string.h>
-// #include <stdarg.h>
-#include <limits.h>
-// #include <math.h>
-// #include <float.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "pv_invalid.h"
-#include "pv_number.h"
-#include "pv_string.h"
+#define max(a,b) ((a) > (b) ? (a) : (b))
 
-/*
- * Arrays (internal helpers)
- */
+pv_kind array_kind;
 
-#define ARRAY_SIZE_ROUND_UP(n) (((n)*3)/2)
-#define PVP_FLAGS_ARRAY   PVP_MAKE_FLAGS(PV_KIND_ARRAY, PVP_PAYLOAD_ALLOCATED)
-
-static int imax(int a, int b) {
-  if (a>b) return a;
-  else return b;
-}
-
-//FIXME signed vs unsigned
+// this struct was copied straight out of jq
 typedef struct {
   pv_refcnt refcnt;
-  int length, alloc_length;
+  uint32_t length;
+  uint32_t alloc_length;
   pv elements[];
-} pvp_array;
+} pv_array_data;
 
-static pvp_array* pvp_array_ptr(pv a) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  return (pvp_array*)a.u.ptr;
+static pv_array_data *pvp_array_get_data(pv val) {
+	pv_array_data *a = (pv_array_data*)val.data;
+	return a;
 }
 
-static pvp_array* pvp_array_alloc(unsigned size) {
-  pvp_array* a = pv_mem_alloc(sizeof(pvp_array) + sizeof(pv) * size);
-  a->refcnt.count = 1;
-  a->length = 0;
-  a->alloc_length = size;
+static uint32_t pvp_array_length(pv_array_data *a) {
+	return a->length;
+}
+
+static void pv_array_free(pv val) {
+	pv_array_data *a = pvp_array_get_data(val);
+	uint32_t l = pvp_array_length(a);
+	for (uint32_t i = 0; i < l; i++) {
+		pv_free(a->elements[i]);
+	}
+	free(a);
+}
+
+static char *pv_array_to_string(pv val) {
+	pv_array_data *a = pvp_array_get_data(val);
+	uint32_t l = pvp_array_length(a);
+
+	uint32_t tlen = 1 + 2 * (l - 1) + 1; // "[" + ", "... + "]"
+	char **strs = pv_alloc(sizeof(char*) * l);
+	uint32_t *lens = pv_alloc(sizeof(uint32_t) * l);
+
+	for (uint32_t i = 0; i < l; i++) {
+		char *str = pv_to_string(pv_copy(a->elements[i]));
+		uint32_t len = (uint32_t)strlen(str);
+		tlen += len;
+		strs[i] = str;
+		lens[i] = len;
+	}
+
+	char *str = pv_alloc(tlen + 1);
+	str[0] = '[';
+	uint32_t pos = 1;
+
+	for (uint32_t i = 0; i < l; i++) {
+		uint32_t len = lens[i];
+		memcpy(str + pos, strs[i], len);
+		pos += len;
+		if (i < l - 1) {
+			memcpy(str + pos, ", ", 2);
+			pos += 2;
+		}
+	}
+	str[pos] = ']';
+	str[pos + 1] = '\0';
+
+	pv_free(val);
+	return str;
+}
+
+static int pv_array_equal_self(pv val1, pv val2) {
+	pv_array_data *a1 = pvp_array_get_data(val1);
+	pv_array_data *a2 = pvp_array_get_data(val2);
+	uint32_t l1 = pvp_array_length(a1);
+	uint32_t l2 = pvp_array_length(a2);
+	if (l1 != l2) {
+		return 0;
+	}
+	uint32_t l = l1; // l2 is equal
+	int out = 1;
+	for (uint32_t i = 0; i < l; i++) {
+		if (!pv_equal(pv_copy(a1->elements[i]), pv_copy(a2->elements[i]))) {
+			out = 0;
+			break;
+		}
+	}
+	pv_array_free(val1);
+	pv_array_free(val2);
+	return out;
+}
+
+void pv_array_install() {
+	pv_register_kind(&array_kind, "array", pv_array_free);
+	pv_register_to_string(array_kind, pv_array_to_string);
+	pv_register_equal_self(array_kind, pv_array_equal_self);
+}
+
+static pv_array_data *pvp_array_alloc(size_t size) {
+	pv_array_data *a = pv_alloc(sizeof(pv_array_data) + sizeof(pv) * size);
+	a->refcnt = PV_REFCNT_INIT;
+  a->alloc_length = (uint32_t)size;
   return a;
 }
 
-static pv pvp_array_new(unsigned size) {
-  pv r = {PVP_FLAGS_ARRAY, 0, 0, 0, {&pvp_array_alloc(size)->refcnt}};
-  return r;
+static pv_array_data *pvp_array_realloc(pv_array_data *ain, size_t size) {
+	assert(size >= ain->length);
+	pv_array_data *a;
+	if (pvp_refcnt_unshared(&(ain->refcnt))) {
+		// there is only one copy of this pv, so i can rebuild it with realloc
+		// if (size <= ain->alloc_length) {
+		// 	// don't need to reallocate if it would shorten the allocation
+		// 	return ain;
+		// }
+		a = pv_realloc(ain, sizeof(pv_array_data) + sizeof(pv) * size);
+	} else {
+		// there is more then one copy of this pv, so i have to 
+		a = pv_alloc(sizeof(pv_array_data) + sizeof(pv) * size);
+		memcpy(a, ain, sizeof(pv_array_data) + sizeof(pv) * size);
+		for (uint32_t i = 0; i < pvp_array_length(a); i++) {
+			pv_copy(a->elements[i]);
+		}
+		pvp_decref(&(ain->refcnt));
+	}
+  a->alloc_length = (uint32_t)size;
+  return a;
 }
 
-void pvp_array_free(pv a) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  if (pvp_refcnt_dec(a.u.ptr)) {
-    pvp_array* array = pvp_array_ptr(a);
-    for (int i=0; i<array->length; i++) {
-      pv_unref(array->elements[i]);
-    }
-    pv_mem_free(array);
-  }
-}
-
-static int pvp_array_length(pv a) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  return a.size;
-}
-
-static int pvp_array_offset(pv a) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  return a.offset;
-}
-
-static pv* pvp_array_read(pv a, int i) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  if (i >= 0 && i < pvp_array_length(a)) {
-    pvp_array* array = pvp_array_ptr(a);
-    assert(i + pvp_array_offset(a) < array->length);
-    return &array->elements[i + pvp_array_offset(a)];
-  } else {
-    return 0;
-  }
-}
-
-static pv* pvp_array_write(pv* a, int i) {
-  assert(i >= 0);
-  pvp_array* array = pvp_array_ptr(*a);
-
-  int pos = i + pvp_array_offset(*a);
-  if (pos < array->alloc_length && pvp_refcnt_unshared(a->u.ptr)) {
-    // use existing array space
-    for (int j = array->length; j <= pos; j++) {
-      array->elements[j] = PV_NULL;
-    }
-    array->length = imax(pos + 1, array->length);
-    a->size = imax(i + 1, a->size);
-    return &array->elements[pos];
-  } else {
-    // allocate a new array
-    int new_length = imax(i + 1, pvp_array_length(*a));
-    pvp_array* new_array = pvp_array_alloc(ARRAY_SIZE_ROUND_UP(new_length));
-    int j;
-    for (j = 0; j < pvp_array_length(*a); j++) {
-      new_array->elements[j] =
-        pv_ref(array->elements[j + pvp_array_offset(*a)]);
-    }
-    for (; j < new_length; j++) {
-      new_array->elements[j] = PV_NULL;
-    }
-    new_array->length = new_length;
-    pvp_array_free(*a);
-    pv new_pv = {PVP_FLAGS_ARRAY, 0, 0, new_length, {&new_array->refcnt}};
-    *a = new_pv;
-    return &new_array->elements[i];
-  }
-}
-/*
-static int pvp_array_equal(pv a, pv b) {
-  if (pvp_array_length(a) != pvp_array_length(b))
-    return 0;
-  if (pvp_array_ptr(a) == pvp_array_ptr(b) &&
-      pvp_array_offset(a) == pvp_array_offset(b))
-    return 1;
-  for (int i=0; i<pvp_array_length(a); i++) {
-    if (!pv_equal(pv_ref(*pvp_array_read(a, i)),
-                  pv_ref(*pvp_array_read(b, i))))
-      return 0;
-  }
-  return 1;
-}
-*/
-void pvp_clamp_slice_params(int len, int *pstart, int *pend)
-{
-  if (*pstart < 0) *pstart = len + *pstart;
-  if (*pend < 0) *pend = len + *pend;
-
-  if (*pstart < 0) *pstart = 0;
-  if (*pstart > len) *pstart = len;
-  if (*pend > len) *pend = len;
-  if (*pend < *pstart) *pend = *pstart;
-}
-
-/*
-static int pvp_array_contains(pv a, pv b) {
-  int r = 1;
-  pv_array_foreach(b, bi, belem) {
-    int ri = 0;
-    pv_array_foreach(a, ai, aelem) {
-      if (pv_contains(aelem, pv_ref(belem))) {
-        ri = 1;
-        break;
-      }
-    }
-    pv_unref(belem);
-    if (!ri) {
-      r = 0;
-      break;
-    }
-  }
-  return r;
-}
-*/
-
-/*
- * Public
- */
-
-static pv pvp_array_slice(pv a, int start, int end) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  int len = pvp_array_length(a);
-  pvp_clamp_slice_params(len, &start, &end);
-  assert(0 <= start && start <= end && end <= len);
-
-  // FIXME: maybe slice should reallocate if the slice is small enough
-  if (start == end) {
-    pv_unref(a);
-    return pv_array();
-  }
-
-  if (a.offset + start >= 1 << (sizeof(a.offset) * CHAR_BIT)) {
-    pv r = pv_array_sized(end - start);
-    for (int i = start; i < end; i++)
-      r = pv_array_append(r, pv_array_get(pv_ref(a), i));
-    pv_unref(a);
-    return r;
-  } else {
-    a.offset += start;
-    a.size = end - start;
-    return a;
-  }
-}
-
-/*
- * Arrays (public interface)
- */
-
-pv pv_array_sized(int n) {
-  return pvp_array_new(n);
-}
-
-pv pv_array() {
-  return pv_array_sized(16);
-}
-
-int pv_array_length(pv j) {
-  assert(PVP_HAS_KIND(j, PV_KIND_ARRAY));
-  int len = pvp_array_length(j);
-  pv_unref(j);
-  return len;
-}
-
-pv pv_array_get(pv j, int idx) {
-  assert(PVP_HAS_KIND(j, PV_KIND_ARRAY));
-  pv* slot = pvp_array_read(j, idx);
-  pv val;
-  if (slot) {
-    val = pv_ref(*slot);
-  } else {
-    val = pv_invalid();
-  }
-  pv_unref(j);
+pv pv_array(void) {
+	// slightly simpler than pv_string
+	pv_array_data *a = pvp_array_alloc(16);
+  a->length = 0;
+  pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
   return val;
 }
 
-pv pv_array_set(pv j, int idx, pv val) {
-  assert(PVP_HAS_KIND(j, PV_KIND_ARRAY));
-
-  if (idx < 0)
-    idx = pvp_array_length(j) + idx;
-  if (idx < 0) {
-    pv_unref(j);
-    pv_unref(val);
-    return pv_invalid_with_msg(pv_string("Out of bounds negative array index"));
-  }
-  // copy/free of val,j coalesced
-  pv* slot = pvp_array_write(&j, idx);
-  pv_unref(*slot);
-  *slot = val;
-  return j;
+pv pv_array_sized(uint32_t size) {
+	// slightly simpler than pv_string
+	pv_array_data *a = pvp_array_alloc(size);
+  a->length = 0;
+  pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
+  return val;
 }
 
-pv pv_array_append(pv j, pv val) {
-  // copy/free of val,j coalesced
-  return pv_array_set(j, pv_array_length(pv_ref(j)), val);
+uint32_t pv_array_length(pv val) {
+	assert(val.kind == array_kind);
+	return pvp_array_length(pvp_array_get_data(val));
 }
 
-pv pv_array_concat(pv a, pv b) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  assert(PVP_HAS_KIND(b, PV_KIND_ARRAY));
-
-  // FIXME: could be faster
-  pv_array_foreach(b, i, elem) {
-    a = pv_array_append(a, elem);
-  }
-  pv_unref(b);
-  return a;
+pv pv_array_get(pv val, uint32_t i) {
+	assert(val.kind == array_kind);
+	pv_array_data *a = pvp_array_get_data(val);
+	assert(i < a->length);
+	return pv_copy(a->elements[i]);
 }
 
-pv pv_array_slice(pv a, int start, int end) {
-  assert(PVP_HAS_KIND(a, PV_KIND_ARRAY));
-  // copy/free of a coalesced
-  return pvp_array_slice(a, start, end);
+// slightly different from jq (jq extends arrays with null on out of bounds write)
+pv pv_array_set(pv val, uint32_t i, pv cell) {
+	assert(val.kind == array_kind);
+	pv_array_data *a = pvp_array_get_data(val);
+	uint32_t l = pvp_array_length(a);
+	assert(i < l); // out of bounds write is an error
+	pv_array_data *newa = pvp_array_realloc(a, a->alloc_length);
+	pv_free(a->elements[i]);
+	newa->elements[i] = cell;
+  pv newval = {array_kind, PV_FLAG_ALLOCATED, &(newa->refcnt)};
+	return newval;
 }
-/*
-pv pv_array_indexes(pv a, pv b) {
-  pv res = pv_array();
-  int idx = -1;
-  pv_array_foreach(a, ai, aelem) {
-    pv_unref(aelem);
-    pv_array_foreach(b, bi, belem) {
-      if (!pv_equal(pv_array_get(pv_ref(a), ai + bi), pv_ref(belem)))
-        idx = -1;
-      else if (bi == 0 && idx == -1)
-        idx = ai;
-      pv_unref(belem);
-    }
-    if (idx > -1)
-      res = pv_array_append(res, pv_number(idx));
-    idx = -1;
-  }
-  pv_unref(a);
-  pv_unref(b);
-  return res;
+
+pv pv_array_append(pv val, pv cell) {
+	assert(val.kind == array_kind);
+	pv_array_data *a = pvp_array_get_data(val);
+	uint32_t l = pvp_array_length(a);
+	pv_array_data *newa = pvp_array_realloc(a, max(a->alloc_length, l + 1));
+	newa->length = l + 1;
+	newa->elements[l] = cell;
+  pv newval = {array_kind, PV_FLAG_ALLOCATED, &(newa->refcnt)};
+	return newval;
 }
-*/
+
+pv pv_array_concat(pv val1, pv val2) {
+	assert(val1.kind == array_kind);
+	assert(val2.kind == array_kind);
+	pv_array_data *a1 = pvp_array_get_data(val1);
+	pv_array_data *a2 = pvp_array_get_data(val2);
+	uint32_t l1 = pvp_array_length(a1);
+	uint32_t l2 = pvp_array_length(a2);
+	pv_array_data *a = pvp_array_realloc(a1, max(a1->alloc_length, l1 + l2));
+	a->length = l1 + l2;
+	for (uint32_t i = 0; i < l2; i++) {
+		a->elements[l1 + i] = pv_copy(a2->elements[i]);
+	}
+  pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
+	return val;
+}
