@@ -1,10 +1,13 @@
 #include "pl/pl_dump.h"
 #include "pl/util_pl.h"
-#include "pv/pv_array.h"
+#include "pv/pv_singletons.h"
 #include "pv/pv_number.h"
-#include "pv/pv_object.h"
 #include "pv/pv_string.h"
+#include "pv/pv_array.h"
+#include "pv/pv_object.h"
 #include "pl/pl_dump.h"
+
+#include <stdio.h>
 
 static void print_prefix(pl_dump_prefix parts) {
 	printf(".");
@@ -37,26 +40,22 @@ pl_dump_prefix pl_dump_new_prefix() {
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
 	print_prefix(parts);
 	size_t idx;
-	switch (pv_get_kind(val)) {
-  case PV_KIND_INVALID:
+	pv_kind kind = pv_get_kind(val);
+	if (kind == 0) {
   	printf("ERROR OBJECT\n");
-  	break;
-  case PV_KIND_NULL:
+  } else if (kind == null_kind) {
   	printf("NULL\n");
-  	break;
-  case PV_KIND_FALSE:
-  	printf("FALSE\n");
-  	break;
-  case PV_KIND_TRUE:
-  	printf("TRUE\n");
-  	break;
-  case PV_KIND_NUMBER:
+  } else if (kind == bool_kind) {
+  	if (pv_bool_value(val)) {
+  		printf("TRUE\n");
+  	} else {
+	  	printf("FALSE\n");
+  	}
+  } else if (kind == number_kind) {
   	printf("%f\n",pv_number_value(val));
-  	break;
-  case PV_KIND_STRING:
+  } else if (kind == string_kind) {
   	printf("\"%s\"\n",pv_string_value(val));
-  	break;
-  case PV_KIND_ARRAY:
+  } else if (kind == array_kind) {
   	printf("[]\n");
 		inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
 		pv_array_foreach(val, i, v) {
@@ -64,8 +63,7 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
 			parts.data->parts[idx].idx = i;
 			pl_dump_pv_prefixed(v, parts);
   	}
-  	break;
-  case PV_KIND_OBJECT:
+  } else if (kind == object_kind) {
   	printf("{}\n");
 		inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
 		pv_object_foreach(val, k, v) {
@@ -73,6 +71,5 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
 			parts.data->parts[idx].str = pv_string_value(k);
 			pl_dump_pv_prefixed(v, parts);
   	}
-  	break;
 	}
 }

@@ -369,7 +369,7 @@ int pv_object_iter_next(pv obj, int iter) {
 
 	if (o->elements[iter].next == -1) {
 		int *buckets = pvp_object_buckets(o);
-		for (uint32_t i = pvp_object_get_bucket(o, o->elements[iter].hash); i < o->alloc_size * 2; i++) {
+		for (uint32_t i = pvp_object_get_bucket(o, o->elements[iter].hash) + 1; i < o->alloc_size * 2; i++) {
 			if (buckets[i] != -1) {
 				pv_free(obj);
 				return buckets[i];

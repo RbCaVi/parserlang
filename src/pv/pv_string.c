@@ -112,9 +112,20 @@ pv pv_string(const char *str) {
 	uint32_t len = (uint32_t)strlen(str);
 	pv_string_data *s = pv_string_alloc(len * 2);
   memcpy(s->data, str, len);
+  s->data[len] = '\0';
   s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string and cause overflow
   pv val = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
 	return val;
+}
+
+char *pv_string_value(pv val) {
+	assert(val.kind == string_kind);
+	pv_string_data *s = pvp_string_get_data(val);
+	uint32_t l = pvp_string_length(s);
+	char *str = malloc(l + 1);
+	memcpy(str, s->data, l);
+	str[l] = '\0';
+	return str;
 }
 
 uint32_t pv_string_length(pv val) {
@@ -139,6 +150,7 @@ pv pv_string_concat(pv val1, pv val2) {
 	uint32_t l2 = pvp_string_length(s2);
 	if (pvp_refcnt_unshared(&(s1->refcnt)) && s1->alloc_length > l1 + l2) {
 		memcpy(s1->data + l1, s2->data, l2);
+		s->data[l1 + l2] = '\0';
 		s = s1;
 		val = val1;
 	} else {
@@ -146,6 +158,7 @@ pv pv_string_concat(pv val1, pv val2) {
 		s = pv_string_alloc((l1 + l2) * 2);
 		memcpy(s->data, s1->data, l1);
 		memcpy(s->data + l1, s2->data, l2);
+		s->data[l1 + l2] = '\0';
 	  pv tval = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
 	  val = tval;
 		pv_free(val1); // consumed by the algorithm

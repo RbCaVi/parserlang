@@ -2,9 +2,9 @@
 #define PL_DUMP_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "pv/pv.h"
-#include "pl/pl_stack.h"
 
 typedef struct {
 	enum {
@@ -12,7 +12,7 @@ typedef struct {
 	} type;
 	union {
 		const char *str; // STR and KEY
-		int idx;
+		uint32_t idx;
 	};
 } pl_dump_prefix_part;
 
@@ -28,8 +28,5 @@ pl_dump_prefix pl_dump_new_prefix();
 
 #define pl_dump_pv(val) pl_dump_pv_prefixed(val, pl_dump_new_prefix())
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts);
-
-void pl_dump_stack(pl_stack);
-void pl_dump_stack_prefixed(pl_stack, pl_dump_prefix parts);
 
 #endif

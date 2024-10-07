@@ -5,7 +5,7 @@
 #   echo 
 # done | sed -E 's/^([^.]+)\.o(.*)\1.c \1.h(.*)$/\1.o\2\3/;s/  / /'
 # compilecmd := gcc -MD -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
-compilecmd := gcc -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I pv -c
+compilecmd := gcc -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I pv -I . -c
 
 ifeq ("x","y")
 #https://stackoverflow.com/a/4493447
@@ -24,7 +24,7 @@ endif
 
 .PHONY: all clean
 
-all: pv_test main
+all: pv_main main
 
 # core
 pv/pv.o: pv/pv.h pv/pv_private.h
@@ -48,9 +48,18 @@ pl/pl_stack.o: pl/util_pl.h pv/pv.h
 pl/pl_dump.o: pl/util_pl.h pv/pv.h
 
 main.o: pv/pv.h pl/pl_stack.h pl/util_pl.h
+pv_main.o: pv/pv_singletons.h pv/pv_number.h pv/pv_string.h pv/pv_array.h pv/pv_object.h pv/pv_to_string.h pv/pv_install.h pv/pv.h
 
-pv_test: pv/pv_number.o pv/pv_to_string.o pv/pv.o pv/pv_private.o pv/pv_singletons.o pv/pv_string.o pv/pv_array.o pv/pv_object.o pv/pv_equal.o pv/pv_hash.o
-main: pl/util_pl.o pl/pl_dump.o pv/pv.o pv/pv_alloc.o pv/util.o pv/pv_unicode.o pv/pv_array.o pv/pv_constants.o pv/pv_number.o pv/pv_object.o pv/pv_string.o pv/pv_invalid.o pv/pv_constants.o
+pv_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
+	pv/pv_singletons.o pv/pv_number.o \
+	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
+	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o
+
+main: pv/pv.o pv/pv_private.o pv/pv_install.o \
+	pv/pv_singletons.o pv/pv_number.o \
+	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
+	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o \
+	pl/util_pl.o pl/pl_dump.o
 
 clean:
 	rm -f main pv_test

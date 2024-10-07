@@ -133,5 +133,31 @@ int main(int argc, char **argv) {
 		char *s2 = pv_to_string(val3);
 		printf("%s %s\n", s1, s2);
 	}
+	printf("\n");
+	{
+		printf("object constructor macro\n");
+		pv val = PV_OBJECT(pv_string("cheesy"), pv_string("burger"));
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+	}
+	printf("\n");
+	{
+		printf("object iterator\n");
+		pv val = PV_OBJECT(pv_string("cheesy"), pv_string("burger"));
+		int iter = pv_object_iter(pv_copy(val));
+		printf("%i %s %s\n", iter, 
+			pv_to_string(pv_object_iter_key(pv_copy(val), iter)),
+			pv_to_string(pv_object_iter_value(pv_copy(val), iter))
+		);
+		iter = pv_object_iter_next(pv_copy(val), iter);
+		printf("%i %i\n", iter, pv_object_iter_valid(pv_copy(val), iter));
+		// int pv_object_iter(pv);
+		// int pv_object_iter_next(pv, int);
+		// int pv_object_iter_valid(pv, int);
+		// pv pv_object_iter_key(pv, int);
+		// pv pv_object_iter_value(pv, int);
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+	}
 	printf("%s\n", pv_kind_name(0));
 }

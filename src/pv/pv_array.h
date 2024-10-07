@@ -21,11 +21,11 @@ pv pv_array_concat(pv, pv);
 //pv pv_array_elements(int, ...); // count + elements (be careful?)
 
 #define pv_array_foreach(a, i, x) \
-  for (int pv_len__ = pv_array_length(pv_ref(a)), i = 0, pv_j__ = 1; \
+  for (uint32_t pv_len__ = pv_array_length(pv_copy(a)), i = 0, pv_j__ = 1; \
        pv_j__; pv_j__ = 0)                                           \
     for (pv x;                                                       \
          i < pv_len__ ?                                              \
-           (x = pv_array_get(pv_ref(a), i), 1) : 0;                  \
+           (x = pv_array_get(pv_copy(a), i), 1) : 0;                  \
          i++)
 
 #define PV_ARRAY_1(s,e) (pv_array_append(pv_array_sized(s+1),e))
