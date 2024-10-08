@@ -1,5 +1,3 @@
 *.o
 main
 pv_main
-*.d
-pvold

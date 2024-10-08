@@ -43,10 +43,12 @@ pv/pv_string.o: pv/pv_string.h pv/pv_private.h pv/pv_to_string.h pv/pv_hash.h pv
 pv/pv_array.o: pv/pv_array.h pv/pv_private.h pv/pv_to_string.h pv/pv_equal.h pv/pv.h
 pv/pv_object.o: pv/pv_object.h pv/pv_private.h pv/pv_to_string.h pv/pv_hash.h pv/pv_equal.h pv/pv.h
 
+# actual "vm" code
 pl/pl_ffi.o: pl/util_pl.h pv/pv.h
 pl/pl_stack.o: pl/util_pl.h pv/pv.h
 pl/pl_dump.o: pl/util_pl.h pv/pv.h
 
+# the executables
 main.o: pv/pv.h pl/pl_stack.h pl/util_pl.h
 pv_main.o: pv/pv_singletons.h pv/pv_number.h pv/pv_string.h pv/pv_array.h pv/pv_object.h pv/pv_to_string.h pv/pv_install.h pv/pv.h
 
@@ -62,7 +64,7 @@ main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pl/util_pl.o pl/pl_dump.o
 
 clean:
-	rm -f main pv_test
+	rm -f main pv_main
 	rm -f *.o
 	rm -f pl/*.o
 	rm -f pv/*.o
