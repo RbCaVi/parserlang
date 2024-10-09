@@ -88,7 +88,7 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
 
 	int *bucketsin = pvp_object_buckets(oin);
 	int *buckets = pvp_object_buckets(o);
-	for (uint32_t i = 0; i < newsize * 2; i++) {
+	for (uint32_t i = 0; i < oin->alloc_size * 2; i++) {
 		if (bucketsin[i] == -1) {
 			continue;
 		}
