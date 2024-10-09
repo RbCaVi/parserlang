@@ -1,9 +1,10 @@
 #include "pl/pl_stack.h"
 
+#include "pl/util_pl.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pl/util_pl.h"
 
 struct pl_retinfo {
   size_t locals;
@@ -59,7 +60,7 @@ static pl_stack duplicate_stack(pl_stack stack) {
 
   for (size_t i = 0; i < newstack.top; i++) {
     if (stack_cell(stack,i).type == VAL) {
-      pv_ref(stack_cell(stack,stack.top - 1).value);
+      pv_copy(stack_cell(stack,stack.top - 1).value);
     }
   }
 
@@ -74,13 +75,25 @@ static pl_stack move_stack(pl_stack stack) {
   return stack;
 }
 
+pl_stack pl_stack_new() {
+  int size = 16;
+  struct pl_stack_cells *data = malloc(sizeof(struct pl_stack_cells) + size * sizeof(struct pl_stack_cell));
+  data->refcount.refcount = 1;
+  data->refcount.size = size;
+  pl_stack out = {data, 0, 0};
+  stack_cell(out,0).type = RET;
+  stack_cell(out,0).ret.locals = -1;
+
+  return out;
+}
+
 pv pl_stack_get(pl_stack stack,int idx) {
   pv out;
 
   size_t i = get_stack_idx(stack, idx);
 
   out = stack_cell(stack,i).value;
-  return pv_ref(out);
+  return pv_copy(out);
 }
 
 pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
@@ -89,7 +102,7 @@ pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 
   size_t i = get_stack_idx(stack, idx);
 
-  pv_unref(stack_cell(stack,i).value); // delete the previous value
+  pv_free(stack_cell(stack,i).value); // delete the previous value
   stack_cell(stack,i).value = val;
 
   return stack;
@@ -97,7 +110,7 @@ pl_stack pl_stack_set(pl_stack stack,pv val,int idx) {
 
 pl_stack pl_stack_pop(pl_stack stack) {
   assert(stack_cell(stack,stack.top - 1).type == VAL); // don't pop a retinfo
-  pv_unref(stack_cell(stack,stack.top - 1).value); // delete the stack top
+  pv_free(stack_cell(stack,stack.top - 1).value); // delete the stack top
   stack.top--;
   return stack;
 }
@@ -131,7 +144,7 @@ pl_stack pl_stack_push_frame(pl_stack stack) {
 pl_stack pl_stack_pop_frame(pl_stack stack){
   size_t idx = stack.top - 1;
   while (stack_cell(stack,idx).type != RET) {
-    pv_unref(stack_cell(stack,idx).value);
+    pv_free(stack_cell(stack,idx).value);
     idx--;
   }
   // the top of the stack should be a retinfo
@@ -167,11 +180,11 @@ void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts) {
   parts.data->parts[idx].idx = frame;
   inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
   for (size_t i = 0; i < stack.top; i++) {
-    switch (stack_cell(stack,idx).type) {
+    switch (stack_cell(stack,i).type) {
     case RET:
       frame++;
       vidx = 0;
-      parts[idx-1].idx = frame;
+      parts.data->parts[idx-1].idx = frame;
       parts.count -= 1;
       print_prefix(parts); // frame.0: frame
       printf("frame %zu\n",frame);
@@ -179,13 +192,13 @@ void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts) {
       parts.data->parts[idx].type = KEY;
       parts.data->parts[idx].str = "locals";
       print_prefix(parts); // frame.0.locals: frame
-      printf("%zu\n",stack_cell(stack,idx).ret.locals);
+      printf("%zu\n",stack_cell(stack,i).ret.locals);
       break;
-    case PV:
+    case VAL:
       parts.data->parts[idx].type = IDX;
       parts.data->parts[idx].idx = vidx;
       vidx++;
-      pl_dump_pv_prefixed(parts); // frame.0.4: []
+      pl_dump_pv_prefixed(stack_cell(stack,i).value, parts); // frame.0.4: []
       break;
     }
   }

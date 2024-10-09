@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-static void print_prefix(pl_dump_prefix parts) {
+void print_prefix(pl_dump_prefix parts) {
 	printf(".");
 	for (size_t i = 0; i < parts.count; i++) {
 		pl_dump_prefix_part part = parts.data->parts[i];

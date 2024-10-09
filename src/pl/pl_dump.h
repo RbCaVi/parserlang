@@ -26,6 +26,8 @@ typedef struct {
 
 pl_dump_prefix pl_dump_new_prefix();
 
+void print_prefix(pl_dump_prefix parts);
+
 #define pl_dump_pv(val) pl_dump_pv_prefixed(val, pl_dump_new_prefix())
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts);
 

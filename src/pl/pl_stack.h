@@ -20,6 +20,8 @@ typedef struct {
 // stack indexes are positive up from locals or negative down from stack top
 // 0 is the retinfo (not used)
 
+pl_stack pl_stack_new();
+
 pv pl_stack_get(pl_stack,int);
 #define pl_stack_top(stack) pl_stack_get(stack,-1)
 pl_stack pl_stack_pop(pl_stack);
@@ -34,7 +36,7 @@ void pl_stack_unref(pl_stack);
 
 pv pl_stack_frames(pl_stack);
 
-#define pl_dump_stack(val) pl_dump_stack_prefixed(val, pl_dump_new_prefix())
 void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts);
+#define pl_dump_stack(val) pl_dump_stack_prefixed(val, pl_dump_new_prefix())
 
 #endif

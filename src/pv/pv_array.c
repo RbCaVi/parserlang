@@ -148,14 +148,18 @@ pv pv_array_sized(uint32_t size) {
 
 uint32_t pv_array_length(pv val) {
 	assert(val.kind == array_kind);
-	return pvp_array_length(pvp_array_get_data(val));
+	uint32_t out = pvp_array_length(pvp_array_get_data(val));
+	pv_free(val);
+	return out;
 }
 
 pv pv_array_get(pv val, uint32_t i) {
 	assert(val.kind == array_kind);
 	pv_array_data *a = pvp_array_get_data(val);
 	assert(i < a->length);
-	return pv_copy(a->elements[i]);
+	pv out = pv_copy(a->elements[i]);
+	pv_free(val);
+	return out;
 }
 
 // slightly different from jq (jq extends arrays with null on out of bounds write)

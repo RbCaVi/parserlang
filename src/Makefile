@@ -61,7 +61,7 @@ main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
 	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
 	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o \
-	pl/util_pl.o pl/pl_dump.o
+	pl/util_pl.o pl/pl_dump.o pl/pl_stack.o
 
 clean:
 	rm -f main pv_main
