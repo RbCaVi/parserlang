@@ -37,6 +37,6 @@ void pl_stack_unref(pl_stack);
 pv pl_stack_frames(pl_stack);
 
 void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts);
-#define pl_dump_stack(val) pl_dump_stack_prefixed(val, pl_dump_new_prefix())
+#define pl_dump_stack(val) {pl_dump_prefix __dump_prefix = pl_dump_new_prefix(); pl_dump_stack_prefixed(val, __dump_prefix); pl_dump_free_prefix(__dump_prefix);}
 
 #endif

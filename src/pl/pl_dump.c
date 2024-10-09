@@ -8,6 +8,7 @@
 #include "pl/pl_dump.h"
 
 #include <stdio.h>
+#include <string.h>
 
 void print_prefix(pl_dump_prefix parts) {
 	printf(".");
@@ -37,7 +38,37 @@ pl_dump_prefix pl_dump_new_prefix() {
 	return parts;
 }
 
+void pl_dump_free_prefix(pl_dump_prefix parts) {
+	for (size_t i = 0; i < parts.count; i++) {
+		pl_dump_prefix_part part = parts.data->parts[i];
+		switch (part.type) {
+		case STR:
+			free(part.str);
+			break;
+		}
+	}
+	free(parts.data);
+}
+
+pl_dump_prefix pl_dump_dup_prefix(pl_dump_prefix p) {
+	pl_dump_prefix parts;
+	parts.data = checked_malloc(sizeof(size_t) + sizeof(pl_dump_prefix_part) * p.data->size);
+	parts.data->size = p.data->size;
+	parts.count = p.count;
+	memcpy(parts.data->parts, p.data->parts, sizeof(pl_dump_prefix_part) * p.data->size);
+	for (size_t i = 0; i < parts.count; i++) {
+		pl_dump_prefix_part *part = &(parts.data->parts[i]);
+		switch (part->type) {
+		case STR:
+			part->str = strdup(part->str);
+			break;
+		}
+	}
+	return parts;
+}
+
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
+  parts = pl_dump_dup_prefix(parts);
 	print_prefix(parts);
 	size_t idx;
 	pv_kind kind = pv_get_kind(val);
@@ -54,22 +85,30 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   } else if (kind == number_kind) {
   	printf("%f\n",pv_number_value(val));
   } else if (kind == string_kind) {
-  	printf("\"%s\"\n",pv_string_value(val));
+  	char *s = pv_string_value(val);
+  	printf("\"%s\"\n",s);
+  	free(s);
   } else if (kind == array_kind) {
   	printf("[]\n");
-		inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
+		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f), parts.data->parts);
 		pv_array_foreach(val, i, v) {
 			parts.data->parts[idx].type = IDX;
 			parts.data->parts[idx].idx = i;
 			pl_dump_pv_prefixed(v, parts);
   	}
+  	pv_free(val); // the foreach doesn't free (i need to fix this)
   } else if (kind == object_kind) {
   	printf("{}\n");
-		inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
+		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f), parts.data->parts);
+		parts.data->parts[idx].type = STR;
+		parts.data->parts[idx].str = NULL;
 		pv_object_foreach(val, k, v) {
+  		free(parts.data->parts[idx].str);
 			parts.data->parts[idx].type = STR;
 			parts.data->parts[idx].str = pv_string_value(k);
 			pl_dump_pv_prefixed(v, parts);
   	}
+		pv_free(val); // the foreach doesn't free (i need to fix this)
 	}
+  pl_dump_free_prefix(parts);
 }

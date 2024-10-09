@@ -25,10 +25,12 @@ typedef struct {
 } pl_dump_prefix;
 
 pl_dump_prefix pl_dump_new_prefix();
+void pl_dump_free_prefix(pl_dump_prefix);
+pl_dump_prefix pl_dump_dup_prefix(pl_dump_prefix);
 
 void print_prefix(pl_dump_prefix parts);
 
-#define pl_dump_pv(val) pl_dump_pv_prefixed(val, pl_dump_new_prefix())
+#define pl_dump_pv(val) {pl_dump_prefix __dump_prefix = pl_dump_new_prefix(); pl_dump_pv_prefixed(val, __dump_prefix); pl_dump_free_prefix(__dump_prefix);}
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts);
 
 #endif

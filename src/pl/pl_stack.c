@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 struct pl_retinfo {
   size_t locals;
@@ -162,6 +163,15 @@ pl_stack pl_stack_ref(pl_stack stack){
 void pl_stack_unref(pl_stack stack){
   stack.cells->refcount.refcount--;
   if (stack.cells->refcount.refcount == 0) {
+    for (size_t i = 0; i < stack.top; i++) {
+      switch (stack_cell(stack,i).type) {
+      case RET:
+        break;
+      case VAL:
+        pv_free(stack_cell(stack,i).value);
+        break;
+      }
+    }
     free(stack.cells);
   }
 }
@@ -172,13 +182,14 @@ void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts) {
   size_t frame = 0;
   size_t vidx = 0;
   size_t idx;
-  inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
+  parts = pl_dump_dup_prefix(parts);
+  inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f), parts.data->parts);
   parts.data->parts[idx].type = KEY;
   parts.data->parts[idx].str = "frames";
-  inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
+  inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f), parts.data->parts);
   parts.data->parts[idx].type = IDX;
   parts.data->parts[idx].idx = frame;
-  inc_size(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f));
+  inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f), parts.data->parts);
   for (size_t i = 0; i < stack.top; i++) {
     switch (stack_cell(stack,i).type) {
     case RET:
@@ -198,8 +209,9 @@ void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts) {
       parts.data->parts[idx].type = IDX;
       parts.data->parts[idx].idx = vidx;
       vidx++;
-      pl_dump_pv_prefixed(stack_cell(stack,i).value, parts); // frame.0.4: []
+      pl_dump_pv_prefixed(pv_copy(stack_cell(stack,i).value), parts); // frame.0.4: []
       break;
     }
   }
+  pl_dump_free_prefix(parts);
 }

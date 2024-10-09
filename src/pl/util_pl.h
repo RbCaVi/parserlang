@@ -20,6 +20,14 @@ if ((top) >= (size)) { \
   (array) = checked_realloc((array),(initial) + (size) * sizeof(typeof(*(array)))); \
 }
 
+#define inc_size2(idx,array,top,initial,size,newsize,data) \
+(idx) = (top); \
+(top)++; \
+if ((top) >= (size)) { \
+  (size) = (newsize); \
+  (array) = checked_realloc((array),(initial) + (size) * sizeof(typeof(*(data)))); \
+}
+
 void *checked_malloc(size_t);
 void *checked_realloc(void*, size_t);
 
