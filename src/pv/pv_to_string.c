@@ -26,7 +26,7 @@ char *pv_to_string(pv val) {
 	pv_kind kind = pv_get_kind(val);
 	pv_free(val); // not needed anymore
 	if (kind == 0) {
-		return "<INVALID>";
+		return strdup("<INVALID>");
 	}
 	const char *kind_name = pv_kind_name(kind);
 	if (kind_name == NULL) {

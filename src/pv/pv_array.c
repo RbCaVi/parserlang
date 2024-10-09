@@ -41,7 +41,7 @@ static char *pv_array_to_string(pv val) {
 	pv_array_data *a = pvp_array_get_data(val);
 	uint32_t l = pvp_array_length(a);
 
-	uint32_t tlen = 1 + 2 * (l - 1) + 1; // "[" + ", "... + "]"
+	uint32_t tlen = 1 + 2 * (l == 0 ? 0 : l - 1) + 1; // "[" + ", "... + "]"
 	char **strs = pv_alloc(sizeof(char*) * l);
 	uint32_t *lens = pv_alloc(sizeof(uint32_t) * l);
 
@@ -60,6 +60,7 @@ static char *pv_array_to_string(pv val) {
 	for (uint32_t i = 0; i < l; i++) {
 		uint32_t len = lens[i];
 		memcpy(str + pos, strs[i], len);
+		free(strs[i]);
 		pos += len;
 		if (i < l - 1) {
 			memcpy(str + pos, ", ", 2);
@@ -69,7 +70,11 @@ static char *pv_array_to_string(pv val) {
 	str[pos] = ']';
 	str[pos + 1] = '\0';
 
+	free(strs);
+	free(lens);
+
 	pv_free(val);
+
 	return str;
 }
 
@@ -120,11 +125,12 @@ static pv_array_data *pvp_array_realloc(pv_array_data *ain, size_t size) {
 	} else {
 		// there is more then one copy of this pv, so i have to 
 		a = pv_alloc(sizeof(pv_array_data) + sizeof(pv) * size);
-		memcpy(a, ain, sizeof(pv_array_data) + sizeof(pv) * size);
+		memcpy(a, ain, sizeof(pv_array_data) + sizeof(pv) * ain->length);
 		for (uint32_t i = 0; i < pvp_array_length(a); i++) {
 			pv_copy(a->elements[i]);
 		}
 		pvp_decref(&(ain->refcnt));
+		a->refcnt = PV_REFCNT_INIT;
 	}
   a->alloc_length = (uint32_t)size;
   return a;
@@ -169,7 +175,7 @@ pv pv_array_set(pv val, uint32_t i, pv cell) {
 	uint32_t l = pvp_array_length(a);
 	assert(i < l); // out of bounds write is an error
 	pv_array_data *newa = pvp_array_realloc(a, a->alloc_length);
-	pv_free(a->elements[i]);
+	pv_free(newa->elements[i]);
 	newa->elements[i] = cell;
   pv newval = {array_kind, PV_FLAG_ALLOCATED, &(newa->refcnt)};
 	return newval;
@@ -199,5 +205,6 @@ pv pv_array_concat(pv val1, pv val2) {
 		a->elements[l1 + i] = pv_copy(a2->elements[i]);
 	}
   pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
+  pv_free(val2);
 	return val;
 }

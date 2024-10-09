@@ -8,6 +8,7 @@
 #include "pv_install.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
@@ -17,24 +18,28 @@ int main(int argc, char **argv) {
 		char *s = pv_to_string(val);
 		double num = pv_number_value(val);
 		printf("%f, %s\n", num, s);
+		free(s);
 	}
 	printf("\n");
 	{
 		pv val = pv_true();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
 		pv val = pv_false();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
 		pv val = pv_null();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -49,8 +54,9 @@ int main(int argc, char **argv) {
 		pv val = pv_string("cheesy");
 		printf("%i\n", pv_get_refcount(val));
 		char *s = pv_to_string(val);
-		printf("%i\n", pv_get_refcount(val));
+		//printf("%i\n", pv_get_refcount(val));
 		printf("%s\n", s);
+		free(s);
 		// test that the string is overwritten with AAAAAAA when freed
 		// edit pv_string_free() as well to test (debugging thing)
 		//char *s2 = pv_to_string(val);
@@ -67,6 +73,7 @@ int main(int argc, char **argv) {
 		pv val3 = pv_string_concat(val1, val2);
 		char *s = pv_to_string(val3);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -74,6 +81,27 @@ int main(int argc, char **argv) {
 		pv val = pv_array();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
+	}
+	printf("\n");
+	{
+		printf("array append\n");
+		pv val1 = pv_string("cheesy");
+		pv val = pv_array();
+		val = pv_array_append(val, val1);
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+		free(s);
+	}
+	printf("\n");
+	{
+		printf("array append (sized)\n");
+		pv val1 = pv_string("cheesy");
+		pv val = pv_array_sized(1);
+		val = pv_array_append(val, val1);
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -81,6 +109,7 @@ int main(int argc, char **argv) {
 		pv val = PV_ARRAY(pv_string("cheesy"));
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -88,6 +117,7 @@ int main(int argc, char **argv) {
 		pv val = PV_ARRAY(pv_string("cheesy"), pv_string("burger"));
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -96,6 +126,7 @@ int main(int argc, char **argv) {
 		pv val2 = PV_ARRAY(pv_string("burger"));
 		char *s = pv_to_string(pv_array_concat(val1, val2));
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -107,6 +138,7 @@ int main(int argc, char **argv) {
 		val = pv_array_set(val, 1, val1);
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -114,6 +146,7 @@ int main(int argc, char **argv) {
 		pv val = pv_object();
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
@@ -122,6 +155,8 @@ int main(int argc, char **argv) {
 		char *s1 = pv_to_string(pv_object_get(pv_copy(val), val1));
 		char *s2 = pv_to_string(val);
 		printf("%s %s\n", s1, s2);
+		free(s1);
+		free(s2);
 	}
 	printf("\n");
 	{
@@ -132,6 +167,8 @@ int main(int argc, char **argv) {
 		char *s1 = pv_to_string(pv_object_get(pv_copy(val3), val1));
 		char *s2 = pv_to_string(val3);
 		printf("%s %s\n", s1, s2);
+		free(s1);
+		free(s2);
 	}
 	printf("\n");
 	{
@@ -139,16 +176,18 @@ int main(int argc, char **argv) {
 		pv val = PV_OBJECT(pv_string("cheesy"), pv_string("burger"));
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("\n");
 	{
 		printf("object iterator\n");
 		pv val = PV_OBJECT(pv_string("cheesy"), pv_string("burger"));
 		int iter = pv_object_iter(pv_copy(val));
-		printf("%i %s %s\n", iter, 
-			pv_to_string(pv_object_iter_key(pv_copy(val), iter)),
-			pv_to_string(pv_object_iter_value(pv_copy(val), iter))
-		);
+		char *s1 = pv_to_string(pv_object_iter_key(pv_copy(val), iter));
+		char *s2 = pv_to_string(pv_object_iter_value(pv_copy(val), iter));
+		printf("%i %s %s\n", iter, s1, s2);
+		free(s1);
+		free(s2);
 		iter = pv_object_iter_next(pv_copy(val), iter);
 		printf("%i %i\n", iter, pv_object_iter_valid(pv_copy(val), iter));
 		// int pv_object_iter(pv);
@@ -158,6 +197,7 @@ int main(int argc, char **argv) {
 		// pv pv_object_iter_value(pv, int);
 		char *s = pv_to_string(val);
 		printf("%s\n", s);
+		free(s);
 	}
 	printf("%s\n", pv_kind_name(0));
 }

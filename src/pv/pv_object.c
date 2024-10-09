@@ -133,12 +133,13 @@ static void pv_object_free(pv obj) {
 			pv_free(slot->value);
 		}
 	}
+	free(o);
 }
 
 static char *pv_object_to_string(pv val) {
 	uint32_t l = pv_object_length(pv_copy(val));
 
-	uint32_t tlen = 1 + 2 * l + 2 * (l - 1) + 1; // "{" + ": " + ", "... + "}"
+	uint32_t tlen = 1 + 2 * l + 2 * (l == 0 ? 0 : l - 1) + 1; // "{" + ": " + ", "... + "}"
 	char **kstrs = pv_alloc(sizeof(char*) * l);
 	uint32_t *klens = pv_alloc(sizeof(uint32_t) * l);
 	char **vstrs = pv_alloc(sizeof(char*) * l);
@@ -167,11 +168,13 @@ static char *pv_object_to_string(pv val) {
 	for (i = 0; i < l; i++) {
 		uint32_t klen = klens[i];
 		memcpy(str + pos, kstrs[i], klen);
+		free(kstrs[i]);
 		pos += klen;
 		memcpy(str + pos, ": ", 2);
 		pos += 2;
 		uint32_t vlen = vlens[i];
 		memcpy(str + pos, vstrs[i], vlen);
+		free(vstrs[i]);
 		pos += klen;
 		if (i < l - 1) {
 			memcpy(str + pos, ", ", 2);
@@ -181,7 +184,13 @@ static char *pv_object_to_string(pv val) {
 	str[pos] = '}';
 	str[pos + 1] = '\0';
 
+	free(kstrs);
+	free(klens);
+	free(vstrs);
+	free(vlens);
+
 	pv_free(val);
+
 	return str;
 }
 
@@ -346,6 +355,7 @@ int pv_object_iter(pv obj) {
 	uint32_t l = o->length;
 
 	if (l == 0) {
+		pv_free(obj);
 		return -1;
 	}
 
@@ -375,6 +385,7 @@ int pv_object_iter_next(pv obj, int iter) {
 				return buckets[i];
 			}
 		}
+		pv_free(obj);
 		return -1;
 	}
 
