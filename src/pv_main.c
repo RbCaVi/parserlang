@@ -199,5 +199,15 @@ int main(int argc, char **argv) {
 		printf("%s\n", s);
 		free(s);
 	}
+	printf("\n");
+	{
+		printf("object constructor macro - 2 keys\n");
+		pv val = PV_OBJECT(pv_string("ask"), pv_string("hams"), pv_string("cheesy"), pv_string("burger"));
+		printf("%i\n", pv_get_refcount(val));
+		char *s = pv_to_string(val);
+		printf("%i\n", pv_get_refcount(val));
+		printf("%s\n", s);
+		free(s);
+	}
 	printf("%s\n", pv_kind_name(0));
 }
