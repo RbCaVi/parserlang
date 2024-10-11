@@ -125,6 +125,7 @@ char *pv_string_value(pv val) {
 	char *str = malloc(l + 1);
 	memcpy(str, s->data, l);
 	str[l] = '\0';
+	pv_free(val);
 	return str;
 }
 
