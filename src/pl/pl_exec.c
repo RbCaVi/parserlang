@@ -29,6 +29,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 	while (1) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP)
+				abort();
 				break;
 			opcase(PUSHNUM)
 				state->stack = pl_stack_push(state->stack, pv_number(PUSHNUM_data.n));
@@ -37,7 +38,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				abort();
 				break;
 			opcase(PUSHGLOBAL)
-				state->stack = pl_stack_push(state->stack, state->globals[PUSHGLOBAL_data.i]);
+				state->stack = pl_stack_push(state->stack, pv_copy(state->globals[PUSHGLOBAL_data.i]));
 				break;
 			opcase(CALL)
 				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
