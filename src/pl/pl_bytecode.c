@@ -22,7 +22,7 @@ pl_bytecode_builder *pl_bytecode_extend(pl_bytecode_builder *b, uint32_t size) {
 
 #define OPCODE(op, __data) \
 pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder *b, pl_ ## op ## _data data) { \
-	int offset = b->end; \
+	uint32_t offset = b->end; \
 	b = pl_bytecode_extend(b, sizeof(pl_opcode) + sizeof(pl_ ## op ## _data)); \
 	char *pos = b->bytecode + offset; \
 	((pl_opcode*)pos)[0] = op; \
