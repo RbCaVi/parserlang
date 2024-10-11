@@ -253,6 +253,29 @@ int pv_object_has(pv obj, pv key) {
 	return out;
 }
 
+// #include <stdio.h>
+
+// static void pvp_object_dump_internal(pvp_object_data *o) {
+// 	printf("length = %i\n", o->length);
+// 	int *buckets = pvp_object_buckets(o);
+// 	for (uint32_t i = 0; i < o->alloc_size * 2; i++) {
+// 		printf("bucket %i:\n", i);
+// 		if (buckets[i] == -1) {
+// 			printf("  (empty)\n", i);
+// 			continue;
+// 		}
+// 		struct object_slot *slot;
+// 		int sloti;
+// 		for ((sloti = buckets[i]), (slot = &(o->elements[sloti])); sloti !=-1; (sloti = (int)slot->next), (slot = &(o->elements[sloti]))) {
+// 			char *s1 = pv_to_string(pv_copy(slot->key));
+// 			char *s2 = pv_to_string(pv_copy(slot->value));
+// 			printf("  %i #%x - %s: %s\n", sloti, slot->hash, s1, s2);
+// 			free(s1);
+// 			free(s2);
+// 		}
+// 	}
+// }
+
 pv pv_object_set(pv obj, pv key, pv value) {
 	assert(obj.kind == object_kind);
 	
