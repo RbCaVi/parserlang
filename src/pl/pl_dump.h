@@ -11,17 +11,17 @@ typedef struct {
 		STR,IDX,KEY
 	} type;
 	union {
-		const char *str; // STR and KEY
+		char *str; // STR and KEY
 		uint32_t idx;
 	};
 } pl_dump_prefix_part;
 
 typedef struct {
 	struct {
-		size_t size;
+		uint32_t size;
 	  pl_dump_prefix_part parts[];
 	} *data;
-	size_t count;
+	uint32_t count;
 } pl_dump_prefix;
 
 pl_dump_prefix pl_dump_new_prefix();

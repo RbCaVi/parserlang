@@ -44,6 +44,8 @@ void pl_dump_free_prefix(pl_dump_prefix parts) {
 		switch (part.type) {
 		case STR:
 			free(part.str);
+		case IDX:
+		case KEY:
 			break;
 		}
 	}
@@ -61,6 +63,8 @@ pl_dump_prefix pl_dump_dup_prefix(pl_dump_prefix p) {
 		switch (part->type) {
 		case STR:
 			part->str = strdup(part->str);
+		case IDX:
+		case KEY:
 			break;
 		}
 	}
@@ -90,7 +94,7 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   	free(s);
   } else if (kind == array_kind) {
   	printf("[]\n");
-		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f), parts.data->parts);
+		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
 		pv_array_foreach(val, i, v) {
 			parts.data->parts[idx].type = IDX;
 			parts.data->parts[idx].idx = i;
@@ -99,7 +103,7 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   	pv_free(val); // the foreach doesn't free (i need to fix this)
   } else if (kind == object_kind) {
   	printf("{}\n");
-		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(size_t)((float)parts.data->size * 1.5f), parts.data->parts);
+		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
 		parts.data->parts[idx].type = STR;
 		parts.data->parts[idx].str = NULL;
 		pv_object_foreach(val, k, v) {
