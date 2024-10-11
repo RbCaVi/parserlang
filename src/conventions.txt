@@ -62,4 +62,4 @@ the code contract or whatever is that any pv arguments are consumed
 	(every argument is decref'd exactly once, or possibly reused with new data if the refcount is 1)
 
 pvp_*() functions must be static and do not decref the first argument if it is a pv
-all public functions must be prefixed with their module (pv / pl)
+all public functions must be prefixed with their module (pv / pl) and the submodule (number, stack, etc.)
