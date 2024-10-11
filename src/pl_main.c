@@ -29,9 +29,11 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder_add(b, PUSHNUM, {15});
 	pl_bytecode_builder_add(b, ADD, {});
 	pl_bytecode_builder_add(b, RET, {});
-	pl_bytecode_dump(b->bytecode);
+	pl_bytecode_builder_add(b, RET, {});
 
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+	pl_bytecode_dump(bytecode);
 
 	pl_func f = {bytecode};
 

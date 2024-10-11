@@ -53,8 +53,10 @@ case(op):; \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
 
-void pl_bytecode_dump(const char *bytecode) {
-	while (1) {
+void pl_bytecode_dump(pl_bytecode b) {
+	const char *bytecode = b.bytecode;
+	const char *end = bytecode + b.length;
+	while (bytecode < end) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP)
 				printf("\n");
@@ -76,7 +78,7 @@ void pl_bytecode_dump(const char *bytecode) {
 				break;
 			opcase(RET)
 				printf("\n");
-				return;
+				break;
 		}
 	}
 }
