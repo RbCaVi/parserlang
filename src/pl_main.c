@@ -25,11 +25,11 @@ int main(int argc, char **argv) {
 
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
 	printf("b = %i %i\n", b->end, b->size);
-	b = pl_bytecode_builder_add_DUP(b, (pl_DUP_data){});
+	pl_bytecode_builder_add(b, DUP, {});
 	printf("b = %i %i\n", b->end, b->size);
-	b = pl_bytecode_builder_add_PUSHNUM(b, (pl_PUSHNUM_data){15});
+	pl_bytecode_builder_add(b, PUSHNUM, {15});
 	printf("b = %i %i\n", b->end, b->size);
-	b = pl_bytecode_builder_add_RET(b, (pl_RET_data){});
+	pl_bytecode_builder_add(b, RET, {});
 	printf("b = %i %i\n", b->end, b->size);
 	pl_bytecode_dump(b->bytecode);
 	free(b);
