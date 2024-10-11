@@ -54,6 +54,8 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_pop(state->stack);
 				state->stack = pl_stack_set(state->stack, pv_number(v1 + v2), -1); // avoid pop + push (no reason to)
 				break;
+			opcase(JUMPIF)
+				abort();
 		}
 	}
 }

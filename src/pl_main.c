@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
 	pl_bytecode_builder_add(b, CALL, {0});
 	pl_bytecode_builder_add(b, RET, {});
+	pl_bytecode_builder_add(b, JUMPIF, {-28});
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
 	pl_bytecode_dump(bytecode);

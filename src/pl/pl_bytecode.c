@@ -46,6 +46,33 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 #include "pl_opcodes_data.h"
 #undef OPCODE
 
+#define OPCODE(op, data) \
+case op: \
+	b1 += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
+	break;
+
+static int plp_bytecode_instructions_between_(const char *b1, const char *b2) {
+	// b1 < b2
+	int i = 0;
+	while (b1 < b2) {
+		switch (plp_get_opcode(b1)) {
+#include "pl_opcodes_data.h"
+		}
+		i++;
+	}
+	return i;
+}
+
+#undef OPCODE
+
+static int plp_bytecode_instructions_between(const char *b1, const char *b2) {
+	if (b1 > b2) {
+		return -plp_bytecode_instructions_between_(b2, b1);
+	} else {
+		return plp_bytecode_instructions_between_(b1, b2);
+	}
+}
+
 #define opcase(op) \
 case(op):; \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
@@ -59,9 +86,6 @@ void pl_bytecode_dump(pl_bytecode b) {
 	while (bytecode < end) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP)
-				printf("\n");
-				break;
-			opcase(ADD)
 				printf("\n");
 				break;
 			opcase(PUSHNUM)
@@ -78,6 +102,12 @@ void pl_bytecode_dump(pl_bytecode b) {
 				break;
 			opcase(RET)
 				printf("\n");
+				break;
+			opcase(ADD)
+				printf("\n");
+				break;
+			opcase(JUMPIF)
+				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMPIF_data.target));
 				break;
 		}
 	}
