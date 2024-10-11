@@ -1,0 +1,65 @@
+conventions
+
+indentation:
+	2 space tab
+
+spaces in expressions:
+	around operators:
+		a * b
+		a ? b : c
+	no space between parentheses and cast or function and args
+		f(a)
+		f(a + b)
+		(int)x
+		(void*)(ptr + 4)
+
+spaces in statements:
+	around the equals sign,
+	not before semicolon,
+	not at end of line:
+		int a = b;
+	around the parentheses in a control statement:
+		if (cond) {}
+	after the semicolons in a for statement:
+		for (int i = 0; i < 15; i++) {}
+
+types:
+	pointer types have the star on the variable:
+		int *f(void *p) {}
+	except without a variable:
+		void f(void*, int);
+		(int*)ptr
+
+naming and required parts for a kind:
+	the kind id for a kind:
+		pv_kind pv_<type>_kind
+	a function to initialize the kind(s):
+		void pv_<type(s)>_install()
+	various public methods are named pv_<type>_<thing>
+	per kind methods such as to_string are named pv_<type>_<thing> as well, but are not in the public header file
+	private methods are named pvp_<type>_<thing> and are usually static
+
+includes in a .c file go in the order
+	associated header file
+	pv internals
+	other kinds
+
+	system includes
+
+includes in a .h file go in the order
+	pv.h
+
+	possibly other includes
+
+	system includes
+
+headers always have include guards - all caps + underscore instead of dot
+	pv.h -> PV_H
+	pv_to_string.h -> PV_TO_STRING_H
+
+the code contract or whatever is that any pv arguments are consumed
+	except in pv_copy(), pv_get_kind(), and pv_get_refcount()
+	(every argument is decref'd exactly once, or possibly reused with new data if the refcount is 1)
+
+pvp_*() functions must be static and do not decref the first argument if it is a pv
+all public functions must be prefixed with their module (pv / pl)
