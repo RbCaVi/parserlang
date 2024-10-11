@@ -109,6 +109,8 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
 		}
 	}
 
+	o->length = oin->length;
+
 	if (pvp_refcnt_unshared(&(oin->refcnt))) {
 		free(oin); // nobody else needs this, right?
 	} else {
