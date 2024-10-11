@@ -23,8 +23,8 @@ case(op):; \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
 
-pv pl_call(pl_state *state, pl_func f) {
-	const char *bytecode = f.bytecode.bytecode;
+pv pl_call(pl_state *state, pl_bytecode f) {
+	const char *bytecode = f.bytecode;
 	while (1) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP)

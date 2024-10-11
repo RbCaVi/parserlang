@@ -53,7 +53,7 @@ pl/pl_bytecode.o: pl/pl_opcodes.h pl/pl_opcodes_data.h
 
 # the executables
 pv_main.o: pv/pv_singletons.h pv/pv_number.h pv/pv_string.h pv/pv_array.h pv/pv_object.h pv/pv_to_string.h pv/pv_install.h pv/pv.h
-pl_main.o: pv/pv.h pl/pl_stack.h pl/util_pl.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
+pl_main.o: pv/pv.h pl/pl_stack.h pl/util_pl.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_bytecode.h pl/pl_exec.h
 
 pv_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
@@ -65,7 +65,7 @@ pl_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
 	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o \
 	pl/util_pl.o pl/pl_dump.o pl/pl_stack.o \
-	pl/pl_bytecode.o pl/pl_exec.o
+	pl/pl_bytecode.o pl/pl_exec.o pl/pl_func.o
 
 clean:
 	rm -f pl_main pv_main

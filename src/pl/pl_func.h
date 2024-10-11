@@ -9,11 +9,11 @@
 
 extern pv_kind func_kind;
 
-void pv_func_install();
+void pl_func_install();
 
-pv pv_func(pl_bytecode);
+pv pl_func(pl_bytecode);
 //pv pv_native_func(pv (*)(pl_stack));
 
-pv pv_func_call(pv, pl_state*);
+pv pl_func_call(pv, pl_state*);
 
 #endif

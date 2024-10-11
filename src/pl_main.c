@@ -10,6 +10,7 @@
 #include "pl/pl_stack.h"
 #include "pl/pl_bytecode.h"
 #include "pl/pl_exec.h"
+#include "pl/pl_func.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,7 @@
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
 	pv_install();
+	pl_func_install();
 	pv n = PV_ARRAY(pv_number(15),pv_false(),PV_OBJECT(pv_string("key"),pv_string("value"), pv_string("key2"),pv_string("value2")));
 	pl_stack stk = pl_stack_new();
 	pl_dump_pv(pv_copy(n));
@@ -35,20 +37,18 @@ int main(int argc, char **argv) {
 
 	pl_bytecode_dump(bytecode);
 
-	pl_func f = {bytecode};
+	pv f = pl_func(bytecode);
 
 	pl_state *pl = malloc(sizeof(pl_state));
 	pl->stack = pl_stack_new();
 
-	pv ret = pl_call(pl, f);
+	pv ret = pl_func_call(f, pl);
 	pl_dump_pv(ret);
 
 	pl_dump_stack(pl->stack);
 	pl_stack_unref(pl->stack);
 
 	free(pl);
-
-	pl_bytecode_free(bytecode);
 
 	return 0;
 }

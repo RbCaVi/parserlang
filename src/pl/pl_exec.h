@@ -9,10 +9,6 @@ typedef struct {
 	pl_stack stack;
 } pl_state;
 
-typedef struct {
-	pl_bytecode bytecode;
-} pl_func;
-
-pv pl_call(pl_state *state, pl_func f);
+pv pl_call(pl_state *state, pl_bytecode f);
 
 #endif
