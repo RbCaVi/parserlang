@@ -64,7 +64,7 @@ pl_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
 	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o \
 	pl/util_pl.o pl/pl_dump.o pl/pl_stack.o \
-	pl/pl_bytecode.o
+	pl/pl_bytecode.o pl/pl_exec.o
 
 clean:
 	rm -f pl_main pv_main

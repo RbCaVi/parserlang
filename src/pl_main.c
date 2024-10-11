@@ -9,9 +9,11 @@
 #include "pl/pl_dump.h"
 #include "pl/pl_stack.h"
 #include "pl/pl_bytecode.h"
+#include "pl/pl_exec.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
@@ -24,10 +26,30 @@ int main(int argc, char **argv) {
 	pl_stack_unref(stk);
 
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
-	pl_bytecode_builder_add(b, DUP, {});
+	pl_bytecode_builder_add(b, PUSHNUM, {8});
 	pl_bytecode_builder_add(b, PUSHNUM, {15});
+	pl_bytecode_builder_add(b, ADD, {});
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode_dump(b->bytecode);
+
+	char *bytecode = malloc(b->end);
+	memcpy(bytecode, b->bytecode, b->end);
 	free(b);
+
+	pl_func f = {bytecode};
+
+	pl_state *pl = malloc(sizeof(pl_state));
+	pl->stack = pl_stack_new();
+
+	pv ret = pl_call(pl, f);
+	pl_dump_pv(ret);
+
+	pl_dump_stack(pl->stack);
+	pl_stack_unref(pl->stack);
+
+	free(pl);
+
+	free(bytecode);
+
 	return 0;
 }
