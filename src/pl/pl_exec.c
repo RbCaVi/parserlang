@@ -36,7 +36,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				abort();
 				break;
 			opcase(PUSHGLOBAL)
-				abort();
+				state->stack = pl_stack_push(state->stack, state->globals[PUSHGLOBAL_data.i]);
 				break;
 			opcase(CALL)
 				abort();
