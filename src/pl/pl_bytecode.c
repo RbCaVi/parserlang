@@ -91,6 +91,9 @@ void pl_bytecode_dump(pl_bytecode b) {
 			opcase(PUSHNUM)
 				printf(" %f\n", PUSHNUM_data.n);
 				break;
+			opcase(PUSHBOOL)
+				printf(" %s\n", PUSHBOOL_data.v ? "true" : "false");
+				break;
 			opcase(SWAPN)
 				printf(" %i\n", SWAPN_data.n);
 				break;

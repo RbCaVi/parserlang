@@ -2,6 +2,7 @@
 
 #include "pv.h"
 #include "pv_number.h"
+#include "pv_singletons.h"
 #include "pl_opcodes.h"
 #include "pl_func.h"
 
@@ -34,6 +35,9 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			opcase(PUSHNUM)
 				state->stack = pl_stack_push(state->stack, pv_number(PUSHNUM_data.n));
 				break;
+			opcase(PUSHBOOL)
+				state->stack = pl_stack_push(state->stack, pv_bool(PUSHBOOL_data.v));
+				break;
 			opcase(SWAPN)
 				abort();
 				break;
@@ -55,7 +59,12 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_set(state->stack, pv_number(v1 + v2), -1); // avoid pop + push (no reason to)
 				break;
 			opcase(JUMPIF)
-				abort();
+				int b = pv_bool_value(pl_stack_top(state->stack));
+				if (b) {
+					bytecode += JUMPIF_data.target;
+				}
+				state->stack = pl_stack_pop(state->stack);
+				break;
 		}
 	}
 }
