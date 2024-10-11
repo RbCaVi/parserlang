@@ -13,7 +13,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
@@ -32,9 +31,7 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode_dump(b->bytecode);
 
-	char *bytecode = malloc(b->end);
-	memcpy(bytecode, b->bytecode, b->end);
-	free(b);
+	pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
 	pl_func f = {bytecode};
 
@@ -49,7 +46,7 @@ int main(int argc, char **argv) {
 
 	free(pl);
 
-	free(bytecode);
+	pl_bytecode_free(bytecode);
 
 	return 0;
 }

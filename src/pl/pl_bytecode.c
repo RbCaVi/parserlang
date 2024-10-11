@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 pl_bytecode_builder *pl_bytecode_new_builder() {
 	pl_bytecode_builder *b = malloc(sizeof(pl_bytecode_builder) + 16);
@@ -78,4 +79,16 @@ void pl_bytecode_dump(const char *bytecode) {
 				return;
 		}
 	}
+}
+
+pl_bytecode pl_bytecode_from_builder(pl_bytecode_builder *b) {
+	char *bytecode = malloc(b->end);
+	memcpy(bytecode, b->bytecode, b->end);
+	uint32_t len = b->end;
+	free(b);
+	return (pl_bytecode){bytecode, len};
+}
+
+void pl_bytecode_free(pl_bytecode b) {
+	free((char*)b.bytecode);
 }

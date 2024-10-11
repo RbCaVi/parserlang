@@ -24,7 +24,7 @@ case(op):; \
 	(void)op ## _data;
 
 pv pl_call(pl_state *state, pl_func f) {
-	const char *bytecode = f.bytecode;
+	const char *bytecode = f.bytecode.bytecode;
 	while (1) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP)

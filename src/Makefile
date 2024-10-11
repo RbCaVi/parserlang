@@ -47,7 +47,7 @@ pv/pv_object.o: pv/pv_object.h pv/pv_private.h pv/pv_to_string.h pv/pv_hash.h pv
 pl/pl_ffi.o: pl/util_pl.h pv/pv.h
 pl/pl_stack.o: pl/util_pl.h pv/pv.h
 pl/pl_dump.o: pl/util_pl.h pv/pv.h
-pl/pl_exec.o: pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_stack.h pv/pv_number.h pv/pv.h
+pl/pl_exec.o: pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_bytecode.h pl/pl_stack.h pv/pv_number.h pv/pv.h
 pl/pl_bytecode.o: pl/pl_opcodes.h pl/pl_opcodes_data.h
 
 # the executables
