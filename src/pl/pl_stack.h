@@ -30,6 +30,7 @@ pl_stack pl_stack_push(pl_stack,pv);
 
 pl_stack pl_stack_push_frame(pl_stack);
 pl_stack pl_stack_pop_frame(pl_stack);
+pl_stack pl_stack_split_frame(pl_stack, int); // used in call
 
 pl_stack pl_stack_ref(pl_stack);
 void pl_stack_unref(pl_stack);

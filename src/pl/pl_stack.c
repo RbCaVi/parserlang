@@ -138,6 +138,7 @@ pl_stack pl_stack_push_frame(pl_stack stack) {
   // initialize the new cell
   stack_cell(stack,idx).type = RET;
   stack_cell(stack,idx).ret.locals = (int)stack.locals;
+  stack.locals = idx;
 
   return stack;
 }
@@ -151,6 +152,22 @@ pl_stack pl_stack_pop_frame(pl_stack stack){
   // the top of the stack should be a retinfo
   assert(stack_cell(stack,idx).type == RET);
   stack.top = idx;
+
+  return stack;
+}
+
+pl_stack pl_stack_split_frame(pl_stack stack, int idx) {
+  // split makes a new stack always
+  stack = move_stack(stack);
+
+  size_t i = get_stack_idx(stack, idx);
+
+  assert(stack_cell(stack,i).type == VAL);
+  pv_free(stack_cell(stack,i).value); // delete the previous value
+  stack_cell(stack,i).type = RET;
+  stack_cell(stack,i).ret.locals = (int)stack.locals;
+  
+  stack.locals = idx;
 
   return stack;
 }
