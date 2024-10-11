@@ -58,6 +58,9 @@ void pl_bytecode_dump(const char *bytecode) {
 			opcase(DUP)
 				printf("\n");
 				break;
+			opcase(ADD)
+				printf("\n");
+				break;
 			opcase(PUSHNUM)
 				printf(" %f\n", PUSHNUM_data.n);
 				break;

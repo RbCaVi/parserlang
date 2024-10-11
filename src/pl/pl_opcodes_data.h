@@ -30,3 +30,4 @@ OPCODE(SWAPN,{int n;}) // swap top with n below
 OPCODE(PUSHGLOBAL,{int i;}) // push entry i in the global table
 OPCODE(CALL,{int n;}) // call n below with arguments above it
 OPCODE(RET,{}) // return one value
+OPCODE(ADD,{}) // pop two values, add them, and push the result
