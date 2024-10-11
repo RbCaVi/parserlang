@@ -171,7 +171,7 @@ static char *pv_object_to_string(pv val) {
 		uint32_t vlen = vlens[i];
 		memcpy(str + pos, vstrs[i], vlen);
 		free(vstrs[i]);
-		pos += klen;
+		pos += vlen;
 		if (i < l - 1) {
 			memcpy(str + pos, ", ", 2);
 			pos += 2;
