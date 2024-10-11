@@ -8,7 +8,10 @@
 
 #include "pl/pl_dump.h"
 #include "pl/pl_stack.h"
+#include "pl/pl_bytecode.h"
+
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
@@ -19,5 +22,16 @@ int main(int argc, char **argv) {
 	stk = pl_stack_push(stk, n);
 	pl_dump_stack(stk);
 	pl_stack_unref(stk);
+
+	pl_bytecode_builder *b = pl_bytecode_new_builder();
+	printf("b = %i %i\n", b->end, b->size);
+	b = pl_bytecode_builder_add_DUP(b, (pl_DUP_data){});
+	printf("b = %i %i\n", b->end, b->size);
+	b = pl_bytecode_builder_add_PUSHNUM(b, (pl_PUSHNUM_data){15});
+	printf("b = %i %i\n", b->end, b->size);
+	b = pl_bytecode_builder_add_RET(b, (pl_RET_data){});
+	printf("b = %i %i\n", b->end, b->size);
+	pl_bytecode_dump(b->bytecode);
+	free(b);
 	return 0;
 }
