@@ -121,18 +121,14 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
 static void pv_object_free(pv obj) {
 	pvp_object_data *o = pvp_object_get_data(obj);
 
-	int *buckets = pvp_object_buckets(o);
-	for (uint32_t i = 0; i < o->alloc_size * 2; i++) {
-		if (buckets[i] == -1) {
-			continue;
-		}
-		struct object_slot *slot;
-		int sloti;
-		for ((sloti = buckets[i]), (slot = &(o->elements[sloti])); sloti !=-1; (sloti = (int)slot->next), (slot = &(o->elements[sloti]))) {
-			pv_free(slot->key);
-			pv_free(slot->value);
-		}
+	pv_object_foreach(pv_copy(obj), k, v) {
+		// twice because the loop creates a reference
+		pv_free(k);
+		pv_free(k);
+		pv_free(v);
+		pv_free(v);
 	}
+	pvp_decref(&(o->refcnt));
 	free(o);
 }
 
