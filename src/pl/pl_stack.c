@@ -166,8 +166,8 @@ pl_stack pl_stack_split_frame(pl_stack stack, int idx) {
   pv_free(stack_cell(stack,i).value); // delete the previous value
   stack_cell(stack,i).type = RET;
   stack_cell(stack,i).ret.locals = (int)stack.locals;
-  
-  stack.locals = idx;
+
+  stack.locals = i;
 
   return stack;
 }
