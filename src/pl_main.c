@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
 
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
+	pl_bytecode_builder_add(b, CALL, {0});
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
@@ -39,7 +40,14 @@ int main(int argc, char **argv) {
 	pl->stack = pl_stack_new();
 	pl->globals = malloc(1 * sizeof(pv));
 
-	pl->globals[0] = pv_number(17);
+	pl_bytecode_builder *b2 = pl_bytecode_new_builder();
+	pl_bytecode_builder_add(b2, PUSHNUM, {8});
+	pl_bytecode_builder_add(b2, PUSHNUM, {15});
+	pl_bytecode_builder_add(b2, ADD, {});
+	pl_bytecode_builder_add(b2, RET, {});
+	pl_bytecode bytecode2 = pl_bytecode_from_builder(b2);
+
+	pl->globals[0] = pl_func(bytecode2);
 
 	pv ret = pl_func_call(f, pl);
 	pl_dump_pv(ret);

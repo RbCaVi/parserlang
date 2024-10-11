@@ -3,6 +3,7 @@
 #include "pv.h"
 #include "pv_number.h"
 #include "pl_opcodes.h"
+#include "pl_func.h"
 
 #include <stdlib.h>
 
@@ -39,7 +40,10 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_push(state->stack, state->globals[PUSHGLOBAL_data.i]);
 				break;
 			opcase(CALL)
-				abort();
+				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
+				state->stack = pl_stack_split_frame(state->stack, -(CALL_data.n + 1));
+				pv ret = pl_func_call(f, state);
+				state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
 				break;
 			opcase(RET)
 				return pl_stack_top(state->stack);

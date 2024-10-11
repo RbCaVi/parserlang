@@ -28,6 +28,6 @@ OPCODE(DUP,{}) // duplicate top of stack
 OPCODE(PUSHNUM,{double n;}) // push a number with value n
 OPCODE(SWAPN,{int n;}) // swap top with n below
 OPCODE(PUSHGLOBAL,{int i;}) // push entry i in the global table
-OPCODE(CALL,{int n;}) // call n below with arguments above it
+OPCODE(CALL,{int n;}) // call n + 1 below with n arguments above it
 OPCODE(RET,{}) // return one value
 OPCODE(ADD,{}) // pop two values, add them, and push the result
