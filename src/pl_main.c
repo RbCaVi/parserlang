@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 	pl_dump_stack(stk);
 	pl_stack_unref(stk);
 
-	// call f2 twice with both inputs and add them together (should return 54)
+	// call f2 twice with both inputs and make an array (should return [23, 31])
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
 	pl_bytecode_builder_add(b, PUSHBOOL, {0});
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
 	pl_bytecode_builder_add(b, PUSHBOOL, {1});
 	pl_bytecode_builder_add(b, CALL, {1});
-	pl_bytecode_builder_add(b, ADD, {});
+	pl_bytecode_builder_add(b, ARRAY, {2});
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
@@ -63,9 +63,9 @@ int main(int argc, char **argv) {
 	* simplifies to
 	f2(b)
 		if b:
-			return 23
-		else:
 			return 31
+		else:
+			return 23
 	*/
 
 	pl_bytecode_builder *b2 = pl_bytecode_new_builder();
