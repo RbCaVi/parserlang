@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
 		pv ii = pl_iter(a);
 
 		for (int i = 0; i < 5; i++) {
-			char *s = pv_to_string(pl_iter_value(ii));
+			char *s = pv_to_string(pl_iter_value(pv_copy(ii)));
 			printf("iter %i: %s\n", i, s);
 			free(s);
 			ii = pl_iter_next(ii);
@@ -122,8 +122,8 @@ int main(int argc, char **argv) {
 		pv ii2 = pl_iter_values(o);
 
 		for (int i = 0; i < 5; i++) {
-			char *s = pv_to_string(pl_iter_value(ii));
-			char *s2 = pv_to_string(pl_iter_value(ii2));
+			char *s = pv_to_string(pl_iter_value(pv_copy(ii)));
+			char *s2 = pv_to_string(pl_iter_value(pv_copy(ii2)));
 			printf("iter %i: %s %s\n", i, s, s2);
 			free(s);
 			free(s2);
@@ -138,9 +138,18 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
 		pl_bytecode_builder_add(b, PUSHNUM, {8});
 		pl_bytecode_builder_add(b, PUSHNUM, {15});
-		pl_bytecode_builder_add(b, ARRAY, {2});
-		pl_bytecode_builder_add(b, DUP, {});
-		pl_bytecode_builder_add(b, ITERK, {});
+		pl_bytecode_builder_add(b, ARRAY, {2}); // a
+		pl_bytecode_builder_add(b, DUP, {}); // a a
+		pl_bytecode_builder_add(b, ARRAY, {}); // a a []
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, ITERK, {}); // a [] i
+		pl_bytecode_builder_add(b, ITERATE, {44}); // a [] i v
+		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
+		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
+		pl_bytecode_builder_add(b, APPENDA, {}); // a i [v]
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
+		pl_bytecode_builder_add(b, JUMP, {-52});
 		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode bytecode = pl_bytecode_from_builder(b);
 

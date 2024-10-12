@@ -127,11 +127,14 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			}
 			opcase(ITERATE) {
 				pv i = pl_stack_top(state->stack);
-				pv v = pl_iter_value(v);
+				pv v = pl_iter_value(pv_copy(i));
 				if (pv_get_kind(v) == 0) {
+					pv_free(i);
+					pv_free(v);
 					state->stack = pl_stack_pop(state->stack);
+					bytecode += ITERATE_data.target;
 				} else {
-					state->stack = pl_stack_set(state->stack, i, -1);
+					state->stack = pl_stack_set(state->stack, pl_iter_next(i), -1);
 					state->stack = pl_stack_push(state->stack, v);
 				}
 				break;

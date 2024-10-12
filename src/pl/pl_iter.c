@@ -88,36 +88,54 @@ pv pl_iter_entries(pv val) {
 pv pl_iter_value(pv val) {
 	assert(val.kind == iter_kind);
 	plp_iter_data *i = plp_iter_get_data(val);
+	pv out;
 	switch (i->val_type) {
 	case ARRAY:
 		if (i->aiter >= pv_array_length(pv_copy(i->val))) {
-			return pv_invalid();
+			out = pv_invalid();
+			break;
 		}
 		switch (i->type) {
 		case KEYS:
-			return pv_number(i->aiter);
+			out = pv_number(i->aiter);
+			break;
 		case VALUES:
-			return pv_array_get(pv_copy(i->val), i->aiter);
+			out = pv_array_get(pv_copy(i->val), i->aiter);
+			break;
 		case ENTRIES:
-			return PV_ARRAY(pv_number(i->aiter), pv_array_get(pv_copy(i->val), i->aiter));
+			out = PV_ARRAY(pv_number(i->aiter), pv_array_get(pv_copy(i->val), i->aiter));
+			break;
+		default:
+			out = pv_invalid(); // just in case
+			break;
 		}
-		return pv_invalid(); // just in case
+		break;
 	case OBJECT:
 		if (!pv_object_iter_valid(pv_copy(i->val), i->oiter)) {
-			return pv_invalid();
+			out = pv_invalid();
+			break;
 		}
 		switch (i->type) {
 		case KEYS:
-			return pv_object_iter_key(pv_copy(i->val), i->oiter);
+			out = pv_object_iter_key(pv_copy(i->val), i->oiter);
+			break;
 		case VALUES:
-			return pv_object_iter_value(pv_copy(i->val), i->oiter);
+			out = pv_object_iter_value(pv_copy(i->val), i->oiter);
+			break;
 		case ENTRIES:
-			return PV_ARRAY(pv_object_iter_key(pv_copy(i->val), i->oiter), pv_object_iter_value(pv_copy(i->val), i->oiter));
+			out = PV_ARRAY(pv_object_iter_key(pv_copy(i->val), i->oiter), pv_object_iter_value(pv_copy(i->val), i->oiter));
+			break;
+		default:
+			out = pv_invalid(); // just in case
+			break;
 		}
-		return pv_invalid(); // just in case
+		break;
 	default:
-		return pv_invalid();
+		out = pv_invalid();
+		break;
 	}
+	pv_free(val);
+	return out;
 }
 
 static plp_iter_data *plp_iter_realloc(plp_iter_data *iin) {
@@ -127,6 +145,7 @@ static plp_iter_data *plp_iter_realloc(plp_iter_data *iin) {
 	plp_iter_data *i = pv_alloc(sizeof(plp_iter_data));
 	memcpy(i, iin, sizeof(plp_iter_data));
 	i->refcnt = PV_REFCNT_INIT;
+	pv_copy(i->val);
 	pvp_decref(&(iin->refcnt));
 	return i;
 }
