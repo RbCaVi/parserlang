@@ -92,8 +92,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			opcase(APPENDA) {
 				pv v = pl_stack_get(state->stack, -1);
 				pv a = pl_stack_get(state->stack, -2);
-				state->stack = pl_stack_pop(state->stack);
-				state->stack = pl_stack_pop(state->stack);
+				state->stack = pl_stack_popn(state->stack, 2); // have to unref the array from the stack so i can modify it without copying
 				a = pv_array_append(a, v);
 				state->stack = pl_stack_push(state->stack, a);
 				break;
