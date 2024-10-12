@@ -38,6 +38,8 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder_add(b, PUSHBOOL, {1});
 	pl_bytecode_builder_add(b, CALL, {1});
 	pl_bytecode_builder_add(b, ARRAY, {2});
+	pl_bytecode_builder_add(b, PUSHBOOL, {0});
+	pl_bytecode_builder_add(b, APPENDA, {});
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
