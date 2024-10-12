@@ -95,8 +95,8 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   } else if (kind == array_kind) {
   	printf("[]\n");
 		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
+		parts.data->parts[idx].type = IDX;
 		pv_array_foreach(val, i, v) {
-			parts.data->parts[idx].type = IDX;
 			parts.data->parts[idx].idx = i;
 			pl_dump_pv_prefixed(v, parts);
   	}
@@ -108,7 +108,6 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
 		parts.data->parts[idx].str = NULL;
 		pv_object_foreach(val, k, v) {
   		free(parts.data->parts[idx].str);
-			parts.data->parts[idx].type = STR;
 			parts.data->parts[idx].str = pv_string_value(k);
 			pl_dump_pv_prefixed(v, parts);
   	}
