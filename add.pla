@@ -1,0 +1,7 @@
+
+pushnum 17
+jump l
+pushnum 145
+add
+l:
+ret
