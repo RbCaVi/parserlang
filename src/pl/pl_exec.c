@@ -74,6 +74,9 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_popn(state->stack, ARRAY_data.n);
 				state->stack = pl_stack_push(state->stack, a);
 				break;
+			opcase(JUMP)
+				bytecode += JUMP_data.target;
+				break;
 			default:
 				abort(); // how (i think you did something wrong - probably a jump)
 		}

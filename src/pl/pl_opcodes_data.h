@@ -34,3 +34,4 @@ OPCODE(RET,{}) // return one value
 OPCODE(ADD,{}) // pop two values, add them, and push the result
 OPCODE(JUMPIF,{int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
 OPCODE(ARRAY,{int n;}) // create an array with the top n values
+OPCODE(JUMP,{int target;}) // unconditional jump - target is bytes relative to the next instruction
