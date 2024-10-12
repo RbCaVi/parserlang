@@ -31,20 +31,22 @@ labels = {}
 blen = 0
 
 with open(filein) as f:
-	it = iter(f)
-	for line in it:
-		line = line.split('//')[0]
-		*lbls,line = line.split(':')
-		for lbl in lbls:
-			label, = lbl.split()
-			labels[label] = blen
-		if line.strip() == '':
-			continue
-		else:
-			op,*args = line.split()
-			op = op.upper()
-			blen += struct.calcsize('<I' + opcodes[op][1])
-			instrs.append((op, args, blen))
+	data = f.read()
+
+it = iter(data.split('\n'))
+for line in it:
+	line = line.split('//')[0]
+	*lbls,line = line.split(':')
+	for lbl in lbls:
+		label, = lbl.split()
+		labels[label] = blen
+	if line.strip() == '':
+		continue
+	else:
+		op,*args = line.split()
+		op = op.upper()
+		blen += struct.calcsize('<I' + opcodes[op][1])
+		instrs.append((op, args, blen))
 
 bytecode = b''
 for op,args,bpos in instrs:
