@@ -79,3 +79,15 @@ cython_debug/
 # replit stuff
 .replit
 rippkgs-index.sqlite
+
+
+
+
+
+
+
+
+
+
+# pl bytecode
+*.plb
