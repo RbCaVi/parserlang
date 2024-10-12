@@ -88,8 +88,17 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				bytecode += JUMP_data.target;
 				break;
 			}
+			opcase(APPENDA) {
+				pv v = pl_stack_get(state->stack, -1);
+				pv a = pl_stack_get(state->stack, -2);
+				state->stack = pl_stack_pop(state->stack);
+				state->stack = pl_stack_pop(state->stack);
+				a = pv_array_append(a, v);
+				state->stack = pl_stack_push(state->stack, a);
+				break;
+			}
 			default:
-				abort(); // how (i think you did something wrong - probably a jump)
+				abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
 	}
 }
