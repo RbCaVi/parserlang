@@ -26,13 +26,19 @@ int main(int argc, char **argv) {
 	pl_dump_stack(stk);
 	pl_stack_unref(stk);
 
+	// call f2 twice with both inputs
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
-	pl_bytecode_builder_add(b, CALL, {0});
+	pl_bytecode_builder_add(b, PUSHBOOL, {0});
+	pl_bytecode_builder_add(b, CALL, {1});
+	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
+	pl_bytecode_builder_add(b, PUSHBOOL, {1});
+	pl_bytecode_builder_add(b, CALL, {1});
+	pl_bytecode_builder_add(b, ADD, {});
 	pl_bytecode_builder_add(b, RET, {});
-	pl_bytecode_builder_add(b, JUMPIF, {-28});
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
+	printf("bytecode1\n");
 	pl_bytecode_dump(bytecode);
 
 	pv f = pl_func(bytecode);
@@ -41,12 +47,40 @@ int main(int argc, char **argv) {
 	pl->stack = pl_stack_new();
 	pl->globals = malloc(1 * sizeof(pv));
 
+	/* approximately
+	f2(b)
+		if b: goto l1
+		v1 = 8
+		v2 = 15
+		out = v1 + v2
+		v3 = true
+		if v3: goto l2
+		l1:
+		out = 31
+		l2:
+		return out
+
+	* simplifies to
+	f2(b)
+		if b:
+			return 23
+		else:
+			return 31
+	*/
+
 	pl_bytecode_builder *b2 = pl_bytecode_new_builder();
+	pl_bytecode_builder_add(b2, JUMPIF, {44});
 	pl_bytecode_builder_add(b2, PUSHNUM, {8});
 	pl_bytecode_builder_add(b2, PUSHNUM, {15});
 	pl_bytecode_builder_add(b2, ADD, {});
+	pl_bytecode_builder_add(b2, PUSHBOOL, {1});
+	pl_bytecode_builder_add(b2, JUMPIF, {12});
+	pl_bytecode_builder_add(b2, PUSHNUM, {31});
 	pl_bytecode_builder_add(b2, RET, {});
 	pl_bytecode bytecode2 = pl_bytecode_from_builder(b2);
+
+	printf("bytecode2\n");
+	pl_bytecode_dump(bytecode2);
 
 	pl->globals[0] = pl_func(bytecode2);
 
