@@ -6,6 +6,7 @@
 #include "pv_array.h"
 #include "pl_opcodes.h"
 #include "pl_func.h"
+#include "pl_iter.h"
 
 #include <stdlib.h>
 
@@ -95,6 +96,41 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_pop(state->stack);
 				a = pv_array_append(a, v);
 				state->stack = pl_stack_push(state->stack, a);
+				break;
+			}
+			opcase(ITER) {
+				pv v = pl_stack_top(state->stack);
+				pv i = pl_iter(v);
+				state->stack = pl_stack_set(state->stack, i, -1);
+				break;
+			}
+			opcase(ITERK) {
+				pv v = pl_stack_top(state->stack);
+				pv i = pl_iter_keys(v);
+				state->stack = pl_stack_set(state->stack, i, -1);
+				break;
+			}
+			opcase(ITERV) {
+				pv v = pl_stack_top(state->stack);
+				pv i = pl_iter_values(v);
+				state->stack = pl_stack_set(state->stack, i, -1);
+				break;
+			}
+			opcase(ITERE) {
+				pv v = pl_stack_top(state->stack);
+				pv i = pl_iter_entries(v);
+				state->stack = pl_stack_set(state->stack, i, -1);
+				break;
+			}
+			opcase(ITERATE) {
+				pv i = pl_stack_top(state->stack);
+				pv v = pl_iter_value(v);
+				if (pv_get_kind(v) == 0) {
+					state->stack = pl_stack_pop(state->stack);
+				} else {
+					state->stack = pl_stack_set(state->stack, i, -1);
+					state->stack = pl_stack_push(state->stack, v);
+				}
 				break;
 			}
 			default:

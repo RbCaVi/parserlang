@@ -94,6 +94,11 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(RET)
 			nodataopcase(ADD)
 			nodataopcase(APPENDA)
+			nodataopcase(ITER)
+			nodataopcase(ITERK)
+			nodataopcase(ITERV)
+			nodataopcase(ITERE)
+			nodataopcase(ITERATE)
 			opcase(PUSHNUM)
 				printf(" %f\n", PUSHNUM_data.n);
 				break;

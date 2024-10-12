@@ -36,3 +36,8 @@ OPCODE(JUMPIF,{int target;}) // pop one value and jump if it is true (it must be
 OPCODE(ARRAY,{unsigned int n;}) // create an array with the top n values
 OPCODE(JUMP,{int target;}) // unconditional jump - target is bytes relative to the next instruction
 OPCODE(APPENDA,{}) // pop a value and append it to the array below it
+OPCODE(ITER,{}) // create an iterator (values for array, keys for object)
+OPCODE(ITERK,{}) // create a keys iterator
+OPCODE(ITERV,{}) // create a values iterator
+OPCODE(ITERE,{}) // create a entries iterator
+OPCODE(ITERATE,{int target;}) // pop an iterator, step it, and push the stepped iterator and result or jump to target (bytes relative to the next instruction)
