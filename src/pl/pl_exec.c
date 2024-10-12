@@ -65,6 +65,8 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				}
 				state->stack = pl_stack_pop(state->stack);
 				break;
+			default:
+				abort(); // how (i think you did something wrong - probably a jump)
 		}
 	}
 }
