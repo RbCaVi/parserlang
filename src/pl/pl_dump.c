@@ -115,6 +115,7 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
 		pv_free(val); // the foreach doesn't free (i need to fix this)
 	} else {
   	printf("idk it has kind %i\n", kind);
+  	pv_free(val);
 	}
   pl_dump_free_prefix(parts);
 }
