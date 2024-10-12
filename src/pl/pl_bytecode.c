@@ -98,7 +98,6 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(ITERK)
 			nodataopcase(ITERV)
 			nodataopcase(ITERE)
-			nodataopcase(ITERATE)
 			opcase(PUSHNUM)
 				printf(" %f\n", PUSHNUM_data.n);
 				break;
@@ -122,6 +121,9 @@ void pl_bytecode_dump(pl_bytecode b) {
 				break;
 			opcase(JUMP)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMP_data.target));
+				break;
+			opcase(ITERATE)
+				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + ITERATE_data.target));
 				break;
 		}
 	}

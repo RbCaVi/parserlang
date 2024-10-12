@@ -44,7 +44,11 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				break;
 			}
 			opcase(SWAPN) {
-				abort();
+				// is that a reference to the hit game ultrakill???
+				pv v1 = pl_stack_top(state->stack);
+				pv v2 = pl_stack_get(state->stack, -SWAPN_data.n);
+				state->stack = pl_stack_set(state->stack, v2, -1);
+				state->stack = pl_stack_set(state->stack, v1, -SWAPN_data.n);
 				break;
 			}
 			opcase(PUSHGLOBAL) {
