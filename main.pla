@@ -1,0 +1,20 @@
+def n1 num 4
+def n2 num 34
+def a arr n1 n2
+
+defglobals add a
+defmain main
+
+func add
+	// takes 2 arguments
+	add
+	ret
+endfunc
+
+func main
+	pushglobal 0
+	pushnum 15
+	pushnum 52
+	call 2
+	ret
+endfunc

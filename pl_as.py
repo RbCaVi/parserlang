@@ -26,36 +26,66 @@ jumpopcodes = ["JUMP", "JUMPIF", "ITERATE"]
 import sys
 filein,fileout = sys.argv[1],sys.argv[2]
 
-instrs = []
-labels = {}
-blen = 0
-
+lines = []
 with open(filein) as f:
-	data = f.read()
+	for line in f:
+		line = line.split('//')[0]
+		if line.strip() == '':
+			continue
+		lines.append(line)
 
-it = iter(data.split('\n'))
-for line in it:
-	line = line.split('//')[0]
-	*lbls,line = line.split(':')
-	for lbl in lbls:
-		label, = lbl.split()
-		labels[label] = blen
-	if line.strip() == '':
-		continue
-	else:
+def assemble(lines):
+	instrs = []
+	labels = {}
+	blen = 0
+
+	it = iter(lines)
+	for line in it:
+		*lbls,line = line.split(':')
+		for lbl in lbls:
+			label, = lbl.split()
+			labels[label] = blen
+		if line.strip() == '':
+			continue
+		else:
+			op,*args = line.split()
+			op = op.upper()
+			blen += struct.calcsize('<I' + opcodes[op][1])
+			instrs.append((op, args, blen))
+
+	bytecode = b''
+	for op,args,bpos in instrs:
+		if op in jumpopcodes:
+			label, = args
+			args = [labels[label] - bpos]
+		i,fmt = opcodes[op]
+		args = [(float if typ == 'd' else int)(arg) for typ,arg in zip(fmt,args)]
+		bytecode += struct.pack('<I' + opcodes[op][1], i, *args)
+
+	return bytecode
+
+def parse(lines):
+	g = []
+	#main = None
+	v = {}
+	it = iter(lines)
+	for line in it:
 		op,*args = line.split()
-		op = op.upper()
-		blen += struct.calcsize('<I' + opcodes[op][1])
-		instrs.append((op, args, blen))
+		if op == 'def':
+			v[args[0]] = args[1:]
+		elif op == 'defglobals':
+			g = args
+		elif op == 'defmain':
+			main = args[0]
+		elif op == 'func':
+			flines = []
+			line = next(it)
+			while line.split()[0] != 'endfunc':
+				flines.append(line)
+				line = next(it)
+			v[args[0]] = ['func', flines]
+		else:
+			print('???',line)
+	return g,main,v
 
-bytecode = b''
-for op,args,bpos in instrs:
-	if op in jumpopcodes:
-		label, = args
-		args = [labels[label] - bpos]
-	i,fmt = opcodes[op]
-	args = [(float if typ == 'd' else int)(arg) for typ,arg in zip(fmt,args)]
-	bytecode += struct.pack('<I' + opcodes[op][1], i, *args)
-
-with open(fileout, 'wb') as f:
-	f.write(bytecode)
+print(parse(lines))
