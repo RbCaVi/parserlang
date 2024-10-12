@@ -4,27 +4,8 @@
 import re
 import struct
 
-# output from gcc -E pl/pl_opcodes_data.h -o -
-opcodedata = '''
-OPCODE(DUP,{})
-OPCODE(POP,{})
-OPCODE(PUSHNUM,{double n;})
-OPCODE(PUSHBOOL,{int v;})
-OPCODE(SWAPN,{int n;})
-OPCODE(PUSHGLOBAL,{int i;})
-OPCODE(CALL,{int n;})
-OPCODE(RET,{})
-OPCODE(ADD,{})
-OPCODE(JUMPIF,{int target;})
-OPCODE(ARRAY,{unsigned int n;})
-OPCODE(JUMP,{int target;})
-OPCODE(APPENDA,{})
-OPCODE(ITER,{})
-OPCODE(ITERK,{})
-OPCODE(ITERV,{})
-OPCODE(ITERE,{})
-OPCODE(ITERATE,{int target;})
-'''
+with open("src/pl/pl_opcodes_data.h") as f:
+	opcodedata = f.read()
 
 types = {
 	"int": "i",
