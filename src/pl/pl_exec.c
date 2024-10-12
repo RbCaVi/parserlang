@@ -35,6 +35,10 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_push(state->stack, pl_stack_top(state->stack));
 				break;
 			}
+			opcase(POP) {
+				state->stack = pl_stack_pop(state->stack);
+				break;
+			}
 			opcase(PUSHNUM) {
 				state->stack = pl_stack_push(state->stack, pv_number(PUSHNUM_data.n));
 				break;

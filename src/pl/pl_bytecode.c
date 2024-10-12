@@ -91,6 +91,7 @@ void pl_bytecode_dump(pl_bytecode b) {
 	while (bytecode < end) {
 		switch (plp_get_opcode(bytecode)) {
 			nodataopcase(DUP)
+			nodataopcase(POP)
 			nodataopcase(RET)
 			nodataopcase(ADD)
 			nodataopcase(APPENDA)
