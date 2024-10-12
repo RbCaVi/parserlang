@@ -80,14 +80,20 @@ case(op):; \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
 
+#define nodataopcase(op) \
+opcase(op) \
+	printf("\n"); \
+	break;
+
 void pl_bytecode_dump(pl_bytecode b) {
 	const char *bytecode = b.bytecode;
 	const char *end = bytecode + b.length;
 	while (bytecode < end) {
 		switch (plp_get_opcode(bytecode)) {
-			opcase(DUP)
-				printf("\n");
-				break;
+			nodataopcase(DUP)
+			nodataopcase(RET)
+			nodataopcase(ADD)
+			nodataopcase(APPENDA)
 			opcase(PUSHNUM)
 				printf(" %f\n", PUSHNUM_data.n);
 				break;
@@ -103,12 +109,6 @@ void pl_bytecode_dump(pl_bytecode b) {
 			opcase(CALL)
 				printf(" %i\n", CALL_data.n);
 				break;
-			opcase(RET)
-				printf("\n");
-				break;
-			opcase(ADD)
-				printf("\n");
-				break;
 			opcase(JUMPIF)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMPIF_data.target));
 				break;
@@ -117,9 +117,6 @@ void pl_bytecode_dump(pl_bytecode b) {
 				break;
 			opcase(JUMP)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMP_data.target));
-				break;
-			opcase(APPENDA)
-				printf("\n");
 				break;
 		}
 	}
