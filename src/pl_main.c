@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, PUSHNUM, {15});
 		pl_bytecode_builder_add(b, ARRAY, {2}); // a
 		pl_bytecode_builder_add(b, DUP, {}); // a a
-		pl_bytecode_builder_add(b, ARRAY, {}); // a a []
+		pl_bytecode_builder_add(b, ARRAY, {0}); // a a []
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
 		pl_bytecode_builder_add(b, ITERK, {}); // a [] i
 		pl_bytecode_builder_add(b, ITERATE, {44}); // a [] i v
@@ -150,6 +150,33 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, APPENDA, {}); // a i [v]
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
 		pl_bytecode_builder_add(b, JUMP, {-52});
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, DUP, {}); // a a
+		pl_bytecode_builder_add(b, ARRAY, {0}); // a a []
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, ITERV, {}); // a [] i
+		pl_bytecode_builder_add(b, ITERATE, {44}); // a [] i v
+		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
+		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
+		pl_bytecode_builder_add(b, APPENDA, {}); // a i [v]
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
+		pl_bytecode_builder_add(b, JUMP, {-52});
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, DUP, {}); // a a
+		pl_bytecode_builder_add(b, ARRAY, {0}); // a a []
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, ITERE, {}); // a [] i
+		pl_bytecode_builder_add(b, ITERATE, {44}); // a [] i v
+		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
+		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
+		pl_bytecode_builder_add(b, APPENDA, {}); // a i [v]
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
+		pl_bytecode_builder_add(b, JUMP, {-52});
+		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, POP, {});
+		pl_bytecode_builder_add(b, ARRAY, {2});
 		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
