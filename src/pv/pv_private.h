@@ -1,8 +1,6 @@
 #ifndef PV_PRIVATE_H
 #define PV_PRIVATE_H
 
-#include "pv.h"
-
 #include <stddef.h>
 
 typedef struct pv_refcnt {
