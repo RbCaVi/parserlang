@@ -68,7 +68,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				break;
 			opcase(ARRAY)
 				pv a = pv_array();
-				for (int i = -ARRAY_data.n; i < 0; i++) {
+				for (int i = -(int)ARRAY_data.n; i < 0; i++) {
 					a = pv_array_append(a, pl_stack_get(state->stack, i));
 				}
 				state->stack = pl_stack_popn(state->stack, ARRAY_data.n);
