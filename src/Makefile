@@ -50,6 +50,7 @@ pl/pl_bytecode.o: pl/pl_opcodes.h pl/pl_opcodes_data.h
 # the executables
 pv_main.o: pv/pv_singletons.h pv/pv_number.h pv/pv_string.h pv/pv_array.h pv/pv_object.h pv/pv_to_string.h pv/pv_install.h pv/pv.h
 pl_main.o: pv/pv.h pl/pl_stack.h pl/util_pl.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_bytecode.h pl/pl_exec.h pv/pv_to_string.h pl/pl_iter.h
+pl_run.o: pl/pl_dump.h pl/pl_stack.h pl/pl_bytecode.h pl/pl_exec.h pl/pl_func.h pv/pv.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_install.h pl/pl_iter.h
 
 pv_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
@@ -63,8 +64,10 @@ pl_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pl/util_pl.o pl/pl_dump.o pl/pl_stack.o \
 	pl/pl_bytecode.o pl/pl_exec.o pl/pl_func.o pv/pv_to_string.o pl/pl_iter.o
 
+pl_run: pl/pl_dump.o pl/pl_stack.o pv/pv_install.o pv/pv_equal.o pv/pv_object.o pv/pv_hash.o pv/pv_singletons.o pv/pv_to_string.o pl/pl_iter.o pv/pv_string.o pv/pv_array.o pv/pv_private.o pl/pl_bytecode.o pl/pl_exec.o pl/pl_func.o pv/pv.o pl/util_pl.o pv/pv_number.o
+
 clean:
-	rm -f pl_main pv_main
+	rm -f pv_main pl_main pl_run
 	rm -f *.o
 	rm -f pl/*.o
 	rm -f pv/*.o
