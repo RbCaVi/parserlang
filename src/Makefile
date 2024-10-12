@@ -11,15 +11,6 @@ compilecmd := gcc \
 -Wconversion -Werror=return-type -Werror=implicit-function-declaration \
 -I pv -I . -c
 
-ifeq ("x","y")
-#https://stackoverflow.com/a/4493447
-%.o: %.c # ignore the "implicit" rule from make
-%.o: %.c %.h
-	$(compilecmd) -Wl,-rdynamic $< -o $@
-
-
-endif
-
 %.o: %.c
 	$(compilecmd) $< -o $@
 
