@@ -123,8 +123,14 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
 static void pv_object_free(pv obj) {
 	pvp_object_data *o = pvp_object_get_data(obj);
 
-	pv_object_foreach(pv_copy(obj), k, v) {
-		// twice because the loop creates a reference
+	// the refcount is 0,
+	// and the loop copies and then frees the object,
+	// which calls this function again,
+	// so to avoid stack overflow,
+	// i incref the object before the loop
+	pvp_incref(&(o->refcnt));
+	pv_object_foreach(obj, k, v) {
+		// free twice because the loop creates a reference
 		pv_free(k);
 		pv_free(k);
 		pv_free(v);

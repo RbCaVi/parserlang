@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 	pl_dump_stack(stk);
 	pl_stack_unref(stk);
 
-	// call f2 twice with both inputs
+	// call f2 twice with both inputs and add them together (should return 54)
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
 	pl_bytecode_builder_add(b, PUSHBOOL, {0});

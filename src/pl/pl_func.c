@@ -16,14 +16,14 @@ typedef struct {
   };
 } pl_func_data;
 
-static pl_func_data *pvp_func_get_data(pv val) {
+static pl_func_data *plp_func_get_data(pv val) {
 	pl_func_data *f = (pl_func_data*)val.data;
 	return f;
 }
 
 static void pl_func_free(pv val) {
-	pl_func_data *f = pvp_func_get_data(val);
-	switch(f->type) {
+	pl_func_data *f = plp_func_get_data(val);
+	switch (f->type) {
 	case BYTECODE:
 		pl_bytecode_free(f->bytecode);
 		break;
@@ -44,9 +44,9 @@ pv pl_func(pl_bytecode bytecode) {
 }
 
 pv pl_func_call(pv fun, pl_state *pl) {
-	pl_func_data *f = pvp_func_get_data(fun);
+	pl_func_data *f = plp_func_get_data(fun);
 	pv out;
-	switch(f->type) {
+	switch (f->type) {
 	case BYTECODE:
 		out = pl_call(pl, f->bytecode);
 		break;

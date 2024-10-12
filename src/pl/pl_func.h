@@ -5,8 +5,6 @@
 #include "pl_exec.h"
 //#include "pl_stack.h"
 
-#include <stdint.h>
-
 extern pv_kind func_kind;
 
 void pl_func_install();
