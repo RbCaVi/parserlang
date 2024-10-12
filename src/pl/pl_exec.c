@@ -31,7 +31,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 	while (1) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP)
-				abort();
+				state->stack = pl_stack_push(state->stack, pl_stack_top(state->stack));
 				break;
 			opcase(PUSHNUM)
 				state->stack = pl_stack_push(state->stack, pv_number(PUSHNUM_data.n));
