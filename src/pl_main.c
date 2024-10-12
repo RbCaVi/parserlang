@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
@@ -179,6 +180,31 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, ARRAY, {2});
 		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+		printf("bytecode1\n");
+		pl_bytecode_dump(bytecode);
+
+		pv f = pl_func(bytecode);
+
+		pl_state *pl = malloc(sizeof(pl_state));
+		pl->stack = pl_stack_new();
+		pl->globals = malloc(0 * sizeof(pv));
+
+		pv ret = pl_func_call(f, pl);
+		pl_dump_pv(ret);
+
+		pl_dump_stack(pl->stack);
+		pl_stack_unref(pl->stack);
+
+		free(pl->globals);
+
+		free(pl);
+	}
+	{
+		//char b[] = {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 64, 11, 0, 0, 0, 16, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 32, 98, 64, 8, 0, 0, 0, 7, 0, 0, 0};
+		char *b = malloc(40);
+		memcpy(b, (char[]){2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 64, 11, 0, 0, 0, 16, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 32, 98, 64, 8, 0, 0, 0, 7, 0, 0, 0}, 40);
+		pl_bytecode bytecode = {b, 40};
 
 		printf("bytecode1\n");
 		pl_bytecode_dump(bytecode);
