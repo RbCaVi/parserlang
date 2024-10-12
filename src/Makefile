@@ -5,7 +5,11 @@
 #   echo 
 # done | sed -E 's/^([^.]+)\.o(.*)\1.c \1.h(.*)$/\1.o\2\3/;s/  / /'
 # compilecmd := gcc -MD -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
-compilecmd := gcc -Og -g -gdwarf-4 -ggdb -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I pv -I . -c
+compilecmd := gcc \
+-Og -g -gdwarf-4 -ggdb \
+-Wall -Wextra -Wpedantic -Wno-pedantic \
+-Wconversion -Werror=return-type -Werror=implicit-function-declaration \
+-I pv -I . -c
 
 ifeq ("x","y")
 #https://stackoverflow.com/a/4493447
