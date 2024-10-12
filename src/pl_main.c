@@ -5,12 +5,14 @@
 #include "pv/pv_object.h"
 #include "pv/pv_string.h"
 #include "pv/pv_install.h"
+#include "pv/pv_to_string.h"
 
 #include "pl/pl_dump.h"
 #include "pl/pl_stack.h"
 #include "pl/pl_bytecode.h"
 #include "pl/pl_exec.h"
 #include "pl/pl_func.h"
+#include "pl/pl_iter.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +21,7 @@ int main(int argc, char **argv) {
 	(void)argc, (void)argv;
 	pv_install();
 	pl_func_install();
+	pl_iter_install();
 	pv n = PV_ARRAY(pv_number(15),pv_false(),PV_OBJECT(pv_string("key"),pv_string("value"), pv_string("key2"),pv_string("value2")));
 	pl_stack stk = pl_stack_new();
 	pl_dump_pv(pv_copy(n));
@@ -94,6 +97,37 @@ int main(int argc, char **argv) {
 	free(pl->globals);
 
 	free(pl);
+
+	pv a = PV_ARRAY(pv_number(1), pv_number(4), pv_number(2));
+
+	pv ii = pl_iter(a);
+
+	for (int i = 0; i < 5; i++) {
+		char *s = pv_to_string(pl_iter_value(ii));
+		printf("iter %i: %s\n", i, s);
+		free(s);
+		ii = pl_iter_next(ii);
+	}
+
+	pv_free(ii);
+
+	pv o = PV_OBJECT(pv_string("k"), pv_number(4), pv_string("k2"), pv_number(2));
+
+	ii = pl_iter_keys(pv_copy(o));
+	pv ii2 = pl_iter_values(o);
+
+	for (int i = 0; i < 5; i++) {
+		char *s = pv_to_string(pl_iter_value(ii));
+		char *s2 = pv_to_string(pl_iter_value(ii2));
+		printf("iter %i: %s %s\n", i, s, s2);
+		free(s);
+		free(s2);
+		ii = pl_iter_next(ii);
+		ii2 = pl_iter_next(ii2);
+	}
+
+	pv_free(ii);
+	pv_free(ii2);
 
 	return 0;
 }

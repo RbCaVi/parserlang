@@ -1,5 +1,6 @@
 #include "pl_iter.h"
 
+#include "pv_number.h"
 #include "pv_array.h"
 #include "pv_object.h"
 #include "pv_private.h"
@@ -89,17 +90,31 @@ pv pl_iter_value(pv val) {
 	plp_iter_data *i = plp_iter_get_data(val);
 	switch (i->val_type) {
 	case ARRAY:
-		if (i->aiter < pv_array_length(pv_copy(i->val))) {
+		if (i->aiter >= pv_array_length(pv_copy(i->val))) {
+			return pv_invalid();
+		}
+		switch (i->type) {
+		case KEYS:
+			return pv_number(i->aiter);
+		case VALUES:
 			return pv_array_get(pv_copy(i->val), i->aiter);
-		} else {
-			return pv_invalid();
+		case ENTRIES:
+			return PV_ARRAY(pv_number(i->aiter), pv_array_get(pv_copy(i->val), i->aiter));
 		}
+		return pv_invalid(); // just in case
 	case OBJECT:
-		if (pv_object_iter_valid(pv_copy(i->val), i->oiter)) {
-			return pv_object_iter_value(pv_copy(i->val), i->oiter);
-		} else {
+		if (!pv_object_iter_valid(pv_copy(i->val), i->oiter)) {
 			return pv_invalid();
 		}
+		switch (i->type) {
+		case KEYS:
+			return pv_object_iter_key(pv_copy(i->val), i->oiter);
+		case VALUES:
+			return pv_object_iter_value(pv_copy(i->val), i->oiter);
+		case ENTRIES:
+			return PV_ARRAY(pv_object_iter_key(pv_copy(i->val), i->oiter), pv_object_iter_value(pv_copy(i->val), i->oiter));
+		}
+		return pv_invalid(); // just in case
 	default:
 		return pv_invalid();
 	}
@@ -124,6 +139,9 @@ pv pl_iter_next(pv val) {
 		i->aiter++;
 		break;
 	case OBJECT:
+		if (!pv_object_iter_valid(pv_copy(i->val), i->oiter)) {
+			break;
+		}
 		i->oiter = pv_object_iter_next(pv_copy(i->val), i->oiter);
 		break;
 	}
