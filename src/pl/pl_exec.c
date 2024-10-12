@@ -1,8 +1,9 @@
 #include "pl_exec.h"
 
 #include "pv.h"
-#include "pv_number.h"
 #include "pv_singletons.h"
+#include "pv_number.h"
+#include "pv_array.h"
 #include "pl_opcodes.h"
 #include "pl_func.h"
 
@@ -64,6 +65,14 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 					bytecode += JUMPIF_data.target;
 				}
 				state->stack = pl_stack_pop(state->stack);
+				break;
+			opcase(ARRAY)
+				pv a = pv_array();
+				for (int i = -ARRAY_data.n; i < 0; i++) {
+					a = pv_array_append(a, pl_stack_get(state->stack, i));
+				}
+				state->stack = pl_stack_popn(state->stack, ARRAY_data.n);
+				state->stack = pl_stack_push(state->stack, a);
 				break;
 			default:
 				abort(); // how (i think you did something wrong - probably a jump)

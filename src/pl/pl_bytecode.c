@@ -112,6 +112,9 @@ void pl_bytecode_dump(pl_bytecode b) {
 			opcase(JUMPIF)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMPIF_data.target));
 				break;
+			opcase(ARRAY)
+				printf(" %i\n", ARRAY_data.n);
+				break;
 		}
 	}
 }

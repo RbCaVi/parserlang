@@ -33,3 +33,4 @@ OPCODE(CALL,{int n;}) // call n + 1 below with n arguments above it
 OPCODE(RET,{}) // return one value
 OPCODE(ADD,{}) // pop two values, add them, and push the result
 OPCODE(JUMPIF,{int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
+OPCODE(ARRAY,{int n;}) // create an array with the top n values
