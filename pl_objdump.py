@@ -7,7 +7,7 @@ with open(filein, 'rb') as f:
 
 import struct
 
-mainpos,glen,vlen = struct.unpack('<III', data[:struct.calcsize('<III')])
+maini,glen,vlen = struct.unpack('<III', data[:struct.calcsize('<III')])
 g = struct.unpack(f'<{glen}I', data[struct.calcsize('<III'):struct.calcsize('<III') + struct.calcsize(f'<{glen}I')])
 v = struct.unpack(f'<{vlen}I', data[struct.calcsize(f'<III{glen}I'):struct.calcsize(f'<III{glen}I') + struct.calcsize(f'<{vlen}I')])
 
@@ -24,8 +24,6 @@ def getvar(i):
 	elif typ == atype:
 		_typ,alen = struct.unpack('<II', vdata[:struct.calcsize('<II')])
 		a = struct.unpack(f'<{alen}I', vdata[struct.calcsize('<II'):struct.calcsize('<II') + struct.calcsize(f'<{alen}I')])
-		for i in a:
-			print(i)
 		return [getvar(i) for i in a]
 	elif typ == ftype:
 		_typ,flen = struct.unpack('<II', vdata[:struct.calcsize('<II')])
@@ -33,6 +31,13 @@ def getvar(i):
 	else:
 		return None
 
-print(g, mainpos)
-print(getvar(mainpos))
-print([getvar(pos) for pos in g])
+print('main bytecode:')
+print(f'  {maini}: {getvar(maini)}')
+print()
+print('vars:')
+for pos in range(vlen):
+	print(f'  {v[pos]}: {getvar(pos)}')
+print()
+print('globals:')
+for i in range(glen):
+	print(f'  {g[i]}: {getvar(g[i])}')
