@@ -89,5 +89,5 @@ rippkgs-index.sqlite
 
 
 
-# pl bytecode
-*.plb
+# pl compiled
+*.plc
