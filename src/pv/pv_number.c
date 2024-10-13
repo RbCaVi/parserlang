@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-pv_kind number_kind;
+pv_kind double_kind;
+pv_kind int_kind;
 
 // this needs a test at some point
 

@@ -26,7 +26,8 @@ CALLCONSTN addr n
 
 OPCODE(DUP,{}) // duplicate top of stack
 OPCODE(POP,{}) // delete top of stack
-OPCODE(PUSHNUM,{double n;}) // push a number with value n
+OPCODE(PUSHDOUBLE,{double n;}) // push a double with value n
+OPCODE(PUSHINT,{int n;}) // push an int with value n
 OPCODE(PUSHBOOL,{int v;}) // push a bool with value n (0 or 1)
 OPCODE(SWAPN,{int n;}) // swap top with n below
 OPCODE(PUSHGLOBAL,{int i;}) // push entry i in the global table

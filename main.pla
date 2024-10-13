@@ -13,8 +13,8 @@ endfunc
 
 func main
 	pushglobal 0
-	pushnum 15
-	pushnum 52
+	pushint 15
+	pushint 52
 	call 2
 	ret
 endfunc

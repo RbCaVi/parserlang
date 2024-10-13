@@ -54,7 +54,7 @@ pv getvar(unsigned int i, char *data, unsigned int *vars, pv *vals) {
 		printf("type %i at %i / %i\n", type, i, pos);
 		switch (type) {
 		case 0: // ntype = 0
-			val = pv_number(*((double *)(data + pos + sizeof(unsigned int))));
+			val = pv_double(*((double *)(data + pos + sizeof(unsigned int))));
 			break;
 		case 1: // atype = 1
 			unsigned int alen = *((unsigned int *)(data + pos + sizeof(unsigned int)));

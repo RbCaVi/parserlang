@@ -105,8 +105,11 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(ITERK)
 			nodataopcase(ITERV)
 			nodataopcase(ITERE)
-			opcase(PUSHNUM)
-				printf(" %f\n", PUSHNUM_data.n);
+			opcase(PUSHDOUBLE)
+				printf(" %f\n", PUSHDOUBLE_data.n);
+				break;
+			opcase(PUSHINT)
+				printf(" %i\n", PUSHINT_data.n);
 				break;
 			opcase(PUSHBOOL)
 				printf(" %s\n", PUSHBOOL_data.v ? "true" : "false");

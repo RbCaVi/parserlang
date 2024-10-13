@@ -86,8 +86,10 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   	} else {
 	  	printf("FALSE\n");
   	}
-  } else if (kind == number_kind) {
-  	printf("%f\n",pv_number_value(val));
+  } else if (kind == double_kind) {
+  	printf("%f\n",pv_double_value(val));
+  } else if (kind == int_kind) {
+  	printf("%i\n",pv_int_value(val));
   } else if (kind == string_kind) {
   	char *s = pv_string_value(val);
   	printf("\"%s\"\n",s);

@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 	pv_install();
 	pl_func_install();
 	pl_iter_install();
-	pv n = PV_ARRAY(pv_number(15),pv_false(),PV_OBJECT(pv_string("key"),pv_string("value"), pv_string("key2"),pv_string("value2")));
+	pv n = PV_ARRAY(pv_double(15),pv_int(15),pv_false(),PV_OBJECT(pv_string("key"),pv_string("value"), pv_string("key2"),pv_string("value2")));
 	pl_stack stk = pl_stack_new();
 	pl_dump_pv(pv_copy(n));
 	stk = pl_stack_push(stk, n);
@@ -77,12 +77,12 @@ int main(int argc, char **argv) {
 
 		pl_bytecode_builder *b2 = pl_bytecode_new_builder();
 		pl_bytecode_builder_add(b2, JUMPIF, {44});
-		pl_bytecode_builder_add(b2, PUSHNUM, {8});
-		pl_bytecode_builder_add(b2, PUSHNUM, {15});
+		pl_bytecode_builder_add(b2, PUSHINT, {8});
+		pl_bytecode_builder_add(b2, PUSHINT, {15});
 		pl_bytecode_builder_add(b2, ADD, {});
 		pl_bytecode_builder_add(b2, PUSHBOOL, {1});
 		pl_bytecode_builder_add(b2, JUMPIF, {12});
-		pl_bytecode_builder_add(b2, PUSHNUM, {31});
+		pl_bytecode_builder_add(b2, PUSHINT, {31});
 		pl_bytecode_builder_add(b2, RET, {});
 		pl_bytecode bytecode2 = pl_bytecode_from_builder(b2);
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
 		free(pl);
 	}
 	{
-		pv a = PV_ARRAY(pv_number(1), pv_number(4), pv_number(2));
+		pv a = PV_ARRAY(pv_int(1), pv_int(4), pv_int(2));
 
 		pv ii = pl_iter(a);
 
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 		pv_free(ii);
 	}
 	{
-		pv o = PV_OBJECT(pv_string("k"), pv_number(4), pv_string("k2"), pv_number(2));
+		pv o = PV_OBJECT(pv_string("k"), pv_int(4), pv_string("k2"), pv_int(2));
 
 		pv ii = pl_iter_keys(pv_copy(o));
 		pv ii2 = pl_iter_values(o);
@@ -137,8 +137,8 @@ int main(int argc, char **argv) {
 	}
 	{
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
-		pl_bytecode_builder_add(b, PUSHNUM, {8});
-		pl_bytecode_builder_add(b, PUSHNUM, {15});
+		pl_bytecode_builder_add(b, PUSHINT, {8});
+		pl_bytecode_builder_add(b, PUSHINT, {15});
 		pl_bytecode_builder_add(b, ARRAY, {2}); // a
 		pl_bytecode_builder_add(b, DUP, {}); // a a
 		pl_bytecode_builder_add(b, ARRAY, {0}); // a a []

@@ -39,8 +39,12 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_pop(state->stack);
 				break;
 			}
-			opcase(PUSHNUM) {
-				state->stack = pl_stack_push(state->stack, pv_number(PUSHNUM_data.n));
+			opcase(PUSHDOUBLE) {
+				state->stack = pl_stack_push(state->stack, pv_double(PUSHDOUBLE_data.n));
+				break;
+			}
+			opcase(PUSHINT) {
+				state->stack = pl_stack_push(state->stack, pv_int(PUSHINT_data.n));
 				break;
 			}
 			opcase(PUSHBOOL) {
@@ -70,10 +74,20 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				return pl_stack_top(state->stack);
 			}
 			opcase(ADD) {
-				double v1 = pv_number_value(pl_stack_get(state->stack, -1));
-				double v2 = pv_number_value(pl_stack_get(state->stack, -2));
+				pv v1 = pl_stack_get(state->stack, -1);
+				pv v2 = pl_stack_get(state->stack, -2);
+				pv v;
+				if (pv_get_kind(v1) == double_kind || pv_get_kind(v2) == double_kind) {
+					double n1 = pv_number_value(v1);
+					double n2 = pv_number_value(v2);
+					v = pv_double(n1 + n2);
+				} else {
+					int n1 = pv_int_value(v1);
+					int n2 = pv_int_value(v2);
+					v = pv_int(n1 + n2);
+				}
 				state->stack = pl_stack_pop(state->stack);
-				state->stack = pl_stack_set(state->stack, pv_number(v1 + v2), -1); // avoid pop + push (no reason to)
+				state->stack = pl_stack_set(state->stack, v, -1); // avoid pop + push (no reason to)
 				break;
 			}
 			opcase(JUMPIF) {
