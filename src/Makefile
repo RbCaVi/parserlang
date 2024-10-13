@@ -87,6 +87,7 @@ pl_main.o: \
 	pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h \
 	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
 pl_run.o: \
+	pv/pv_number.h pv/pv_array.h \
 	pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h \
 	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h \
 	pl/pl_func.h pl/pl_iter.h \
