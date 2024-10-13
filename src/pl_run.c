@@ -24,7 +24,7 @@ file_data readfile(char *path) {
 		abort(); // death
 	}
 	fseek(fptr, 0, SEEK_END); // Seek to the end of the file
-	unsigned int length = ftell(fptr); // Find out how many bytes into the file we are
+	unsigned int length = (unsigned int)ftell(fptr); // Find out how many bytes into the file we are
 	char *buf = (char*)malloc(length); // Allocate a buffer for the length of the file
 	fseek(fptr, 0, SEEK_SET); // Go back to the beginning of the file
 	fread(buf, length, 1, fptr); // Read the contents of the file into the buffer
