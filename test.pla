@@ -1,0 +1,7 @@
+def n num 4
+
+defglobals n
+defmain main
+
+func main
+endfunc

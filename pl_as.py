@@ -83,9 +83,55 @@ def parse(lines):
 			while line.split()[0] != 'endfunc':
 				flines.append(line)
 				line = next(it)
-			v[args[0]] = ['func', flines]
+			v[args[0]] = ['func', assemble(flines)]
 		else:
 			print('???',line)
 	return g,main,v
 
-print(parse(lines))
+ntype = 0
+atype = 1
+ftype = 2
+
+def calcsizevar(var):
+	typ,*args = var
+	if typ == 'num':
+		return struct.calcsize('<Id')
+	elif typ == 'arr':
+		return struct.calcsize(f'<II{len(args)}I')
+	elif typ == 'obj':
+		raise ValueError('obj not implemented yet')
+	elif typ == 'func':
+		return struct.calcsize('<II') + len(args[0])
+	else:
+		return 0
+
+def encodevar(var, vposs):
+	typ,*args = var
+	if typ == 'num':
+		return struct.pack('<Id', ntype, float(args[0]))
+	elif typ == 'arr':
+		return struct.pack(f'<II{len(args)}I', atype, len(args), *[vposs[var][1] for var in args])
+	elif typ == 'obj':
+		raise ValueError('obj not implemented yet')
+	elif typ == 'func':
+		return struct.pack('<II', ftype, len(args[0])) + args[0]
+	else:
+		return b''
+
+def encode(p):
+	g,main,v = p
+	pos = struct.calcsize(f'<II{len(g)}I')
+	vnames = list(v.keys())
+	pos += struct.calcsize(f'<I{len(vnames)}I')
+	vposs = {}
+	vpos = pos
+	for i,var in enumerate(vnames):
+		vposs[var] = vpos,i
+		vpos += calcsizevar(v[var])
+	data = struct.pack(f'<III{len(g)}I{len(vnames)}I', vposs[main][1], len(g), len(vnames), *[vposs[var][1] for var in g], *[vposs[var][0] for var in vnames])
+	for var in vnames:
+		data += encodevar(v[var], vposs)
+	return data
+
+with open(fileout, 'wb') as f:
+	f.write(encode(parse(lines)))
