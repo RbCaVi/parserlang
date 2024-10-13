@@ -33,6 +33,28 @@ static double cast_pointer_to_double(struct pv_refcnt *ptr) {
 	return u.val;
 }
 
+static struct pv_refcnt *cast_int_to_pointer(int val) {
+	// illegal
+	// arrest this man
+	union {
+		struct pv_refcnt *ptr;
+		int val;
+	} u;
+	u.val = val;
+	return u.ptr;
+}
+
+static int cast_pointer_to_int(struct pv_refcnt *ptr) {
+	// illegal
+	// arrest this man
+	union {
+		struct pv_refcnt *ptr;
+		int val;
+	} u;
+	u.ptr = ptr;
+	return u.val;
+}
+
 static char *pv_number_to_string(pv val) {
 	double num = pv_number_value(val);
 	int l = snprintf(NULL, 0, "%f", num);
