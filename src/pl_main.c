@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
 		//char b[] = {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 64, 11, 0, 0, 0, 16, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 32, 98, 64, 8, 0, 0, 0, 7, 0, 0, 0};
 		char *b = malloc(40);
 		memcpy(b, (char[]){2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 64, 11, 0, 0, 0, 16, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 32, 98, 64, 8, 0, 0, 0, 7, 0, 0, 0}, 40);
-		pl_bytecode bytecode = {b, 40};
+		pl_bytecode bytecode = {b, 40, 1};
 
 		printf("bytecode1\n");
 		pl_bytecode_dump(bytecode);
