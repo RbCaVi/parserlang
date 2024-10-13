@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct pl_bytecode_builder {
+	uint32_t end;
+	uint32_t size;
+	char bytecode[];
+};
+
 pl_bytecode_builder *pl_bytecode_new_builder() {
 	pl_bytecode_builder *b = malloc(sizeof(pl_bytecode_builder) + 16);
 	b->end = 0;
@@ -135,9 +141,11 @@ pl_bytecode pl_bytecode_from_builder(pl_bytecode_builder *b) {
 	memcpy(bytecode, b->bytecode, b->end);
 	uint32_t len = b->end;
 	free(b);
-	return (pl_bytecode){bytecode, len};
+	return (pl_bytecode){bytecode, len, 1};
 }
 
 void pl_bytecode_free(pl_bytecode b) {
-	free((char*)b.bytecode);
+	if (b.freeable) {
+		free((char*)b.bytecode);
+	}
 }

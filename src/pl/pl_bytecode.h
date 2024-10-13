@@ -5,15 +5,12 @@
 
 #include <stdint.h>
 
-typedef struct {
-	uint32_t end;
-	uint32_t size;
-	char bytecode[];
-} pl_bytecode_builder;
+typedef struct pl_bytecode_builder pl_bytecode_builder;
 
 typedef struct {
 	const char *bytecode;
 	uint32_t length;
+	int freeable;
 } pl_bytecode;
 
 pl_bytecode_builder *pl_bytecode_new_builder();
