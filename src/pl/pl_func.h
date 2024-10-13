@@ -14,4 +14,6 @@ pv pl_func(pl_bytecode);
 
 pv pl_func_call(pv, pl_state*);
 
+pl_bytecode pl_func_get_bytecode(pv);
+
 #endif

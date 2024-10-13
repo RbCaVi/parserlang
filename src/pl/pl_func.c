@@ -3,6 +3,7 @@
 #include "pv_private.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 pv_kind func_kind;
 
@@ -44,6 +45,7 @@ pv pl_func(pl_bytecode bytecode) {
 }
 
 pv pl_func_call(pv fun, pl_state *pl) {
+	assert(fun.kind == func_kind);
 	pl_func_data *f = plp_func_get_data(fun);
 	pv out;
 	switch (f->type) {
@@ -53,4 +55,16 @@ pv pl_func_call(pv fun, pl_state *pl) {
 	}
 	pv_free(fun);
 	return out;
+}
+
+pl_bytecode pl_func_get_bytecode(pv fun) {
+	assert(fun.kind == func_kind);
+	pl_func_data *f = plp_func_get_data(fun);
+	assert(f->type == BYTECODE);
+	pl_bytecode bytecode = f->bytecode;
+	if (pvp_refcnt_unshared(&(f->refcnt))) {
+		f->bytecode.freeable = 0;
+	}
+	pv_free(fun);
+	return bytecode;
 }
