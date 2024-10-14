@@ -77,12 +77,12 @@ int main(int argc, char **argv) {
 
 		pl_bytecode_builder *b2 = pl_bytecode_new_builder();
 		pl_bytecode_builder_add(b2, JUMPIF, {44});
-		pl_bytecode_builder_add(b2, PUSHINT, {8});
-		pl_bytecode_builder_add(b2, PUSHINT, {15});
+		pl_bytecode_builder_add(b2, PUSHDOUBLE, {8});
+		pl_bytecode_builder_add(b2, PUSHDOUBLE, {15});
 		pl_bytecode_builder_add(b2, ADD, {});
 		pl_bytecode_builder_add(b2, PUSHBOOL, {1});
 		pl_bytecode_builder_add(b2, JUMPIF, {12});
-		pl_bytecode_builder_add(b2, PUSHINT, {31});
+		pl_bytecode_builder_add(b2, PUSHDOUBLE, {31});
 		pl_bytecode_builder_add(b2, RET, {});
 		pl_bytecode bytecode2 = pl_bytecode_from_builder(b2);
 
@@ -137,8 +137,8 @@ int main(int argc, char **argv) {
 	}
 	{
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
-		pl_bytecode_builder_add(b, PUSHINT, {8});
-		pl_bytecode_builder_add(b, PUSHINT, {15});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {8});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {15});
 		pl_bytecode_builder_add(b, ARRAY, {2}); // a
 		pl_bytecode_builder_add(b, DUP, {}); // a a
 		pl_bytecode_builder_add(b, ARRAY, {0}); // a a []
@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
 	{
 		//char b[] = {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 64, 11, 0, 0, 0, 16, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 32, 98, 64, 8, 0, 0, 0, 7, 0, 0, 0};
 		char *b = malloc(40);
-		memcpy(b, (char[]){2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 64, 11, 0, 0, 0, 16, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 32, 98, 64, 8, 0, 0, 0, 7, 0, 0, 0}, 40);
+		memcpy(b, (char[]){2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 64, 12, 0, 0, 0, 16, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 32, 98, 64, 9, 0, 0, 0, 8, 0, 0, 0}, 40);
 		pl_bytecode bytecode = {b, 40, 1};
 
 		printf("bytecode1\n");
