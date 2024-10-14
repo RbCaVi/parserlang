@@ -24,22 +24,55 @@ CALLCONSTN addr n
 
 // each definition is OPCODE(opcode name, data members (as struct))
 
-OPCODE(DUP,{}) // duplicate top of stack
-OPCODE(POP,{}) // delete top of stack
-OPCODE(PUSHDOUBLE,{double n;}) // push a double with value n
-OPCODE(PUSHINT,{int n;}) // push an int with value n
-OPCODE(PUSHBOOL,{int v;}) // push a bool with value n (0 or 1)
-OPCODE(SWAPN,{int n;}) // swap top with n below
-OPCODE(PUSHGLOBAL,{int i;}) // push entry i in the global table
-OPCODE(CALL,{int n;}) // call n + 1 below with n arguments above it
-OPCODE(RET,{}) // return one value
-OPCODE(ADD,{}) // pop two values, add them, and push the result
-OPCODE(JUMPIF,{int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
-OPCODE(ARRAY,{unsigned int n;}) // create an array with the top n values
-OPCODE(JUMP,{int target;}) // unconditional jump - target is bytes relative to the next instruction
-OPCODE(APPENDA,{}) // pop a value and append it to the array below it
-OPCODE(ITER,{}) // create an iterator (values for array, keys for object)
-OPCODE(ITERK,{}) // create a keys iterator
-OPCODE(ITERV,{}) // create a values iterator
-OPCODE(ITERE,{}) // create a entries iterator
-OPCODE(ITERATE,{int target;}) // pop an iterator, step it, and push the stepped iterator and result or jump to target (bytes relative to the next instruction)
+OPCODE(DUP, {}) // duplicate top of stack (= DUPN -n)
+OPCODE(DUPN, {int n;}) // duplicate n below
+OPCODE(POP, {}) // delete top of stack
+OPCODE(SWAPN, {int n;}) // swap top with n below (= SWAPNN n -1)
+OPCODE(SWAPNN, {int n1;int n2;}) // swap n1 below with n2 below
+OPCODE(PUSHNULL, {}) // push null (literally just that)
+OPCODE(PUSHBOOL, {int v;}) // push a bool with value n (0 or 1)
+OPCODE(PUSHDOUBLE, {double n;}) // push a double with value n
+OPCODE(PUSHINT, {int n;}) // push an int with value n
+OPCODE(PUSHARRAY, {}) // push an empty array
+OPCODE(PUSHOBJECT, {}) // push an empty object
+OPCODE(PUSHGLOBAL, {int i;}) // push entry i in the global table
+
+OPCODE(MAKEARRAY, {unsigned int n;}) // create an array with the top n values
+OPCODE(APPENDA, {}) // pop a value and append it to the array below it
+OPCODE(CONCATA, {}) // pop a value and append it to the array below it
+OPCODE(SETA, {}) // pop a idx and value and set them on the array below them
+OPCODE(SETAI, {int i;}) // pop a value and set it at index i on the array below it
+OPCODE(GETA, {}) // pop a idx and array and push array[idx]
+OPCODE(LENA, {}) // pop an array and push the array's length
+OPCODE(SLICEA, {}) // pop two idxs and an array and push the array but sliced from those two indexes
+OPCODE(SLICEAL, {int i;}) // pop an array and push array[:i]
+OPCODE(SLICEAM, {int i;}) // pop an array and push array[i:]
+OPCODE(SLICEAR, {int i;}) // pop an array and push array[-i:]
+OPCODE(SLICEAII, {int i1;int i2;}) // pop an array and push array[i1:i2]
+
+OPCODE(MAKEOBJECT, {unsigned int n;}) // create an object with the top 2n values
+OPCODE(SETO, {}) // pop a key and value and set them on the object below them
+OPCODE(APPENDO, {}) // pop a key and value and set them on the object below them (error if the object already has the key)
+OPCODE(GETO, {}) // pop a key and object and push object[key]
+OPCODE(DELO, {}) // pop a key and delete it on the object below it
+OPCODE(HASO, {}) // pop a key and object and push key in object
+OPCODE(LENO, {}) // pop an object and push the object's length
+
+OPCODE(CALL, {int n;}) // call n + 1 below with n arguments above it
+
+OPCODE(ADD, {}) // pop two values, add them, and push the result
+OPCODE(SUB, {}) // pop two values, subtract them, and push the result
+OPCODE(MUL, {}) // pop two values, subtract them, and push the result
+
+OPCODE(JUMPIF, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
+OPCODE(JUMP, {int target;}) // unconditional jump - target is bytes relative to the next instruction
+
+OPCODE(ITER, {}) // create an iterator (values for array, keys for object)
+OPCODE(ITERK, {}) // create a keys iterator
+OPCODE(ITERV, {}) // create a values iterator
+OPCODE(ITERE, {}) // create a entries iterator
+OPCODE(ITERATE, {int target;}) // pop an iterator, step it, and push the stepped iterator and result or jump to target (bytes relative to the next instruction)
+
+OPCODE(RET, {}) // return one value (in generator, same as YIELD + GRET)
+OPCODE(YIELD, {}) // return one value
+OPCODE(GRET, {}) // return from a generator (no return value)
