@@ -98,12 +98,12 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_pop(state->stack);
 				break;
 			}
-			opcase(ARRAY) {
+			opcase(MAKEARRAY) {
 				pv a = pv_array();
-				for (int i = -(int)ARRAY_data.n; i < 0; i++) {
+				for (int i = -(int)MAKEARRAY_data.n; i < 0; i++) {
 					a = pv_array_append(a, pl_stack_get(state->stack, i));
 				}
-				state->stack = pl_stack_popn(state->stack, ARRAY_data.n);
+				state->stack = pl_stack_popn(state->stack, MAKEARRAY_data.n);
 				state->stack = pl_stack_push(state->stack, a);
 				break;
 			}
