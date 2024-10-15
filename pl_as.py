@@ -3,9 +3,9 @@
 
 import re
 import struct
+import subprocess
 
-with open("src/pl/pl_opcodes_data.h") as f:
-	opcodedata = f.read()
+opcodedata = subprocess.check_output(["gcc", "-E", "-I", "src/pv", "-I", "src/pl", "src/pl/pl_opcodes_data.h", "-o", "-"], encoding = 'utf-8')
 
 types = {
 	"int": "i",
