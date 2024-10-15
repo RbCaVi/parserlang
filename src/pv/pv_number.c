@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 pv_kind double_kind;
 pv_kind int_kind;
@@ -137,3 +138,55 @@ int pv_number_int_value(pv val) {
 }
 
 int pv_is_integer(pv);
+
+#define UOP(upper_name, lower_name, expr) \
+pv pv_number_ ## lower_name(pv v) { \
+	if (pv_get_kind(v) == double_kind) { \
+		double n = pv_number_value(v); \
+		return pv_double(expr); \
+	} else { \
+		int n = pv_int_value(v); \
+		return pv_int(expr); \
+	} \
+}
+#define BOP(upper_name, lower_name, expr, isdefault) \
+isdefault( \
+pv pv_number_ ## lower_name(pv v1, pv v2) { \
+	if (pv_get_kind(v1) == double_kind || pv_get_kind(v2) == double_kind) { \
+		double n1 = pv_number_value(v1); \
+		double n2 = pv_number_value(v2); \
+		return pv_double(expr); \
+	} else { \
+		int n1 = pv_int_value(v1); \
+		int n2 = pv_int_value(v2); \
+		return pv_int(expr); \
+	} \
+} \
+)
+#include "pv_number_ops_data.h"
+#undef UOP
+#undef BOP
+
+pv pv_number_div(pv v1, pv v2) {
+	double n1 = pv_number_value(v1);
+	double n2 = pv_number_value(v2);
+	return pv_double(n1 / n2);
+}
+
+pv pv_number_idiv(pv v1, pv v2) {
+	double n1 = pv_number_value(v1);
+	double n2 = pv_number_value(v2);
+	return pv_int((int)(n1 / n2)); // what? round towards -infinity? couldn't be.
+}
+
+pv pv_number_mod(pv v1, pv v2) {
+	if (pv_get_kind(v1) == double_kind || pv_get_kind(v2) == double_kind) {
+		double n1 = pv_number_value(v1);
+		double n2 = pv_number_value(v2);
+		return pv_double(fmod(n1, n2));
+	} else {
+		int n1 = pv_int_value(v1);
+		int n2 = pv_int_value(v2);
+		return pv_int(n1 % n2);
+	}
+}

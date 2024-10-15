@@ -18,4 +18,12 @@ double pv_number_value(pv);
 int pv_number_int_value(pv);
 int pv_is_integer(pv);
 
+#define UOP(upper_name, lower_name, expr) \
+pv pv_number_ ## lower_name(pv);
+#define BOP(upper_name, lower_name, expr, isdefault) \
+pv pv_number_ ## lower_name(pv, pv);
+#include "pv_number_ops_data.h"
+#undef UOP
+#undef BOP
+
 #endif
