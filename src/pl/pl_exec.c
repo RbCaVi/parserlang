@@ -141,7 +141,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			opcase(GETAI) {
 				pv a = pl_stack_get(state->stack, -1);
 				state->stack = pl_stack_popn(state->stack, 1);
-				pv v = pv_array_get(a, SETAI_data.i);
+				pv v = pv_array_get(a, GETAI_data.i);
 				state->stack = pl_stack_push(state->stack, v);
 				break;
 			}
