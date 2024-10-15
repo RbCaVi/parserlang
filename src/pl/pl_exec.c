@@ -203,14 +203,25 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
 				break;
 			}
-			opcase(ADD) {
-				pv v1 = pl_stack_get(state->stack, -1);
-				pv v2 = pl_stack_get(state->stack, -2);
-				pv v = pv_number_add(v1, v2);
-				state->stack = pl_stack_pop(state->stack);
-				state->stack = pl_stack_set(state->stack, v, -1); // avoid pop + push (no reason to)
-				break;
+#define UOP(upper_name, lower_name, expr) \
+			opcase(upper_name) { \
+				pv v1 = pl_stack_get(state->stack, -1); \
+				pv v = pv_number_ ## lower_name(v1); \
+				state->stack = pl_stack_set(state->stack, v, -1); \
+				break; \
 			}
+#define BOP(upper_name, lower_name, expr, isdefault) \
+			opcase(upper_name) { \
+				pv v1 = pl_stack_get(state->stack, -2); \
+				pv v2 = pl_stack_get(state->stack, -1); \
+				pv v = pv_number_ ## lower_name(v1, v2); \
+				state->stack = pl_stack_pop(state->stack); \
+				state->stack = pl_stack_set(state->stack, v, -1); \
+				break; \
+			}
+#include "pv_number_ops_data.h"
+#undef UOP
+#undef BOP
 			opcase(JUMP) {
 				bytecode += JUMP_data.target;
 				break;

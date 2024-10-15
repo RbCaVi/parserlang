@@ -62,9 +62,13 @@ OPCODE(LENO, {}) // pop an object and push the object's length
 
 OPCODE(CALL, {int n;}) // call n + 1 below with n arguments above it
 
-OPCODE(ADD, {}) // pop two values, add them, and push the result
-OPCODE(SUB, {}) // pop two values, subtract them, and push the result
-OPCODE(MUL, {}) // pop two values, subtract them, and push the result
+#define UOP(upper_name, lower_name, expr) \
+OPCODE(upper_name, {})
+#define BOP(upper_name, lower_name, expr, isdefault) \
+OPCODE(upper_name, {})
+#include "pv_number_ops_data.h"
+#undef UOP
+#undef BOP
 
 OPCODE(JUMP, {int target;}) // unconditional jump - target is bytes relative to the next instruction
 OPCODE(JUMPIF, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
