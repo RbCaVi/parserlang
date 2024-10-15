@@ -70,7 +70,7 @@ pl/pl_dump.o: pl/pl_dump.h \
 pl/pl_exec.o: pl/pl_exec.h \
 	pl/pl_stack.h pl/pl_dump.h \
 	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h \
-	pv/pv_singletons.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_iter.h \
+	pv/pv_singletons.h pv/pv_number.h pv/pv_array.h pv/pv_object.h pl/pl_func.h pl/pl_iter.h \
 	pv/pv.h
 pl/pl_bytecode.o: pl/pl_bytecode.h \
 	pl/pl_opcodes.h  pl/pl_opcodes_data.h

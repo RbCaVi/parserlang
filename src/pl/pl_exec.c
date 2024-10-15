@@ -4,6 +4,7 @@
 #include "pv_singletons.h"
 #include "pv_number.h"
 #include "pv_array.h"
+#include "pv_object.h"
 #include "pl_opcodes.h"
 #include "pl_func.h"
 #include "pl_iter.h"
@@ -35,20 +36,12 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_push(state->stack, pl_stack_top(state->stack));
 				break;
 			}
+			opcase(DUPN) {
+				state->stack = pl_stack_push(state->stack, pl_stack_get(state->stack, DUPN_data.n));
+				break;
+			}
 			opcase(POP) {
 				state->stack = pl_stack_pop(state->stack);
-				break;
-			}
-			opcase(PUSHDOUBLE) {
-				state->stack = pl_stack_push(state->stack, pv_double(PUSHDOUBLE_data.n));
-				break;
-			}
-			opcase(PUSHINT) {
-				state->stack = pl_stack_push(state->stack, pv_int(PUSHINT_data.n));
-				break;
-			}
-			opcase(PUSHBOOL) {
-				state->stack = pl_stack_push(state->stack, pv_bool(PUSHBOOL_data.v));
 				break;
 			}
 			opcase(SWAPN) {
@@ -59,43 +52,40 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_set(state->stack, v1, -SWAPN_data.n);
 				break;
 			}
+			opcase(SWAPNN) {
+				// is that a reference to the hit game ultrakill???
+				pv v1 = pl_stack_get(state->stack, -SWAPNN_data.n1);
+				pv v2 = pl_stack_get(state->stack, -SWAPNN_data.n2);
+				state->stack = pl_stack_set(state->stack, v2, -SWAPNN_data.n1);
+				state->stack = pl_stack_set(state->stack, v1, -SWAPNN_data.n2);
+				break;
+			}
+			opcase(PUSHNULL) {
+				state->stack = pl_stack_push(state->stack, pv_null());
+				break;
+			}
+			opcase(PUSHBOOL) {
+				state->stack = pl_stack_push(state->stack, pv_bool(PUSHBOOL_data.v));
+				break;
+			}
+			opcase(PUSHINT) {
+				state->stack = pl_stack_push(state->stack, pv_int(PUSHINT_data.n));
+				break;
+			}
+			opcase(PUSHDOUBLE) {
+				state->stack = pl_stack_push(state->stack, pv_double(PUSHDOUBLE_data.n));
+				break;
+			}
+			opcase(PUSHARRAY) {
+				state->stack = pl_stack_push(state->stack, pv_array());
+				break;
+			}
+			opcase(PUSHOBJECT) {
+				state->stack = pl_stack_push(state->stack, pv_object());
+				break;
+			}
 			opcase(PUSHGLOBAL) {
 				state->stack = pl_stack_push(state->stack, pv_copy(state->globals[PUSHGLOBAL_data.i]));
-				break;
-			}
-			opcase(CALL) {
-				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
-				state->stack = pl_stack_split_frame(state->stack, -(CALL_data.n + 1));
-				pv ret = pl_func_call(f, state);
-				state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
-				break;
-			}
-			opcase(RET) {
-				return pl_stack_top(state->stack);
-			}
-			opcase(ADD) {
-				pv v1 = pl_stack_get(state->stack, -1);
-				pv v2 = pl_stack_get(state->stack, -2);
-				pv v;
-				if (pv_get_kind(v1) == double_kind || pv_get_kind(v2) == double_kind) {
-					double n1 = pv_number_value(v1);
-					double n2 = pv_number_value(v2);
-					v = pv_double(n1 + n2);
-				} else {
-					int n1 = pv_int_value(v1);
-					int n2 = pv_int_value(v2);
-					v = pv_int(n1 + n2);
-				}
-				state->stack = pl_stack_pop(state->stack);
-				state->stack = pl_stack_set(state->stack, v, -1); // avoid pop + push (no reason to)
-				break;
-			}
-			opcase(JUMPIF) {
-				int b = pv_bool_value(pl_stack_top(state->stack));
-				if (b) {
-					bytecode += JUMPIF_data.target;
-				}
-				state->stack = pl_stack_pop(state->stack);
 				break;
 			}
 			opcase(MAKEARRAY) {
@@ -107,16 +97,130 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				state->stack = pl_stack_push(state->stack, a);
 				break;
 			}
+			opcase(APPENDA) {
+				pv a = pl_stack_get(state->stack, -2);
+				pv v = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2); // have to unref the array from the stack so i can modify it without copying
+				a = pv_array_append(a, v);
+				state->stack = pl_stack_push(state->stack, a);
+				break;
+			}
+			opcase(CONCATA) {
+				pv a1 = pl_stack_get(state->stack, -2);
+				pv a2 = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2); // have to unref the bottom array from the stack so i can modify one without copying
+				pv a = pv_array_append(a1, a2);
+				state->stack = pl_stack_push(state->stack, a);
+				break;
+			}
+			opcase(SETA) {
+				pv a = pl_stack_get(state->stack, -3);
+				pv i = pl_stack_get(state->stack, -2);
+				pv v = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 3); // have to unref the array from the stack so i can modify it without copying
+				a = pv_array_set(a, pv_int_value(i), v);
+				state->stack = pl_stack_push(state->stack, a);
+				break;
+			}
+			opcase(SETAI) {
+				pv a = pl_stack_get(state->stack, -2);
+				pv v = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2); // have to unref the array from the stack so i can modify it without copying
+				a = pv_array_set(a, SETAI_data.i, v);
+				state->stack = pl_stack_push(state->stack, a);
+				break;
+			}
+			opcase(GETA) {
+				pv a = pl_stack_get(state->stack, -2);
+				pv i = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2);
+				pv v = pv_array_get(a, pv_int_value(i));
+				state->stack = pl_stack_push(state->stack, v);
+				break;
+			}
+			opcase(GETAI) {
+				pv a = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 1);
+				pv v = pv_array_get(a, SETAI_data.i);
+				state->stack = pl_stack_push(state->stack, v);
+				break;
+			}
+			opcase(LENA) {
+				pv a = pl_stack_top(state->stack);
+				state->stack = pl_stack_set(state->stack, pv_int(pv_array_length(a)), 11);
+				break;
+			}
+			opcase(MAKEOBJECT) {
+				pv o = pv_object();
+				for (int i = -(int)MAKEOBJECT_data.n * 2; i < 0; i++) {
+					o = pv_object_set(o, pl_stack_get(state->stack, i * 2), pl_stack_get(state->stack, i * 2 + 1));
+				}
+				state->stack = pl_stack_popn(state->stack, MAKEOBJECT_data.n * 2);
+				state->stack = pl_stack_push(state->stack, o);
+				break;
+			}
+			opcase(SETO) {
+				pv o = pl_stack_get(state->stack, -3);
+				pv k = pl_stack_get(state->stack, -2);
+				pv v = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 3); // have to unref the array from the stack so i can modify it without copying
+				o = pv_object_set(o, k, v);
+				state->stack = pl_stack_push(state->stack, o);
+				break;
+			}
+			opcase(GETO) {
+				pv o = pl_stack_get(state->stack, -2);
+				pv k = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2);
+				pv v = pv_object_get(o, k);
+				state->stack = pl_stack_push(state->stack, v);
+				break;
+			}
+			opcase(DELO) {
+				pv o = pl_stack_get(state->stack, -2);
+				pv k = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2);
+				o = pv_object_delete(o, k);
+				state->stack = pl_stack_push(state->stack, o);
+				break;
+			}
+			opcase(HASO) {
+				pv o = pl_stack_get(state->stack, -2);
+				pv k = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2);
+				state->stack = pl_stack_push(state->stack, pv_bool(pv_object_has(o, k)));
+				break;
+			}
+			opcase(LENO) {
+				pv o = pl_stack_top(state->stack);
+				state->stack = pl_stack_set(state->stack, pv_int(pv_object_length(o)), -1);
+				break;
+			}
+			opcase(CALL) {
+				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
+				state->stack = pl_stack_split_frame(state->stack, -(CALL_data.n + 1));
+				pv ret = pl_func_call(f, state);
+				state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
+				break;
+			}
+			opcase(ADD) {
+				pv v1 = pl_stack_get(state->stack, -1);
+				pv v2 = pl_stack_get(state->stack, -2);
+				pv v = pv_number_add(v1, v2);
+				state->stack = pl_stack_pop(state->stack);
+				state->stack = pl_stack_set(state->stack, v, -1); // avoid pop + push (no reason to)
+				break;
+			}
 			opcase(JUMP) {
 				bytecode += JUMP_data.target;
 				break;
 			}
-			opcase(APPENDA) {
-				pv v = pl_stack_get(state->stack, -1);
-				pv a = pl_stack_get(state->stack, -2);
-				state->stack = pl_stack_popn(state->stack, 2); // have to unref the array from the stack so i can modify it without copying
-				a = pv_array_append(a, v);
-				state->stack = pl_stack_push(state->stack, a);
+			opcase(JUMPIF) {
+				int b = pv_bool_value(pl_stack_top(state->stack));
+				if (b) {
+					bytecode += JUMPIF_data.target;
+				}
+				state->stack = pl_stack_pop(state->stack);
 				break;
 			}
 			opcase(ITER) {
@@ -156,6 +260,15 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 					state->stack = pl_stack_push(state->stack, v);
 				}
 				break;
+			}
+			opcase(RET) {
+				return pl_stack_top(state->stack);
+			}
+			opcase(YIELD) {
+				abort();
+			}
+			opcase(GRET) {
+				abort();
 			}
 			default:
 				abort(); // how (i think you did something wrong - probably a bad jump offset)

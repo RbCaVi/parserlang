@@ -29,10 +29,11 @@ OPCODE(DUPN, {int n;}) // duplicate n below
 OPCODE(POP, {}) // delete top of stack
 OPCODE(SWAPN, {int n;}) // swap top with n below (= SWAPNN n -1)
 OPCODE(SWAPNN, {int n1;int n2;}) // swap n1 below with n2 below
+
 OPCODE(PUSHNULL, {}) // push null (literally just that)
-OPCODE(PUSHBOOL, {int v;}) // push a bool with value n (0 or 1)
-OPCODE(PUSHDOUBLE, {double n;}) // push a double with value n
+OPCODE(PUSHBOOL, {int v;}) // push a bool with value v (0 or 1)
 OPCODE(PUSHINT, {int n;}) // push an int with value n
+OPCODE(PUSHDOUBLE, {double n;}) // push a double with value n
 OPCODE(PUSHARRAY, {}) // push an empty array
 OPCODE(PUSHOBJECT, {}) // push an empty object
 OPCODE(PUSHGLOBAL, {int i;}) // push entry i in the global table
@@ -43,6 +44,7 @@ OPCODE(CONCATA, {}) // pop a value and append it to the array below it
 OPCODE(SETA, {}) // pop a idx and value and set them on the array below them
 OPCODE(SETAI, {int i;}) // pop a value and set it at index i on the array below it
 OPCODE(GETA, {}) // pop a idx and array and push array[idx]
+OPCODE(GETAI, {int i;}) // pop an array and push array[i]
 OPCODE(LENA, {}) // pop an array and push the array's length
 OPCODE(SLICEA, {}) // pop two idxs and an array and push the array but sliced from those two indexes
 OPCODE(SLICEAL, {int i;}) // pop an array and push array[:i]
@@ -64,8 +66,8 @@ OPCODE(ADD, {}) // pop two values, add them, and push the result
 OPCODE(SUB, {}) // pop two values, subtract them, and push the result
 OPCODE(MUL, {}) // pop two values, subtract them, and push the result
 
-OPCODE(JUMPIF, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
 OPCODE(JUMP, {int target;}) // unconditional jump - target is bytes relative to the next instruction
+OPCODE(JUMPIF, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
 
 OPCODE(ITER, {}) // create an iterator (values for array, keys for object)
 OPCODE(ITERK, {}) // create a keys iterator
