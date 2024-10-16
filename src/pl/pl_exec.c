@@ -147,7 +147,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			}
 			opcase(LENA) {
 				pv a = pl_stack_top(state->stack);
-				state->stack = pl_stack_set(state->stack, pv_int(pv_array_length(a)), 11);
+				state->stack = pl_stack_set(state->stack, pv_int((int)pv_array_length(a)), 11);
 				break;
 			}
 			opcase(MAKEOBJECT) {
@@ -193,7 +193,7 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			}
 			opcase(LENO) {
 				pv o = pl_stack_top(state->stack);
-				state->stack = pl_stack_set(state->stack, pv_int(pv_object_length(o)), -1);
+				state->stack = pl_stack_set(state->stack, pv_int((int)pv_object_length(o)), -1);
 				break;
 			}
 			opcase(CALL) {
