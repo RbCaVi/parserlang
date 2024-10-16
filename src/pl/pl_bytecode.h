@@ -22,6 +22,8 @@ pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder*, pl_ ##
 
 #define pl_bytecode_builder_add(b, op, data) (b) = pl_bytecode_builder_add_ ## op(b, (pl_ ## op ## _data)data)
 
+pl_bytecode_builder *pl_bytecode_builder_add_builder(pl_bytecode_builder*, pl_bytecode_builder*);
+
 pl_bytecode pl_bytecode_from_builder(pl_bytecode_builder*);
 
 void pl_bytecode_dump(pl_bytecode);

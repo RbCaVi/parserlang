@@ -39,6 +39,15 @@ pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder *b, pl_ 
 #include "pl_opcodes_data.h"
 #undef OPCODE
 
+pl_bytecode_builder *pl_bytecode_builder_add_builder(pl_bytecode_builder *b, pl_bytecode_builder *b2) {
+	uint32_t offset = b->end;
+	b = pl_bytecode_extend(b, b2->end);
+	char *pos = b->bytecode + offset;
+	memcpy(pos, b2->bytecode, b2->end);
+	
+	return b;
+}
+
 // this is duplicated from pl_exec.c
 static pl_opcode plp_get_opcode(const char *bytecode) { \
 	return ((pl_opcode*)bytecode)[0]; \
