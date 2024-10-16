@@ -100,10 +100,10 @@ pv pl_iter_value(pv val) {
 			out = pv_int((int)i->aiter);
 			break;
 		case VALUES:
-			out = pv_array_get(pv_copy(i->val), i->aiter);
+			out = pv_array_get(pv_copy(i->val), (int)i->aiter);
 			break;
 		case ENTRIES:
-			out = PV_ARRAY(pv_int((int)i->aiter), pv_array_get(pv_copy(i->val), i->aiter));
+			out = PV_ARRAY(pv_int((int)i->aiter), pv_array_get(pv_copy(i->val), (int)i->aiter));
 			break;
 		default:
 			out = pv_invalid(); // just in case

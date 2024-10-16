@@ -159,21 +159,30 @@ uint32_t pv_array_length(pv val) {
 	return out;
 }
 
-pv pv_array_get(pv val, uint32_t i) {
+int pvp_array_wrap_idx(int i, uint32_t l) {
+	if (i < 0) {
+		i += (int)l;
+	}
+	assert(i < (int)l);
+	assert(i >= 0);
+	return i;
+}
+
+pv pv_array_get(pv val, int i) {
 	assert(val.kind == array_kind);
 	pv_array_data *a = pvp_array_get_data(val);
-	assert(i < a->length);
+	i = pvp_array_wrap_idx(i, pvp_array_length(a));
 	pv out = pv_copy(a->elements[i]);
 	pv_free(val);
 	return out;
 }
 
 // slightly different from jq (jq extends arrays with null on out of bounds write)
-pv pv_array_set(pv val, uint32_t i, pv cell) {
+pv pv_array_set(pv val, int i, pv cell) {
 	assert(val.kind == array_kind);
 	pv_array_data *a = pvp_array_get_data(val);
 	uint32_t l = pvp_array_length(a);
-	assert(i < l); // out of bounds write is an error
+	i = pvp_array_wrap_idx(i, l);
 	pv_array_data *newa = pvp_array_realloc(a, a->alloc_length);
 	pv_free(newa->elements[i]);
 	newa->elements[i] = cell;

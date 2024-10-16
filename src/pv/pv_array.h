@@ -14,8 +14,8 @@ void pv_array_install();
 pv pv_array(void);
 pv pv_array_sized(uint32_t);
 uint32_t pv_array_length(pv);
-pv pv_array_get(pv, uint32_t);
-pv pv_array_set(pv, uint32_t, pv);
+pv pv_array_get(pv, int);
+pv pv_array_set(pv, int, pv);
 pv pv_array_append(pv, pv);
 pv pv_array_concat(pv, pv);
 //pv pv_array_elements(int, ...); // count + elements (be careful?)
@@ -25,7 +25,7 @@ pv pv_array_concat(pv, pv);
        pv_j__; pv_j__ = 0)                                           \
     for (pv x;                                                       \
          i < pv_len__ ?                                              \
-           (x = pv_array_get(pv_copy(a), i), 1) : 0;                  \
+           (x = pv_array_get(pv_copy(a), (int)i), 1) : 0;                  \
          i++)
 
 #define PV_ARRAY_1(s,e) (pv_array_append(pv_array_sized(s+1),e))
