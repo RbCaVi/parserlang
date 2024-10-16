@@ -98,39 +98,88 @@ void pl_bytecode_dump(pl_bytecode b) {
 		switch (plp_get_opcode(bytecode)) {
 			nodataopcase(DUP)
 			nodataopcase(POP)
-			nodataopcase(RET)
-			nodataopcase(ADD)
+			nodataopcase(PUSHNULL)
+			nodataopcase(PUSHARRAY)
+			nodataopcase(PUSHOBJECT)
 			nodataopcase(APPENDA)
+			nodataopcase(CONCATA)
+			nodataopcase(SETA)
+			nodataopcase(GETA)
+			nodataopcase(LENA)
+			nodataopcase(SLICEA)
+			nodataopcase(SETO)
+			nodataopcase(APPENDO)
+			nodataopcase(GETO)
+			nodataopcase(DELO)
+			nodataopcase(HASO)
+			nodataopcase(LENO)
+#define UOP(upper_name, lower_name, expr) \
+			nodataopcase(upper_name)
+#define BOP(upper_name, lower_name, expr, isdefault) \
+			nodataopcase(upper_name)
+#include "pv_number_ops_data.h"
+#undef UOP
+#undef BOP
 			nodataopcase(ITER)
 			nodataopcase(ITERK)
 			nodataopcase(ITERV)
 			nodataopcase(ITERE)
-			opcase(PUSHDOUBLE)
-				printf(" %f\n", PUSHDOUBLE_data.n);
-				break;
-			opcase(PUSHINT)
-				printf(" %i\n", PUSHINT_data.n);
-				break;
-			opcase(PUSHBOOL)
-				printf(" %s\n", PUSHBOOL_data.v ? "true" : "false");
+			nodataopcase(RET)
+			nodataopcase(YIELD)
+			nodataopcase(GRET)
+			opcase(DUPN)
+				printf(" %i\n", DUPN_data.n);
 				break;
 			opcase(SWAPN)
 				printf(" %i\n", SWAPN_data.n);
 				break;
+			opcase(SWAPNN)
+				printf(" %i %i\n", SWAPNN_data.n1, SWAPNN_data.n2);
+				break;
+			opcase(PUSHBOOL)
+				printf(" %s\n", PUSHBOOL_data.v ? "true" : "false");
+				break;
+			opcase(PUSHINT)
+				printf(" %i\n", PUSHINT_data.n);
+				break;
+			opcase(PUSHDOUBLE)
+				printf(" %f\n", PUSHDOUBLE_data.n);
+				break;
 			opcase(PUSHGLOBAL)
 				printf(" %i\n", PUSHGLOBAL_data.i);
-				break;
-			opcase(CALL)
-				printf(" %i\n", CALL_data.n);
-				break;
-			opcase(JUMPIF)
-				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMPIF_data.target));
 				break;
 			opcase(MAKEARRAY)
 				printf(" %i\n", MAKEARRAY_data.n);
 				break;
+			opcase(SETAI)
+				printf(" %i\n", SETAI_data.i);
+				break;
+			opcase(GETAI)
+				printf(" %i\n", GETAI_data.i);
+				break;
+			opcase(SLICEAL)
+				printf(" %i\n", SLICEAL_data.i);
+				break;
+			opcase(SLICEAM)
+				printf(" %i\n", SLICEAM_data.i);
+				break;
+			opcase(SLICEAR)
+				printf(" %i\n", SLICEAR_data.i);
+				break;
+			opcase(SLICEAII)
+				printf(" %i %i\n", SLICEAII_data.i1, SLICEAII_data.i2);
+				break;
+			opcase(MAKEOBJECT)
+				printf(" %i\n", MAKEOBJECT_data.n);
+				break;
+			opcase(CALL)
+				printf(" %i\n", CALL_data.n);
+				break;
 			opcase(JUMP)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMP_data.target));
+				break;
+			opcase(JUMPIF)
+				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMPIF_data.target));
 				break;
 			opcase(ITERATE)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + ITERATE_data.target));
