@@ -27,7 +27,7 @@ pl_bytecode_builder *pl_bytecode_extend(pl_bytecode_builder *b, uint32_t size) {
 	return b;
 }
 
-#define OPCODE(op, __data) \
+#define OPCODE(op, op_lower, __data) \
 pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder *b, pl_ ## op ## _data data) { \
 	uint32_t offset = b->end; \
 	b = pl_bytecode_extend(b, sizeof(pl_opcode) + sizeof(pl_ ## op ## _data)); \
@@ -44,7 +44,7 @@ pl_bytecode_builder *pl_bytecode_builder_add_builder(pl_bytecode_builder *b, pl_
 	b = pl_bytecode_extend(b, b2->end);
 	char *pos = b->bytecode + offset;
 	memcpy(pos, b2->bytecode, b2->end);
-	
+
 	return b;
 }
 
@@ -54,14 +54,14 @@ static pl_opcode plp_get_opcode(const char *bytecode) { \
 }
 
 // this too
-#define OPCODE(op, data) \
+#define OPCODE(op, op_lower, data) \
 static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 	return ((pl_ ## op ## _data*)(((pl_opcode*)bytecode) + 1))[0]; \
 }
 #include "pl_opcodes_data.h"
 #undef OPCODE
 
-#define OPCODE(op, data) \
+#define OPCODE(op, op_lower, data) \
 case op: \
 	b1 += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	break;

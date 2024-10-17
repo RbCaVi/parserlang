@@ -15,7 +15,7 @@ static pl_opcode plp_get_opcode(const char *bytecode) { \
 	return ((pl_opcode*)bytecode)[0]; \
 }
 
-#define OPCODE(op, data) \
+#define OPCODE(op, op_lower, data) \
 static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 	return ((pl_ ## op ## _data*)(((pl_opcode*)bytecode) + 1))[0]; \
 }
