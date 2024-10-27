@@ -39,17 +39,11 @@ def argp(data):
 		typ = 'ANY'
 	return [ARG,typ,var]
 
-@transform(optional(concatstrip(concatstrip(optional(typep),optional(sym)),star(concatstrip(strs(','),concatstrip(optional(typep),optional(sym)))),optional(strs(',')))))
-def commasep(data):
-	if data is None:
-		return []
-	d,others,_=data
-	return [argp(d),*[argp(arg) for _,arg in others]]
 
 @transform(
 	alternate(
 		concatstrip(
-			strs('fn'),concatstrip(sym,strs('('),commasep,strs(')')),alternate(block,stmtwrap)
+			strs('fn'),concatstrip(sym,strs('('),optional(concatstrip(concatstrip(optional(typep),optional(sym)),star(concatstrip(strs(','),concatstrip(optional(typep),optional(sym)))),optional(strs(',')))),strs(')')),alternate(block,stmtwrap)
 		),
 		concatstrip(
 			strs('if'),expr,strs('then'),alternate(block,stmtwrap)
@@ -74,6 +68,11 @@ def stmt(data):
 			(_,_,*stmts) = bstmtdata[1]
 		else:
 			stmts = [bstmtdata[1]]
+		if args is None:
+			args = []
+		else:
+			d,others,_=args
+			args = [argp(d),*[argp(arg) for _,arg in others]]
 		return [STMT,'func',name,[SIG,*args],*stmts]
 	if data[0]==1: # ifstmt
 		_,cond,__,st=data[1]
