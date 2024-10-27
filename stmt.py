@@ -46,13 +46,13 @@ typep=strip(alternate()) # no values
 @transform(optional(typep))
 def opttype(data):
 	if data is None:
-		return [TYPE,'any']
-	return [TYPE,data]
+		return anytype
+	return data
 
 TYPE='TYPE'
 ARG='ARG'
 SIG='SIG'
-anytype=[TYPE,'any']
+anytype='any'
 
 @transform(concatstrip(strs('def'),opttype,errorafter(sym),strs('='),expr))
 def declare(data):

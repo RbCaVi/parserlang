@@ -34,7 +34,6 @@ arities = {
 
 def dump(stmt, indent = 'a:'):
 	typ = stmt[0]
-	styp = stmt[1]
 	print(indent, typ)
 	if typ == 'BLOCK':
 		for s in stmt[1:]:
@@ -49,7 +48,7 @@ def dump(stmt, indent = 'a:'):
 		dump(cond, '  ' + indent)
 		dump(code, '  ' + indent)
 	elif typ == 'DEF':
-		_,[__,vtype],name,val = stmt
+		_,vtype,name,val = stmt
 		print("  " + indent, vtype, name)
 		dump(val, '  ' + indent)
 	elif typ == 'RETURN':
@@ -59,26 +58,28 @@ def dump(stmt, indent = 'a:'):
 		for s in stmt[1:]:
 			dump(s, '  ' + indent)
 	elif typ == 'ARG':
-		_,[__,atype],name = stmt
+		_,atype,name = stmt
 		print("  " + indent, atype, name)
 	elif typ == 'EXPR':
-		print("  " + indent, styp)
-		if styp == '(':
+		op = stmt[1]
+		print("  " + indent, op)
+		if op == '(':
 			for e in stmt[2:]:
 				dump(e, '  ' + indent)
 		else:
-			assert (styp, len(stmt) - 2) in arities
+			assert (op, len(stmt) - 2) in arities
 			for e in stmt[2:]:
 				dump(e, '  ' + indent)
 	elif typ == 'NUM':
-		print("  " + indent, styp)
+		num = stmt[1]
+		print("  " + indent, num)
 		pass
 	elif typ == 'SYM':
-		print("  " + indent, styp)
+		sym = stmt[1]
+		print("  " + indent, sym)
 		pass
 	else:
-		print("  " + indent, styp)
-		print("  " + indent, "???")
+		print("  " + indent, stmt, "???")
 
 for a,s in prgm(source):
 	print(treeexpr(a))
