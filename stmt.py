@@ -43,6 +43,12 @@ def setstmt(data):
 
 typep=strip(alternate()) # no values
 
+@transform(optional(typep))
+def opttype(data):
+	if data is None:
+		return "ANY"
+	return data
+
 TYPE='TYPE'
 STMT='STMT'
 ARG='ARG'
@@ -50,7 +56,7 @@ SIG='SIG'
 FN='FN'
 anytype=[TYPE,'any']
 
-@transform(concatstrip(strs('def'),optional(typep),errorafter(sym),strs('='),expr))
+@transform(concatstrip(strs('def'),opttype,errorafter(sym),strs('='),expr))
 def declare(data):
 	_,typ,var,__,e=data
 	return [STMT,'def',typ,var,e]
@@ -73,11 +79,9 @@ def commasep(p):
 		return [d,*[arg for _,arg in others]]
 	return commasep
 
-@transform(concatstrip(optional(typep),optional(sym)))
+@transform(concatstrip(opttype,optional(sym)))
 def arg(data):
 	typ,var=data
-	if typ is None:
-		typ = 'ANY'
 	return [ARG,typ,var]
 
 @transform(concatstrip(sym,strs('('),commasep(arg),strs(')')))
