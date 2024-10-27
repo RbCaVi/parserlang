@@ -55,10 +55,14 @@ def declare(data):
 	_,typ,var,__,e=data
 	return [STMT,'def',typ,var,e]
 
-@transform(concatstrip(strs('if'),expr,block))
+@transform(concatstrip(strs('if'),expr,strs('then'),alternate(block,stmtwrap)))
 def ifstmt(data):
 	_,cond,__,st,___=data
-	return [STMT,'if',cond,*st]
+	if st[0]==0:
+		(_,_,*stmts) = st[1]
+	else:
+		stmts = [st[1]]
+	return [STMT,'if',cond,*stmts]
 
 def commasep(p):
 	@transform(optional(concatstrip(p,star(concatstrip(strs(','),p)),optional(strs(',')))))
@@ -72,6 +76,8 @@ def commasep(p):
 @transform(concatstrip(optional(typep),optional(sym)))
 def arg(data):
 	typ,var=data
+	if typ is None:
+		typ = 'ANY'
 	return [ARG,typ,var]
 
 @transform(concatstrip(sym,strs('('),commasep(arg),strs(')')))

@@ -354,6 +354,8 @@ def treeexpr(expr):
     pipe = "│ "
     tee = "├─"
     blank = "  "
+    if type(expr) == str:
+      return f'"{expr}"'
     s=expr[0]+' '+str(expr[1])
     for i,e in enumerate(expr[2:]):
       top,*rest=treeexpr(e).split('\n')
