@@ -49,7 +49,7 @@ def dump(stmt, indent = 'a:'):
 		dump(cond, '  ' + indent)
 		dump(code, '  ' + indent)
 	elif typ == 'DEF':
-		_,vtype,name,val = stmt
+		_,[__,vtype],name,val = stmt
 		print("  " + indent, vtype, name)
 		dump(val, '  ' + indent)
 	elif typ == 'RETURN':
@@ -59,10 +59,10 @@ def dump(stmt, indent = 'a:'):
 		for s in stmt[1:]:
 			dump(s, '  ' + indent)
 	elif typ == 'ARG':
-		_,atype,name = stmt
+		_,[__,atype],name = stmt
 		print("  " + indent, atype, name)
 	elif typ == 'EXPR':
-		print(indent, styp)
+		print("  " + indent, styp)
 		if styp == '(':
 			for e in stmt[2:]:
 				dump(e, '  ' + indent)
@@ -71,13 +71,13 @@ def dump(stmt, indent = 'a:'):
 			for e in stmt[2:]:
 				dump(e, '  ' + indent)
 	elif typ == 'NUM':
-		print(indent, styp)
+		print("  " + indent, styp)
 		pass
 	elif typ == 'SYM':
-		print(indent, styp)
+		print("  " + indent, styp)
 		pass
 	else:
-		print(indent, styp)
+		print("  " + indent, styp)
 		print("  " + indent, "???")
 
 for a,s in prgm(source):
