@@ -354,6 +354,8 @@ def treeexpr(expr):
     pipe = "│ "
     tee = "├─"
     blank = "  "
+    if expr is None:
+      return f'<none>'
     if type(expr) == str:
       return f'"{expr}"'
     s=expr[0]+' '+str(expr[1])
