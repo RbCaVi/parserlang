@@ -90,9 +90,19 @@ def func(data):
 	_,(_,name,*args),(_,_,*stmts)=data
 	return [STMT,'func',name,[SIG,*args],*stmts]
 
-@transform(expr)
+def one(p):
+	@parser
+	def one(s):
+		yield next(iter(p(s)))
+	return one
+
+@transform(concatstrip(one(alternate(strs('return'),strs(''))),expr))
 def exprstmt(data):
-	return [STMT,'expr',data]
+	(_,typ),e=data
+	if typ == '':
+		return [STMT,'expr',e]
+	if typ == 'return':
+		return [STMT,'return',e]
 
 @transform(alternate(func,ifstmt,declare,setstmt,setop,exprstmt,block))
 def stmt(data):
