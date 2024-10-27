@@ -35,6 +35,8 @@ anytype=[TYPE,'any']
 
 def argp(data):
 	typ,var=data
+	if typ is None:
+		typ = 'ANY'
 	return [ARG,typ,var]
 
 @transform(optional(concatstrip(concatstrip(optional(typep),optional(sym)),star(concatstrip(strs(','),concatstrip(optional(typep),optional(sym)))),optional(strs(',')))))
@@ -50,7 +52,7 @@ def commasep(data):
 			strs('fn'),concatstrip(sym,strs('('),commasep,strs(')')),alternate(block,stmtwrap)
 		),
 		concatstrip(
-			strs('if'),expr,block
+			strs('if'),expr,strs('then'),alternate(block,stmtwrap)
 		),
 		concatstrip(
 			strs('def'),optional(typep),errorafter(sym),strs('='),expr
@@ -71,13 +73,19 @@ def stmt(data):
 		if bstmtdata[0]==0:
 			(_,_,*stmts) = bstmtdata[1]
 		else:
-			*stmts = bstmtdata[1]
+			stmts = [bstmtdata[1]]
 		return [STMT,'func',name,[SIG,*args],*stmts]
 	if data[0]==1: # ifstmt
-		_,cond,__,st,___=data[1]
-		return [STMT,'if',cond,*st]
+		_,cond,__,st=data[1]
+		if st[0]==0:
+			(_,_,*stmts) = st[1]
+		else:
+			stmts = [st[1]]
+		return [STMT,'if',cond,*stmts]
 	if data[0]==2: # declare
 		_,typ,var,__,e=data[1]
+		if typ is None:
+			typ = 'ANY'
 		return [STMT,'def',typ,var,e]
 	if data[0]==3: # setstmt
 		e1,_,e2=data[1]
