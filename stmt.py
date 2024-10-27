@@ -12,7 +12,7 @@ def stmtwrap(s): # "backreference"
 
 @transform(star(noneerror(stmtwrap)))
 def stmts(data):
-	return ['STMT','many',*data]
+	return ["BLOCK",*data]
 
 @transform(concatstrip(strs('{'),stmts,strs('}')))
 def block(data):
@@ -23,7 +23,7 @@ def blockstmt(data):
 	if data[0]==0:
 		return data[1]
 	else:
-		return ['STMT','many',data[1]]
+		return ["BLOCK",data[1]]
 
 @parser
 def sym(s):
@@ -34,32 +34,30 @@ def sym(s):
 @transform(concatstrip(expr,strs(*[op+'=' for op in ops]),expr))
 def setop(data):
 	e1,aop,e2=data
-	return [STMT,'setop',aop,e1,e2]
+	return ["SETOPSTMT",aop,e1,e2]
 
 @transform(concatstrip(expr,strs('='),expr))
 def setstmt(data):
 	e1,_,e2=data
-	return [STMT,'set',e1,e2]
+	return ["SETSTMT",e1,e2]
 
 typep=strip(alternate()) # no values
 
 @transform(optional(typep))
 def opttype(data):
 	if data is None:
-		return "ANY"
-	return data
+		return [TYPE,'any']
+	return [TYPE,data]
 
 TYPE='TYPE'
-STMT='STMT'
 ARG='ARG'
 SIG='SIG'
-FN='FN'
 anytype=[TYPE,'any']
 
 @transform(concatstrip(strs('def'),opttype,errorafter(sym),strs('='),expr))
 def declare(data):
 	_,typ,var,__,e=data
-	return [STMT,'def',typ,var,e]
+	return ['DEF',typ,var,e]
 
 @transform(concatstrip(strs('if'),expr,strs('then'),alternate(block,stmtwrap)))
 def ifstmt(data):
@@ -68,7 +66,7 @@ def ifstmt(data):
 		(_,_,*stmts) = st[1]
 	else:
 		stmts = [st[1]]
-	return [STMT,'if',cond,[STMT,'many',*stmts]]
+	return ['IF',cond,["BLOCK",*stmts]]
 
 def commasep(p):
 	@transform(optional(concatstrip(p,star(concatstrip(strs(','),p)),optional(strs(',')))))
@@ -92,7 +90,7 @@ def funcsig(data):
 @transform(concatstrip(strs('fn'),funcsig,blockstmt))
 def func(data):
 	_,(_,name,*args),(_,_,*stmts)=data
-	return [STMT,'func',name,[SIG,'sig',*args],[STMT,'many',*stmts]]
+	return ["DEFFUNC",name,[SIG,'sig',*args],["BLOCK",*stmts]]
 
 def one(p):
 	@parser
@@ -104,12 +102,12 @@ def one(p):
 def exprstmt(data):
 	(_,typ),e=data
 	if typ == '':
-		return [STMT,'expr',e]
+		return ["EXPRSTMT",e]
 	if typ == 'return':
-		return [STMT,'return',e]
+		return ["RETURN",e]
 
 @transform(alternate(func,ifstmt,declare,setstmt,setop,exprstmt,block))
 def stmt(data):
 	if data[0]==6: # block
-		return [BLOCK,*block]
+		return ["BLOCK",*block]
 	return data[1]
