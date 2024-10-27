@@ -39,6 +39,11 @@ def argp(data):
 		typ = 'ANY'
 	return [ARG,typ,var]
 
+def one(p):
+	@parser
+	def one(s):
+		yield next(iter(p(s)))
+	return one
 
 @transform(
 	alternate(
@@ -57,7 +62,9 @@ def argp(data):
 		concatstrip(
 			expr,strs(*[op+'=' for op in ops]),expr
 		),
-		expr,
+		concatstrip(
+			one(alternate(strs('return'),strs(''))),expr
+		),
 		block
 	)
 )
@@ -92,7 +99,11 @@ def stmt(data):
 	if data[0]==4: # setop
 		e1,aop,e2=data[1]
 		return [STMT,'setop',aop,e1,e2]
-	if data[0]==5: # exprstmt
-		return [STMT,'expr',data[1]]
+	if data[0]==5: # return
+		(i,typ),e=data[1]
+		if typ == '':
+			return [STMT,'expr',e]
+		if typ == 'return':
+			return [STMT,'return',e]
 	if data[0]==6: # block
 		return [BLOCK,data[1]]
