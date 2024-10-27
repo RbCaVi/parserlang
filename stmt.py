@@ -57,12 +57,12 @@ def declare(data):
 
 @transform(concatstrip(strs('if'),expr,strs('then'),alternate(block,stmtwrap)))
 def ifstmt(data):
-	_,cond,__,st,___=data
+	_,cond,__,st=data
 	if st[0]==0:
 		(_,_,*stmts) = st[1]
 	else:
 		stmts = [st[1]]
-	return [STMT,'if',cond,*stmts]
+	return [STMT,'if',cond,[STMT,'many',*stmts]]
 
 def commasep(p):
 	@transform(optional(concatstrip(p,star(concatstrip(strs(','),p)),optional(strs(',')))))
@@ -88,7 +88,7 @@ def funcsig(data):
 @transform(concatstrip(strs('fn'),funcsig,blockstmt))
 def func(data):
 	_,(_,name,*args),(_,_,*stmts)=data
-	return [STMT,'func',name,[SIG,*args],*stmts]
+	return [STMT,'func',name,[SIG,*args],[STMT,'many',*stmts]]
 
 def one(p):
 	@parser
@@ -106,6 +106,6 @@ def exprstmt(data):
 
 @transform(alternate(func,ifstmt,declare,setstmt,setop,exprstmt,block))
 def stmt(data):
-	if data[0]==5: # block
+	if data[0]==6: # block
 		return [BLOCK,*block]
 	return data[1]
