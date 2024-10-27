@@ -92,7 +92,7 @@ def funcsig(data):
 @transform(concatstrip(strs('fn'),funcsig,blockstmt))
 def func(data):
 	_,(_,name,*args),(_,_,*stmts)=data
-	return [STMT,'func',name,[SIG,*args],[STMT,'many',*stmts]]
+	return [STMT,'func',name,[SIG,'sig',*args],[STMT,'many',*stmts]]
 
 def one(p):
 	@parser
