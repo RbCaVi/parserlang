@@ -48,6 +48,7 @@ def dump(stmt, indent = 'a:'):
 	typ = stmt[0]
 	data = struct.pack('<I', types[typ])
 	if typ == 'BLOCK':
+		data += struct.pack('<I', len(stmt) - 1)
 		es = [dump(e) for e in stmt[1:]]
 		lens = [len(e) for e in es]
 		for l in lens:
@@ -58,7 +59,7 @@ def dump(stmt, indent = 'a:'):
 		_,name,sig,code = stmt
 		e1 = dump(sig)
 		e2 = dump(code)
-		data += struct.pack("<III", len(name), len(e1), len(e2))
+		data += struct.pack("<III", len(name.encode('utf-8')), len(e1), len(e2))
 		data += name.encode('utf-8')
 		data += e1
 		data += e2
@@ -78,6 +79,7 @@ def dump(stmt, indent = 'a:'):
 		_,val = stmt
 		data += dump(val)
 	elif typ == 'SIG':
+		data += struct.pack('<I', len(stmt) - 1)
 		es = [e.encode() for e in stmt[1:]]
 		lens = [len(e) for e in es]
 		for l in lens:
@@ -109,4 +111,5 @@ def dump(stmt, indent = 'a:'):
 	return data
 
 with open(fileout, 'wb') as f:
+	print(prgm(source))
 	f.write(dump(prgm(source)))

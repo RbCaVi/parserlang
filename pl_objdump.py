@@ -1,7 +1,6 @@
 import sys
 filein = sys.argv[1]
 
-lines = []
 with open(filein, 'rb') as f:
 	data = f.read()
 
