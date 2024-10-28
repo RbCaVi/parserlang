@@ -10,8 +10,10 @@ import re
 opcodedata = subprocess.check_output(["gcc", "-E", "-I", "src/pv", "-I", "src/pl", "src/plc/plc_op_ids.h", "-o", "-"], encoding = 'utf-8')
 
 opids = {}
-for i,(op,arity) in enumerate(re.findall('OP\\(\\s*(\\S+)\\s*,\\s*(\\S+)\\s*\\)', opcodedata)):
-	opids[op] = i,int(arity)
+for i,(op,arity) in enumerate(re.findall('OP\\(\\s*"(\\S*)"\\s*,\\s*(\\S+)\\s*\\)', opcodedata)):
+	opids[(op, int(arity))] = i
+
+print(opids)
 
 lines = []
 with open(filein) as f:
@@ -88,11 +90,12 @@ def dump(stmt, indent = 'a:'):
 			data += e
 	elif typ == 'EXPR':
 		op = stmt[1]
-		if op == '(':
-			pass
+		arity = len(stmt) - 2
+		if (op, arity) in opids:
+			opid = opids[(op, arity)]
 		else:
-			assert (opids[op][1]) == (len(stmt) - 2)
-		data += struct.pack('<II', opids[op][0], len(stmt) - 2)
+			opid = opids[(op, 0)]
+		data += struct.pack('<II', opid, arity)
 		es = [dump(e) for e in stmt[2:]]
 		lens = [len(e) for e in es]
 		for l in lens:
