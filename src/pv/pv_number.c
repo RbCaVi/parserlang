@@ -139,27 +139,27 @@ int pv_number_int_value(pv val) {
 
 int pv_is_integer(pv);
 
-#define UOP(upper_name, lower_name, expr) \
+#define UOP(upper_name, lower_name, op) \
 pv pv_number_ ## lower_name(pv v) { \
 	if (pv_get_kind(v) == double_kind) { \
 		double n = pv_number_value(v); \
-		return pv_double(expr); \
+		return pv_double(op n); \
 	} else { \
 		int n = pv_int_value(v); \
-		return pv_int(expr); \
+		return pv_int(op n); \
 	} \
 }
-#define BOP(upper_name, lower_name, expr, isdefault) \
+#define BOP(upper_name, lower_name, op, isdefault) \
 isdefault( \
 pv pv_number_ ## lower_name(pv v1, pv v2) { \
 	if (pv_get_kind(v1) == double_kind || pv_get_kind(v2) == double_kind) { \
 		double n1 = pv_number_value(v1); \
 		double n2 = pv_number_value(v2); \
-		return pv_double(expr); \
+		return pv_double(n1 op n2); \
 	} else { \
 		int n1 = pv_int_value(v1); \
 		int n2 = pv_int_value(v2); \
-		return pv_int(expr); \
+		return pv_int(n1 op n2); \
 	} \
 } \
 )
