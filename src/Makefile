@@ -9,7 +9,7 @@ compilecmd := gcc \
 -Og -g -gdwarf-4 -ggdb \
 -Wall -Wextra -Wpedantic -Wno-pedantic \
 -Wconversion -Werror=return-type -Werror=implicit-function-declaration \
--I pv -I . -c
+-I pv -I pl -I plc -I . -c
 
 %.o: %.c
 	$(compilecmd) $< -o $@
@@ -93,6 +93,8 @@ pl_run.o: \
 	pl/pl_func.h pl/pl_iter.h \
 	pv/pv.h pv/pv_install.h
 
+plc_parsetree.o: plc/plc_op_ids.h
+
 pv_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
 	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
@@ -106,6 +108,8 @@ pl_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pl/pl_bytecode.o pl/pl_exec.o pl/pl_func.o pv/pv_to_string.o pl/pl_iter.o
 
 pl_run: pl/pl_dump.o pl/pl_stack.o pv/pv_install.o pv/pv_equal.o pv/pv_object.o pv/pv_hash.o pv/pv_singletons.o pv/pv_to_string.o pl/pl_iter.o pv/pv_string.o pv/pv_array.o pv/pv_private.o pl/pl_bytecode.o pl/pl_exec.o pl/pl_func.o pv/pv.o pl/util_pl.o pv/pv_number.o
+
+plc_parsetree:
 
 clean:
 	rm -f pv_main pl_main pl_run
