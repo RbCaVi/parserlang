@@ -41,23 +41,12 @@ def setstmt(data):
 	e1,_,e2=data
 	return ["SETSTMT",e1,e2]
 
-typep=strip(alternate()) # no values
-
-@transform(optional(typep))
-def opttype(data):
-	if data is None:
-		return anytype
-	return data
-
-TYPE='TYPE'
-ARG='ARG'
 SIG='SIG'
-anytype='any'
 
-@transform(concatstrip(strs('def'),opttype,errorafter(sym),strs('='),expr))
+@transform(concatstrip(strs('def'),errorafter(sym),strs('='),expr))
 def declare(data):
-	_,typ,var,__,e=data
-	return ['DEF',typ,var,e]
+	_,var,__,e=data
+	return ['DEF',var,e]
 
 @transform(concatstrip(strs('if'),expr,strs('then'),alternate(block,stmtwrap)))
 def ifstmt(data):
@@ -77,10 +66,7 @@ def commasep(p):
 		return [d,*[arg for _,arg in others]]
 	return commasep
 
-@transform(concatstrip(opttype,optional(sym)))
-def arg(data):
-	typ,var=data
-	return [ARG,typ,var]
+arg = sym
 
 @transform(concatstrip(sym,strs('('),commasep(arg),strs(')')))
 def funcsig(data):
