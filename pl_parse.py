@@ -32,54 +32,80 @@ arities = {
 	('-', 1),
 }
 
+import struct
+
+types = {typ:i for i,typ in enumerate([
+	'BLOCK',
+	'DEFFUNC',
+	'IF',
+	'DEF',
+	'RETURN',
+	'SIG',
+	'EXPR',
+	'NUM',
+	'SYM',
+])}
+
 def dump(stmt, indent = 'a:'):
 	typ = stmt[0]
-	print(indent, typ)
+	data = struct.pack('<I', types[typ])
 	if typ == 'BLOCK':
-		for s in stmt[1:]:
-			dump(s, '  ' + indent)
+		es = [dump(e) for e in stmt[1:]]
+		lens = [len(e) for e in es]
+		for l in lens:
+			data += struct.pack('<I', l)
+		for e in es:
+			data += e
 	elif typ == 'DEFFUNC':
 		_,name,sig,code = stmt
-		print("  " + indent, name)
-		dump(sig, '  ' + indent)
-		dump(code, '  ' + indent)
+		e1 = dump(sig)
+		e2 = dump(code)
+		data += struct.pack("<III", len(name), len(e1), len(e2))
+		data += name.encode('utf-8')
+		data += e1
+		data += e2
 	elif typ == 'IF':
 		_,cond,code = stmt
-		dump(cond, '  ' + indent)
-		dump(code, '  ' + indent)
+		e1 = dump(cond)
+		e2 = dump(code)
+		data += struct.pack("<II", len(e1), len(e2))
+		data += e1
+		data += e2
 	elif typ == 'DEF':
-		_,vtype,name,val = stmt
-		print("  " + indent, vtype, name)
-		dump(val, '  ' + indent)
+		_,name,val = stmt
+		data += struct.pack('<I', len(name))
+		data += name.encode('utf-8')
+		data += dump(val)
 	elif typ == 'RETURN':
 		_,val = stmt
-		dump(val, '  ' + indent)
+		data += dump(val)
 	elif typ == 'SIG':
-		for s in stmt[1:]:
-			dump(s, '  ' + indent)
-	elif typ == 'ARG':
-		_,atype,name = stmt
-		print("  " + indent, atype, name)
+		es = [e.encode() for e in stmt[1:]]
+		lens = [len(e) for e in es]
+		for l in lens:
+			data += struct.pack('<I', l)
+		for e in es:
+			data += e
 	elif typ == 'EXPR':
 		op = stmt[1]
-		print("  " + indent, op)
-		if op == '(':
-			for e in stmt[2:]:
-				dump(e, '  ' + indent)
-		else:
-			assert (op, len(stmt) - 2) in arities
-			for e in stmt[2:]:
-				dump(e, '  ' + indent)
+		data += opids[op]
+		data += struct.pack('<I', len(stmt) - 2)
+		es = [dump(e) for e in stmt[2:]]
+		lens = [len(e) for e in es]
+		for l in lens:
+			data += struct.pack('<I', l)
+		for e in es:
+			data += e
 	elif typ == 'NUM':
 		num = stmt[1]
-		print("  " + indent, num)
-		pass
+		data += struct.pack('<I', num)
 	elif typ == 'SYM':
 		sym = stmt[1]
-		print("  " + indent, sym)
-		pass
+		data += struct.pack('<I', len(sym))
+		data += sym.encode('utf-8')
 	else:
-		print("  " + indent, stmt, "???")
+		raise ValueError(f'what??? ({stmt})')
+	return data
 
 for a,s in prgm(source):
 	print(treeexpr(a))
