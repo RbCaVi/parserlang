@@ -1,28 +1,9 @@
+#include "plc_parsetree.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-
-typedef struct {
-	char *data;
-	unsigned int length;
-} file_data;
-
-// A function that will read a file at a path into an allocated char pointer buffer 
-file_data readfile(char *path) {
-	FILE *fptr = fopen(path, "rb"); // Open file for reading
-	if (!fptr) {
-		abort(); // death
-	}
-	fseek(fptr, 0, SEEK_END); // Seek to the end of the file
-	unsigned int length = (unsigned int)ftell(fptr); // Find out how many bytes into the file we are
-	char *buf = (char*)malloc(length); // Allocate a buffer for the length of the file
-	fseek(fptr, 0, SEEK_SET); // Go back to the beginning of the file
-	fread(buf, length, 1, fptr); // Read the contents of the file into the buffer
-	fclose(fptr); // Close the file
-
-	return (file_data){buf, length}; // Return the buffer
-}
 
 typedef struct {
 	char *name;
@@ -47,75 +28,13 @@ typedef enum {
 	NODE_SYM,
 } node_type;
 
-typedef struct expr expr;
-
-struct expr {
-	enum expr_type {
-		EXPR,
-		NUM,
-		SYM,
-	} type;
-	union {
-		struct {
-			int id;
-			int arity;
-			expr *children;
-		} e;
-		struct {
-			int value;
-		} n;
-		struct {
-			int len;
-			char *name;
-		} s;
-	};
-};
-
-typedef struct stmt stmt;
-
-struct stmt {
-	enum stmt_type {
-		BLOCK,
-		DEFFUNC,
-		IF,
-		DEF,
-		RETURN,
-	} type;
-	union {
-		struct {
-			int len;
-			stmt *children;
-		} block;
-		struct {
-			int namelen;
-			char *name;
-			int arity;
-			int *arglens;
-			char **args;
-			stmt *code;
-		} deffunc;
-		struct {
-			expr *cond;
-			stmt *code;
-		} ifs;
-		struct {
-			int namelen;
-			char *name;
-			expr *val;
-		} def;
-		struct {
-			expr *val;
-		} ret;
-	};
-};
-
 typedef struct {
 	int arity;
 	int *arglens;
 	char **args;
 } sig;
 
-expr parse_expr(char *data) {
+static expr parse_expr(char *data) {
 	node_type type = *(node_type*)data;
 	data += sizeof(node_type);
 	expr out;
@@ -154,7 +73,7 @@ expr parse_expr(char *data) {
 	return out;
 }
 
-sig parse_sig(char *data) {
+static sig parse_sig(char *data) {
 	node_type type = *(node_type*)data;
 	data += sizeof(node_type);
 	assert(type == NODE_SIG);
@@ -250,13 +169,13 @@ stmt parse_stmt(char *data) {
 	return out;
 }
 
-void print_indent(int indent) {
+static void print_indent(int indent) {
 	for (int i = 0; i < indent; i++) {
 		printf("  ");
 	}
 }
 
-void print_expr(expr e, int indent) {
+static void print_expr(expr e, int indent) {
 	switch (e.type) {
 	case EXPR:
 		print_indent(indent);
@@ -314,22 +233,4 @@ void print_stmt(stmt s, int indent) {
 		print_expr(*s.ret.val, indent + 1);
 		break;
 	}
-}
-
-int main(int argc, char **argv) {
-	if (argc < 2) {
-		return 1;
-	}
-
-	for (int i = 0; i < sizeof(ops) / sizeof(op); i++) {
-		printf("op %i: %s %i\n", i, ops[i].name, ops[i].arity);
-	}
-
-	file_data f = readfile(argv[1]);
-
-	stmt s = parse_stmt(f.data);
-
-	print_stmt(s, 0);
-
-	return 0;
 }
