@@ -4,10 +4,18 @@
 import sys
 filein,fileout = sys.argv[1],sys.argv[2]
 
+import subprocess
+import re
+
+opcodedata = subprocess.check_output(["gcc", "-E", "-I", "src/pv", "-I", "src/pl", "src/plc/plc_op_ids.h", "-o", "-"], encoding = 'utf-8')
+
+opids = {}
+for i,(op,arity) in enumerate(re.findall('OP\\(\\s*(\\S+)\\s*,\\s*(\\S+)\\s*\\)', opcodedata)):
+	opids[op] = i,int(arity)
+
 lines = []
 with open(filein) as f:
 	source = f.read()
-
 
 from stmt import stmts
 from parsers import concat, transform
@@ -19,18 +27,8 @@ def eof(s):
 	if s.strip() == '':
 		yield None,''
 
-@transform(concat(stmts, eof))
-def prgm(data):
-	return data[0]
-
-print(source)
-
-arities = {
-	('==', 2),
-	('+', 2),
-	('-', 2),
-	('-', 1),
-}
+def prgm(s):
+	return next(iter(concat(stmts, eof)(s)))[0][0]
 
 import struct
 
@@ -88,8 +86,11 @@ def dump(stmt, indent = 'a:'):
 			data += e
 	elif typ == 'EXPR':
 		op = stmt[1]
-		data += opids[op]
-		data += struct.pack('<I', len(stmt) - 2)
+		if op == '(':
+			pass
+		else:
+			assert (opids[op][1]) == (len(stmt) - 2)
+		data += struct.pack('<II', opids[op][0], len(stmt) - 2)
 		es = [dump(e) for e in stmt[2:]]
 		lens = [len(e) for e in es]
 		for l in lens:
@@ -107,7 +108,5 @@ def dump(stmt, indent = 'a:'):
 		raise ValueError(f'what??? ({stmt})')
 	return data
 
-for a,s in prgm(source):
-	print(treeexpr(a))
-	dump(a)
-	print()
+with open(fileout, 'wb') as f:
+	f.write(dump(prgm(source)))
