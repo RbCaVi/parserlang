@@ -35,5 +35,9 @@ int main(int argc, char **argv) {
 
 	print_stmt(s, 0);
 
+	free_stmt(s);
+
+	free(f.data);
+
 	return 0;
 }

@@ -234,3 +234,48 @@ void print_stmt(stmt s, int indent) {
 		break;
 	}
 }
+
+static void free_expr(expr e) {
+	switch (e.type) {
+	case EXPR:
+		for (int i = 0; i < e.e.arity; i++) {
+			free_expr(e.e.children[i]);
+		}
+		free(e.e.children);
+		break;
+	case NUM:
+		break;
+	case SYM:
+		break;
+	}
+}
+
+void free_stmt(stmt s) {
+	switch (s.type) {
+	case BLOCK:
+		for (int i = 0; i < s.block.len; i++) {
+			free_stmt(s.block.children[i]);
+		}
+		free(s.block.children);
+		break;
+	case DEFFUNC:
+		free(s.deffunc.args);
+		free_stmt(*s.deffunc.code);
+		free(s.deffunc.code);
+		break;
+	case IF:
+		free_expr(*s.ifs.cond);
+		free(s.ifs.cond);
+		free_stmt(*s.ifs.code);
+		free(s.ifs.code);
+		break;
+	case DEF:
+		free_expr(*s.def.val);
+		free(s.def.val);
+		break;
+	case RETURN:
+		free_expr(*s.ret.val);
+		free(s.ret.val);
+		break;
+	}
+}
