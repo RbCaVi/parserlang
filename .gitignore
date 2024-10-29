@@ -91,3 +91,5 @@ rippkgs-index.sqlite
 
 # pl compiled
 *.plc
+# parsed pl code (there will be a few in the final repository)
+*.plp
