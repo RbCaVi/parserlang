@@ -21,8 +21,9 @@ typedef struct {
 	char *valdata;
 } exedata;
 
-exedata newexe() {
-	exedata out = {
+exedata *newexe() {
+	exedata *out = malloc(sizeof(exedata));
+	*out = (exedata){
 		0,
 		0,
 		8,
@@ -128,6 +129,32 @@ void setmain(exedata *data, int mi) {
 	data->maini = mi;
 }
 
+void dumpexe(exedata *exe, char *file) {
+	FILE *fptr = fopen(file, "wb");
+	if (!fptr) {
+		abort(); // death
+	}
+	fwrite(&(exe->maini), sizeof(int), 1, fptr);
+	fwrite(&(exe->glen), sizeof(int), 1, fptr);
+	fwrite(&(exe->vlen), sizeof(int), 1, fptr);
+	fwrite(exe->globals, sizeof(int), exe->glen, fptr);
+	int *fixedvals = malloc(sizeof(int) * exe->vlen);
+	for (int i = 0; i < exe->vlen; i++) {
+		fixedvals[i] = exe->vals[i] + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) * exe->glen + sizeof(int) * exe->vlen;
+	}
+	fwrite(fixedvals, sizeof(int), exe->vlen, fptr);
+	free(fixedvals);
+	fwrite(exe->valdata, 1, exe->valdatalen, fptr);
+	fclose(fptr);
+}
+
+void freeexe(exedata *exe) {
+	free(exe->globals);
+	free(exe->vals);
+	free(exe->valdata);
+	free(exe);
+}
+
 int main(int argc, char **argv) {
 	if (argc < 2) {
 		return 1;
@@ -139,10 +166,10 @@ int main(int argc, char **argv) {
 
 	pv val = PV_ARRAY(pv_double(15), pv_double(3));
 
-	exedata exe = newexe();
+	exedata *exe = newexe();
 
-	int i1 = addval(&exe, val);
-	addglobal(&exe, i1);
+	int i1 = addval(exe, val);
+	addglobal(exe, i1);
 
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
@@ -151,29 +178,11 @@ int main(int argc, char **argv) {
 
 	pv f = pl_func(bytecode);
 
-	int i2 = addval(&exe, f);
-	setmain(&exe, i2);
+	int i2 = addval(exe, f);
+	setmain(exe, i2);
 
-	printf("len %i\n", exe.valdatalen);
-
-	FILE *fptr = fopen(argv[1], "wb");
-	if (!fptr) {
-		abort(); // death
-	}
-	for (int i = 0; i < exe.vlen; i++) {
-		exe.vals[i] += sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) * exe.glen + sizeof(int) * exe.vlen;
-	}
-	fwrite(&(exe.maini), sizeof(int), 1, fptr);
-	fwrite(&(exe.glen), sizeof(int), 1, fptr);
-	fwrite(&(exe.vlen), sizeof(int), 1, fptr);
-	fwrite(exe.globals, sizeof(int), exe.glen, fptr);
-	fwrite(exe.vals, sizeof(int), exe.vlen, fptr);
-	fwrite(exe.valdata, 1, exe.valdatalen, fptr);
-	fclose(fptr);
-
-	free(exe.globals);
-	free(exe.vals);
-	free(exe.valdata);
+	dumpexe(exe, argv[1]);
+	freeexe(exe);
 
 	return 0;
 }
