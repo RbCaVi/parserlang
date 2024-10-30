@@ -19,7 +19,7 @@ compilecmd := gcc \
 
 .PHONY: all clean
 
-all: pv_main pl_main
+all: pv_main pl_main pl_run plc_dumptree plc_dumpval
 
 # core
 pv/pv.o: pv/pv.h pv/pv_private.h
@@ -118,7 +118,7 @@ plc_dumptree: plc/plc_parsetree.o
 plc_dumpval: pv/pv_hash.o pv/pv_string.o pv/pv_object.o pl/pl_dump.o pl/util_pl.o pv/pv_singletons.o pv/pv_number.o pl/pl_iter.o pl/pl_stack.o pl/pl_exec.o pv/pv_array.o pl/pl_func.o pv/pv.o pl/pl_bytecode.o pv/pv_private.o pv/pv_to_string.o pv/pv_equal.o
 
 clean:
-	rm -f pv_main pl_main pl_run
+	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval
 	rm -f *.o
 	rm -f pl/*.o
 	rm -f pv/*.o
