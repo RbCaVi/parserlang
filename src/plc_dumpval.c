@@ -10,13 +10,13 @@
 
 typedef struct {
 	int maini;
-	int glen;
+	unsigned int glen;
 	int globalsallocsize;
 	int *globals;
-	int vlen;
+	unsigned int vlen;
 	int valsallocsize;
-	int *vals;
-	int valdatalen;
+	unsigned int *vals;
+	unsigned int valdatalen;
 	int valdataallocsize;
 	char *valdata;
 } exedata;
@@ -38,7 +38,7 @@ exedata *newexe() {
 	return out;
 }
 
-void realloc_if_needed(void **ptr, int *size, int requiredsize) {
+void realloc_if_needed(void **ptr, unsigned int *size, size_t requiredsize) {
 	if (requiredsize > *size) {
 		while (requiredsize > *size) {
 			*size = *size * 2;
@@ -55,19 +55,19 @@ typedef struct __attribute__((packed)) {
 
 typedef struct {
 	int type;
-	int len;
+	unsigned int len;
 	int elements[];
 } array_data;
 
 typedef struct {
 	int type;
-	int len;
+	unsigned int len;
 	char data[];
 } func_data;
 
 #define addentry(type, name, extrasize) \
 	realloc_if_needed((void**)(&(data->vals)), &data->valsallocsize, sizeof(int) * (data->vlen + 1)); \
-	int i = data->vlen; \
+	unsigned int i = data->vlen; \
 	data->vals[data->vlen] = data->valdatalen; \
 	data->vlen++; \
 	realloc_if_needed((void**)(&(data->valdata)), &data->valdataallocsize, data->valdatalen + sizeof(type) + extrasize); \
@@ -99,7 +99,7 @@ int addval(exedata *data, pv val) {
 		return i;
 	}
 	if (kind == array_kind) {
-		int len = pv_array_length(pv_copy(val));
+		unsigned int len = pv_array_length(pv_copy(val));
 		int *valis = malloc(sizeof(int) * len);
 		pv_array_foreach(val, i, v) {
 			valis[i] = addval(data, v);
@@ -118,7 +118,7 @@ int addval(exedata *data, pv val) {
 }
 
 int addglobal(exedata *data, int vi) {
-	realloc_if_needed(&(data->globals), &data->globalsallocsize, sizeof(int) * (data->glen + 1));
+	realloc_if_needed((void*)(&(data->globals)), &data->globalsallocsize, sizeof(int) * (data->glen + 1));
 	int i = data->glen;
 	data->globals[data->glen] = vi;
 	data->glen++;
@@ -138,8 +138,8 @@ void dumpexe(exedata *exe, char *file) {
 	fwrite(&(exe->glen), sizeof(int), 1, fptr);
 	fwrite(&(exe->vlen), sizeof(int), 1, fptr);
 	fwrite(exe->globals, sizeof(int), exe->glen, fptr);
-	int *fixedvals = malloc(sizeof(int) * exe->vlen);
-	for (int i = 0; i < exe->vlen; i++) {
+	unsigned int *fixedvals = malloc(sizeof(int) * exe->vlen);
+	for (unsigned int i = 0; i < exe->vlen; i++) {
 		fixedvals[i] = exe->vals[i] + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) * exe->glen + sizeof(int) * exe->vlen;
 	}
 	fwrite(fixedvals, sizeof(int), exe->vlen, fptr);
