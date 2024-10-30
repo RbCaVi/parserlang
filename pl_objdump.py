@@ -6,9 +6,13 @@ with open(filein, 'rb') as f:
 
 import struct
 
-maini,glen,vlen = struct.unpack('<III', data[:struct.calcsize('<III')])
-g = struct.unpack(f'<{glen}I', data[struct.calcsize('<III'):struct.calcsize('<III') + struct.calcsize(f'<{glen}I')])
-v = struct.unpack(f'<{vlen}I', data[struct.calcsize(f'<III{glen}I'):struct.calcsize(f'<III{glen}I') + struct.calcsize(f'<{vlen}I')])
+def unpackstart(fmt, data):
+	return struct.unpack(fmt,data[:struct.calcsize(fmt)]),data[struct.calcsize(fmt):]
+
+hdata = data
+(maini,glen,vlen),hdata = unpackstart('<III', hdata)
+g,hdata = unpackstart(f'<{glen}I', hdata)
+v,hdata = unpackstart(f'<{vlen}I', hdata)
 
 ntype = 0
 atype = 1
@@ -16,17 +20,17 @@ ftype = 2
 
 def getvar(i):
 	vdata = data[v[i]:]
-	typ, = struct.unpack('<I', vdata[:struct.calcsize('<I')])
+	(typ,),vdata = unpackstart('<I', vdata)
 	if typ == ntype:
-		_typ,val = struct.unpack('<Id', vdata[:struct.calcsize('<Id')])
+		(val,),_ = unpackstart('<d', vdata)
 		return val
 	elif typ == atype:
-		_typ,alen = struct.unpack('<II', vdata[:struct.calcsize('<II')])
-		a = struct.unpack(f'<{alen}I', vdata[struct.calcsize('<II'):struct.calcsize('<II') + struct.calcsize(f'<{alen}I')])
+		(alen,),vdata = unpackstart('<I', vdata)
+		a,_ = unpackstart(f'<{alen}I', vdata)
 		return [getvar(i) for i in a]
 	elif typ == ftype:
-		_typ,flen = struct.unpack('<II', vdata[:struct.calcsize('<II')])
-		return vdata[struct.calcsize('<II'):struct.calcsize('<II') + flen]
+		(flen,),_ = unpackstart('<I', vdata)
+		return vdata[:flen]
 	else:
 		return None
 
