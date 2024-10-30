@@ -42,7 +42,7 @@ void realloc_if_needed(void **ptr, int *size, int requiredsize) {
 		while (requiredsize > *size) {
 			*size = *size * 2;
 		}
-		printf("(reallocing to size %i)", *size);
+		//printf("(reallocing to size %i)", *size);
 		*ptr = realloc(*ptr, *size);
 	}
 }
@@ -75,21 +75,21 @@ typedef struct {
 
 int addval(exedata *data, pv val) {
 	pv_kind kind = pv_get_kind(val);
-	printf("kind %i\n", kind);
+	//printf("kind %i\n", kind);
 	if (kind == double_kind) {
-		printf("d %i ", data->valdatalen);
+		//printf("d %i ", data->valdatalen);
 		addentry(double_data, d, 0);
-		printf("%i\n", data->valdatalen);
+		//printf("%i\n", data->valdatalen);
 		d->type = 0;
 		d->val = pv_number_value(val);
 		return i;
 	}
 	if (kind == func_kind) {
 		pl_bytecode b = pl_func_get_bytecode(val);
-		printf("f %i ", data->valdatalen);
-		printf("+ %i + %i = ", sizeof(func_data), b.length);
+		//printf("f %i ", data->valdatalen);
+		//printf("+ %i + %i = ", sizeof(func_data), b.length);
 		addentry(func_data, f, b.length);
-		printf("%i\n", data->valdatalen);
+		//printf("%i\n", data->valdatalen);
 		f->type = 2;
 		f->len = b.length;
 		memcpy(f->data, b.bytecode, b.length);
@@ -104,9 +104,9 @@ int addval(exedata *data, pv val) {
 			valis[i] = addval(data, v);
 		}
 		pv_free(val);
-		printf("a %i ", data->valdatalen);
+		//printf("a %i ", data->valdatalen);
 		addentry(array_data, a, sizeof(int) * len);
-		printf("%i\n", data->valdatalen);
+		//printf("%i\n", data->valdatalen);
 		a->type = 1;
 		a->len = len;
 		memcpy(a->elements, valis, sizeof(int) * len);
