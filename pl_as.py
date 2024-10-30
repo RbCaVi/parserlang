@@ -14,7 +14,7 @@ types = {
 }
 
 opcodes = {}
-for i,(opcode,members) in enumerate(re.findall('OPCODE\\(\\s*(\\S*)\\s*,\\s*(\\{.*\\})\\s*\\)', opcodedata)):
+for i,(opcode,members) in enumerate(re.findall('OPCODE\\(\\s*(\\S*)\\s*,\\s*\\S*\\s*,\\s*(\\{.*\\})\\s*\\)', opcodedata)):
 	fmt = ''
 	for typ in re.findall('([a-zA-Z_0-9\\s]+)\\s[a-zA-Z_0-9]+;', members):
 		typ = ' '.join(typ.split())
