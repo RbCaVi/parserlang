@@ -1,3 +1,6 @@
+#ifndef PLC_PARSETREE_H
+#define PLC_PARSETREE_H
+
 typedef struct expr expr;
 
 struct expr {
@@ -65,3 +68,5 @@ stmt parse_stmt(char *data);
 void print_stmt(stmt s, int indent);
 
 void free_stmt(stmt s);
+
+#endif
