@@ -9,10 +9,10 @@
 #include <string.h>
 
 typedef struct {
-	int maini;
+	unsigned int maini;
 	unsigned int glen;
 	int globalsallocsize;
-	int *globals;
+	unsigned int *globals;
 	unsigned int vlen;
 	int valsallocsize;
 	unsigned int *vals;
@@ -72,9 +72,9 @@ typedef struct {
 	data->vlen++; \
 	realloc_if_needed((void**)(&(data->valdata)), &data->valdataallocsize, data->valdatalen + sizeof(type) + extrasize); \
 	type *name = (type*)(data->valdata + data->valdatalen); \
-	data->valdatalen += sizeof(type) + extrasize;
+	data->valdatalen += (unsigned int)sizeof(type) + extrasize;
 
-int addval(exedata *data, pv val) {
+unsigned int addval(exedata *data, pv val) {
 	pv_kind kind = pv_get_kind(val);
 	//printf("kind %i\n", kind);
 	if (kind == double_kind) {
@@ -100,13 +100,13 @@ int addval(exedata *data, pv val) {
 	}
 	if (kind == array_kind) {
 		unsigned int len = pv_array_length(pv_copy(val));
-		int *valis = malloc(sizeof(int) * len);
+		unsigned int *valis = malloc(sizeof(int) * len);
 		pv_array_foreach(val, i, v) {
 			valis[i] = addval(data, v);
 		}
 		pv_free(val);
 		//printf("a %i ", data->valdatalen);
-		addentry(array_data, a, sizeof(int) * len);
+		addentry(array_data, a, (unsigned int)sizeof(int) * len);
 		//printf("%i\n", data->valdatalen);
 		a->type = 1;
 		a->len = len;
@@ -117,15 +117,15 @@ int addval(exedata *data, pv val) {
 	abort(); // death
 }
 
-int addglobal(exedata *data, int vi) {
+unsigned int addglobal(exedata *data, unsigned int vi) {
 	realloc_if_needed((void*)(&(data->globals)), &data->globalsallocsize, sizeof(int) * (data->glen + 1));
-	int i = data->glen;
+	unsigned int i = data->glen;
 	data->globals[data->glen] = vi;
 	data->glen++;
 	return i;
 }
 
-void setmain(exedata *data, int mi) {
+void setmain(exedata *data, unsigned int mi) {
 	data->maini = mi;
 }
 
@@ -140,7 +140,7 @@ void dumpexe(exedata *exe, char *file) {
 	fwrite(exe->globals, sizeof(int), exe->glen, fptr);
 	unsigned int *fixedvals = malloc(sizeof(int) * exe->vlen);
 	for (unsigned int i = 0; i < exe->vlen; i++) {
-		fixedvals[i] = exe->vals[i] + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) * exe->glen + sizeof(int) * exe->vlen;
+		fixedvals[i] = exe->vals[i] + (unsigned int)sizeof(int) + (unsigned int)sizeof(int) + (unsigned int)sizeof(int) + (unsigned int)sizeof(int) * exe->glen + (unsigned int)sizeof(int) * exe->vlen;
 	}
 	fwrite(fixedvals, sizeof(int), exe->vlen, fptr);
 	free(fixedvals);
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
 
 	exedata *exe = newexe();
 
-	int i1 = addval(exe, val);
+	unsigned int i1 = addval(exe, val);
 	addglobal(exe, i1);
 
 	pl_bytecode_builder *b = pl_bytecode_new_builder();
@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
 
 	pv f = pl_func(bytecode);
 
-	int i2 = addval(exe, f);
+	unsigned int i2 = addval(exe, f);
 	setmain(exe, i2);
 
 	dumpexe(exe, argv[1]);

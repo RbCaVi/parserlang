@@ -281,6 +281,24 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			opcase(GRET) {
 				abort();
 			}
+			opcase(SLICEA) {
+				abort();
+			}
+			opcase(SLICEAL) {
+				abort();
+			}
+			opcase(SLICEAM) {
+				abort();
+			}
+			opcase(SLICEAR) {
+				abort();
+			}
+			opcase(SLICEAII) {
+				abort();
+			}
+			opcase(APPENDO) {
+				abort();
+			}
 			default:
 				abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
