@@ -95,9 +95,11 @@ pl_run.o: \
 
 plc/plc_parsetree.o: plc/plc_op_ids.h
 
+plc/plc_exe.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
+
 plc_dumptree.o: plc/plc_parsetree.h
 
-plc_dumpval.o: pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
+plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
 
 pv_main: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
@@ -115,7 +117,7 @@ pl_run: pl/pl_dump.o pl/pl_stack.o pv/pv_install.o pv/pv_equal.o pv/pv_object.o 
 
 plc_dumptree: plc/plc_parsetree.o
 
-plc_dumpval: pv/pv_hash.o pv/pv_string.o pv/pv_object.o pl/pl_dump.o pl/util_pl.o pv/pv_singletons.o pv/pv_number.o pl/pl_iter.o pl/pl_stack.o pl/pl_exec.o pv/pv_array.o pl/pl_func.o pv/pv.o pl/pl_bytecode.o pv/pv_private.o pv/pv_to_string.o pv/pv_equal.o
+plc_dumpval: plc/plc_exe.o pv/pv_hash.o pv/pv_string.o pv/pv_object.o pl/pl_dump.o pl/util_pl.o pv/pv_singletons.o pv/pv_number.o pl/pl_iter.o pl/pl_stack.o pl/pl_exec.o pv/pv_array.o pl/pl_func.o pv/pv.o pl/pl_bytecode.o pv/pv_private.o pv/pv_to_string.o pv/pv_equal.o
 
 clean:
 	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval
