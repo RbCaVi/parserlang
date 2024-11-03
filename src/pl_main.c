@@ -18,6 +18,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+pv dump_pv(pl_state *pl) {
+	pv val = pl_stack_top(pl->stack);
+	printf("dumping a pv:\n");
+	pl_dump_pv(pv_copy(val));
+	return val;
+}
+
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
 	pv_install();
@@ -197,6 +204,22 @@ int main(int argc, char **argv) {
 		pl_stack_unref(pl->stack);
 
 		free(pl->globals);
+
+		free(pl);
+	}
+	{
+		pv f = pl_func_native(dump_pv);
+
+		pl_state *pl = malloc(sizeof(pl_state));
+		pl->stack = pl_stack_new();
+
+		pl->stack = pl_stack_push(pl->stack, PV_ARRAY(pv_int(15)));
+
+		pv ret = pl_func_call(f, pl);
+		pl_dump_pv(ret);
+
+		pl_dump_stack(pl->stack);
+		pl_stack_unref(pl->stack);
 
 		free(pl);
 	}

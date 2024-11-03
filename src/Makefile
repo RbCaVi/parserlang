@@ -15,7 +15,7 @@ compilecmd := gcc \
 	$(compilecmd) $< -o $@
 
 %: %.o
-	gcc $^ -o $@ -lm
+	gcc $^ -o $@ -lm -ldl
 
 .PHONY: all clean
 
