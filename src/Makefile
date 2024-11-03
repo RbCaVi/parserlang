@@ -112,7 +112,7 @@ plc_dumptree.o: plc/plc_parsetree.h
 
 plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
 
-pt_dump.o: pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
+pt_dump.o: pv/pv_to_string.h pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
 
 pv_main: -l\:pv.so
 
