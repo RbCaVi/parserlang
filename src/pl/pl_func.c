@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <dlfcn.h>
+#include <stdio.h>
 
 pv_kind func_kind;
 
@@ -96,8 +97,18 @@ static pv plp_func_native(pl_func_type func, void *library, char *filename, char
 }
 
 pv pl_func_from_symbol(char *filename, char *funcname) {
+	dlerror(); // clear error
 	void *library = dlopen(filename, RTLD_LAZY);
+	char *error;
+	if ((error = dlerror()) != NULL) {
+		printf("dlerror open: %s\n", error);
+		abort();
+	}
 	void *func = dlsym(library, funcname);
+	if ((error = dlerror()) != NULL) {
+		printf("dlerror sym: %s\n", error);
+		abort();
+	}
 	return plp_func_native((pl_func_type)(func), library, filename, funcname);
 }
 
