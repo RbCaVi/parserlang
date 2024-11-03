@@ -9,7 +9,7 @@ compilecmd := gcc \
 -Og -g -gdwarf-4 -ggdb \
 -Wall -Wextra -Wpedantic -Wno-pedantic \
 -Wconversion -Werror=return-type -Werror=implicit-function-declaration \
--I pv -I pl -I plc -I . -c
+-I pv -I pl -I plc -I . -c -MMD
 
 colon := :
 $(colon) := :
@@ -141,5 +141,6 @@ clean:
 	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
 	rm -f pv.so pl.so
 	rm -f *.o
+	rm -f *.d
 	rm -f pl/*.o
 	rm -f pv/*.o
