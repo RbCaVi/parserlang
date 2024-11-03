@@ -223,6 +223,22 @@ int main(int argc, char **argv) {
 
 		free(pl);
 	}
+	{
+		pv f = pl_func_from_symbol("./pt_dump.so", "pt_dump_pv");
+
+		pl_state *pl = malloc(sizeof(pl_state));
+		pl->stack = pl_stack_new();
+
+		pl->stack = pl_stack_push(pl->stack, PV_ARRAY(pv_int(15)));
+
+		pv ret = pl_func_call(f, pl);
+		pl_dump_pv(ret);
+
+		pl_dump_stack(pl->stack);
+		pl_stack_unref(pl->stack);
+
+		free(pl);
+	}
 
 	return 0;
 }
