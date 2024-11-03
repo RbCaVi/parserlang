@@ -15,14 +15,14 @@ compilecmd := gcc \
 	$(compilecmd) -fPIC $< -o $@
 
 %: %.o
-	gcc -flto $^ -o $@ -lm -ldl -L. -l:pv.so
+	gcc -flto $^ -o $@ -lm -ldl -L.
 
 %.so:
-	gcc -shared -flto $^ -o $@ -L. -l:pv.so
+	gcc -shared -flto $^ -o $@ -L.
 
-.PHONY: all clean
+.PHONY: all clean -l\:pv.so -l\:pl.so
 
-all: pv.so pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
+all: pv.so pl.so pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
 
 # core
 pv/pv.o: pv/pv.h pv/pv_private.h
@@ -106,27 +106,25 @@ plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h p
 
 pt_dump.o: pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
 
-pv_main:
+pv_main: -l\:pv.so
 
-pl_main: pl/util_pl.o pl/pl_dump.o pl/pl_stack.o \
-	pl/pl_bytecode.o pl/pl_exec.o pl/pl_func.o pv/pv_to_string.o pl/pl_iter.o
+pl_main: -l\:pv.so -l\:pl.so
 
-pl_run: pl/pl_dump.o pl/pl_stack.o \
-	 pl/pl_iter.o \
-	 pl/pl_bytecode.o pl/pl_exec.o pl/pl_func.o \
-	 pl/util_pl.o
+pl_run: -l\:pv.so -l\:pl.so
 
 plc_dumptree: plc/plc_parsetree.o
 
-plc_dumpval: plc/plc_exe.o \
-	 pl/pl_dump.o pl/util_pl.o \
-	 pl/pl_iter.o pl/pl_stack.o pl/pl_exec.o \
-	 pl/pl_func.o pl/pl_bytecode.o
+plc_dumpval: plc/plc_exe.o -l\:pv.so -l\:pl.so
 
 pv.so: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
 	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
 	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o
+
+pl.so: -l\:pv.so \
+	pl/pl_bytecode.o pl/pl_stack.o pl/pl_exec.o \
+	pl/pl_iter.o pl/pl_func.o \
+	pl/util_pl.o pl/pl_dump.o
 
 pt_dump.so: pt_dump.o \
 	pl/util_pl.o pl/pl_dump.o pl/pl_stack.o
