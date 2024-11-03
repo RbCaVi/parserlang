@@ -11,6 +11,9 @@ compilecmd := gcc \
 -Wconversion -Werror=return-type -Werror=implicit-function-declaration \
 -I pv -I pl -I plc -I . -c
 
+colon := :
+$(colon) := :
+
 %.o: %.c
 	$(compilecmd) -fPIC $< -o $@
 
@@ -20,9 +23,14 @@ compilecmd := gcc \
 %.so:
 	gcc -shared -flto $^ -o $@ -L.
 
-.PHONY: all clean -l\:pv.so -l\:pl.so
+.PHONY: all clean
 
-all: pv.so pl.so pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
+# this is a "hack" so i don't have to manage a variable for dependencies of each exe
+.PHONY: -l\:pv.so -l\:pl.so
+-l\$(:)pv.so: pv.so
+-l\$(:)pl.so: pl.so
+
+all: pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
 
 # core
 pv/pv.o: pv/pv.h pv/pv_private.h
@@ -131,6 +139,7 @@ pt_dump.so: pt_dump.o \
 
 clean:
 	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
+	rm -f pv.so pl.so
 	rm -f *.o
 	rm -f pl/*.o
 	rm -f pv/*.o
