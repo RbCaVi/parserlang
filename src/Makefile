@@ -18,10 +18,19 @@ $(colon) := :
 	$(compilecmd) -fPIC $< -o $@
 
 %: %.o
-	gcc -flto $^ -o $@ -lm -ldl -L.
+	gcc -flto $^ -o $@ -lm -ldl -L. $(filter -l:%,$|)
 
 %.so:
-	gcc -shared -flto $^ -o $@ -L.
+	gcc -shared -flto $^ -o $@ -L. $(filter -l:%,$|)
+
+# because pattern rules can't be phony
+FORCE:
+
+test-%: FORCE %
+	LD_LIBRARY_PATH="$$LD_LIBRARY_PATH":. $(*D)/$(*F) $(wordlist 3,$(words $^),$^)
+
+test-valgrind-%: FORCE %
+	LD_LIBRARY_PATH="$$LD_LIBRARY_PATH":. valgrind $(*D)/$(*F) $(wordlist 3,$(words $^),$^)
 
 .PHONY: all clean
 
@@ -30,7 +39,11 @@ $(colon) := :
 -l\$(:)pv.so: pv.so
 -l\$(:)pl.so: pl.so
 
-all: pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
+exes = pv_main pl_main pl_run plc_dumptree plc_dumpval
+
+all: $(exes) pt_dump.so
+test: $(addprefix test-,$(exes))
+test-valgrind: $(addprefix test-valgrind-,$(exes))
 
 # core
 pv/pv.o: pv/pv.h pv/pv_private.h
@@ -114,28 +127,39 @@ plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h p
 
 pt_dump.o: pv/pv_to_string.h pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
 
-pv_main: -l\:pv.so
+pv_main: | -l\:pv.so
 
-pl_main: -l\:pv.so -l\:pl.so
+pl_main: | -l\:pv.so -l\:pl.so pt_dump.so
 
-pl_run: -l\:pv.so -l\:pl.so
+pl_run: | -l\:pv.so -l\:pl.so
 
 plc_dumptree: plc/plc_parsetree.o
 
-plc_dumpval: plc/plc_exe.o -l\:pv.so -l\:pl.so
+plc_dumpval: plc/plc_exe.o | -l\:pv.so -l\:pl.so
 
 pv.so: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
 	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
 	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o
 
-pl.so: -l\:pv.so \
-	pl/pl_bytecode.o pl/pl_stack.o pl/pl_exec.o \
+pl.so: pl/pl_bytecode.o pl/pl_stack.o pl/pl_exec.o \
 	pl/pl_iter.o pl/pl_func.o \
-	pl/util_pl.o pl/pl_dump.o
+	pl/util_pl.o pl/pl_dump.o \
+	| -l\:pv.so
+	
 
 pt_dump.so: pt_dump.o \
-	pl/util_pl.o pl/pl_dump.o pl/pl_stack.o
+	| -l\:pl.so
+
+test-pl_run: ../main.plc
+test-plc_dumptree: ../fib.plp
+test-plc_dumpval: dump.plc
+
+test-valgrins-pl_run: ../main.plc
+test-valgrins-plc_dumptree: ../fib.plp
+test-valgrins-plc_dumpval: dump.plc
+
+.PHONY: dump.plc # hack i guess - test-plc_dumpval creates dump.plc
 
 clean:
 	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
