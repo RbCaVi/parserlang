@@ -18,14 +18,14 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
+	
+	pv f = pl_func(bytecode);
+	pv *globals = malloc(sizeof(pv));
+	globals[0] = PV_ARRAY(pv_double(15), pv_double(3));
+	
+	plc_exe exe = {f, 1, globals};
 
-	pl_exe *exe = pl_exe_new();
-
-	pl_exe_add_global(exe, PV_ARRAY(pv_double(15), pv_double(3)));
-	pl_exe_set_main(exe, pl_func(bytecode));
-
-	pl_exe_dump_file(exe, argv[1]);
-	pl_exe_free(exe);
+	plc_exe_dump(exe, argv[1]);
 
 	return 0;
 }

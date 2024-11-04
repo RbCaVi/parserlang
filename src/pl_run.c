@@ -9,6 +9,8 @@
 #include "pl/pl_func.h"
 #include "pl/pl_iter.h"
 
+#include "plc/plc_exe.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,76 +35,6 @@ file_data readfile(char *path) {
 	return (file_data){buf, length}; // Return the buffer
 }
 
-typedef struct {
-	unsigned int maini;
-	unsigned int glen;
-	unsigned int vlen;
-} file_header;
-
-typedef struct {
-	pv main;
-	unsigned int glen;
-	pv *globals;
-} pl_exe;
-
-pv getvar(unsigned int i, char *data, unsigned int *vars, pv *vals) {
-	if (pv_get_kind(vals[i]) == 0) {
-		unsigned int pos = vars[i]; // offset into data
-
-		pv val;
-		unsigned int type =*((unsigned int *)(data + pos));
-		printf("type %i at %i / %i\n", type, i, pos);
-		switch (type) {
-		case 0: // ntype = 0
-			val = pv_double(*((double *)(data + pos + sizeof(unsigned int))));
-			break;
-		case 1: // atype = 1
-			unsigned int alen = *((unsigned int *)(data + pos + sizeof(unsigned int)));
-			unsigned int *varis = (unsigned int *)(data + pos + sizeof(unsigned int) + sizeof(unsigned int));
-			pv a = pv_array();
-			for (unsigned int i = 0; i < alen; i++) {
-				a = pv_array_append(a, getvar(varis[i], data, vars, vals));
-			}
-			val = a;
-			break;
-		case 2: // ftype = 2
-			unsigned int flen = *((unsigned int *)(data + pos + sizeof(unsigned int)));
-			char *bytecode = data + pos + sizeof(unsigned int) + sizeof(unsigned int);
-			val = pl_func((pl_bytecode){bytecode, flen, 0});
-			break;
-		default:
-			abort(); // death
-		}
-
-		pv_free(vals[i]); // "just in case"
-		vals[i] = val;
-	}
-
-	return pv_copy(vals[i]);
-}
-
-pl_exe processfile(file_data f) {
-	file_header h = *((file_header*)f.data);
-	unsigned int *globalis = (unsigned int *)(f.data + sizeof(file_header));
-	unsigned int *vars = globalis + h.glen;
-	pv *globals = malloc(h.glen * sizeof(pv));
-	pv *vals = malloc(h.vlen * sizeof(pv));
-	for (unsigned int i = 0; i < h.vlen; i++) {
-		vals[i] = pv_invalid();
-	}
-	for (unsigned int i = 0; i < h.glen; i++) {
-		printf("getting global %i\n", i);
-		globals[i] = getvar(globalis[i], f.data, vars, vals);
-	}
-	printf("getting main\n");
-	pv main = getvar(h.maini, f.data, vars, vals);
-	for (unsigned int i = 0; i < h.vlen; i++) {
-		pv_free(vals[i]);
-	}
-	free(vals);
-	return (pl_exe){main, h.glen, globals};
-}
-
 int main(int argc, char **argv) {
 	if (argc < 2) {
 		return 1;
@@ -113,7 +45,7 @@ int main(int argc, char **argv) {
 
 	file_data f = readfile(argv[1]);
 
-	pl_exe e = processfile(f);
+	plc_exe e = pl_exe_parse(f.data);
 
 	pv main = e.main;
 

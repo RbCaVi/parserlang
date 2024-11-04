@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct pl_exe {
+struct plcp_exe {
 	unsigned int maini;
 	unsigned int glen;
 	int globalsallocsize;
@@ -22,9 +22,9 @@ struct pl_exe {
 	char *valdata;
 };
 
-pl_exe *pl_exe_new() {
-	pl_exe *out = malloc(sizeof(pl_exe));
-	*out = (pl_exe){
+static plcp_exe *plcp_exe_new() {
+	plcp_exe *out = malloc(sizeof(plcp_exe));
+	*out = (plcp_exe){
 		0,
 		0,
 		8,
@@ -75,7 +75,7 @@ typedef struct {
 	type *name = (type*)(data->valdata + data->valdatalen); \
 	data->valdatalen += (unsigned int)sizeof(type) + extrasize;
 
-static unsigned int addval(pl_exe *data, pv val) {
+static unsigned int addval(plcp_exe *data, pv val) {
 	pv_kind kind = pv_get_kind(val);
 	//printf("kind %i\n", kind);
 	if (kind == double_kind) {
@@ -118,7 +118,7 @@ static unsigned int addval(pl_exe *data, pv val) {
 	abort(); // death
 }
 
-unsigned int pl_exe_add_global(pl_exe *data, pv val) {
+static unsigned int plcp_exe_add_global(plcp_exe *data, pv val) {
 	unsigned int vi = addval(data, val);
 	realloc_if_needed((void*)(&(data->globals)), &data->globalsallocsize, sizeof(int) * (data->glen + 1));
 	unsigned int i = data->glen;
@@ -127,12 +127,12 @@ unsigned int pl_exe_add_global(pl_exe *data, pv val) {
 	return i;
 }
 
-void pl_exe_set_main(pl_exe *data, pv val) {
+static void plcp_exe_set_main(plcp_exe *data, pv val) {
 	unsigned int mi = addval(data, val);
 	data->maini = mi;
 }
 
-void pl_exe_dump_file(pl_exe *exe, char *file) {
+static void plcp_exe_dump_file(plcp_exe *exe, char *file) {
 	FILE *fptr = fopen(file, "wb");
 	if (!fptr) {
 		abort(); // death
@@ -151,9 +151,85 @@ void pl_exe_dump_file(pl_exe *exe, char *file) {
 	fclose(fptr);
 }
 
-void pl_exe_free(pl_exe *exe) {
+static void plcp_exe_free(plcp_exe *exe) {
 	free(exe->globals);
 	free(exe->vals);
 	free(exe->valdata);
 	free(exe);
+}
+
+static pv getvar(unsigned int i, char *data, unsigned int *vars, pv *vals) {
+	if (pv_get_kind(vals[i]) == 0) {
+		unsigned int pos = vars[i]; // offset into data
+
+		pv val;
+		unsigned int type =*((unsigned int *)(data + pos));
+		//printf("type %i at %i / %i\n", type, i, pos);
+		switch (type) {
+		case 0: // ntype = 0
+			val = pv_double(*((double *)(data + pos + sizeof(unsigned int))));
+			break;
+		case 1: // atype = 1
+			unsigned int alen = *((unsigned int *)(data + pos + sizeof(unsigned int)));
+			unsigned int *varis = (unsigned int *)(data + pos + sizeof(unsigned int) + sizeof(unsigned int));
+			pv a = pv_array();
+			for (unsigned int i = 0; i < alen; i++) {
+				a = pv_array_append(a, getvar(varis[i], data, vars, vals));
+			}
+			val = a;
+			break;
+		case 2: // ftype = 2
+			unsigned int flen = *((unsigned int *)(data + pos + sizeof(unsigned int)));
+			char *bytecode = data + pos + sizeof(unsigned int) + sizeof(unsigned int);
+			val = pl_func((pl_bytecode){bytecode, flen, 0});
+			break;
+		default:
+			abort(); // death
+		}
+
+		pv_free(vals[i]); // "just in case"
+		vals[i] = val;
+	}
+
+	return pv_copy(vals[i]);
+}
+
+typedef struct {
+	unsigned int maini;
+	unsigned int glen;
+	unsigned int vlen;
+} plcp_exe_header;
+
+plc_exe pl_exe_parse(char *data) {
+	plcp_exe_header h = *((plcp_exe_header*)data);
+	unsigned int *globalis = (unsigned int *)(data + sizeof(plcp_exe_header));
+	unsigned int *vars = globalis + h.glen;
+	pv *globals = malloc(h.glen * sizeof(pv));
+	pv *vals = malloc(h.vlen * sizeof(pv));
+	for (unsigned int i = 0; i < h.vlen; i++) {
+		vals[i] = pv_invalid();
+	}
+	for (unsigned int i = 0; i < h.glen; i++) {
+		//printf("getting global %i\n", i);
+		globals[i] = getvar(globalis[i], data, vars, vals);
+	}
+	//printf("getting main\n");
+	pv main = getvar(h.maini, data, vars, vals);
+	for (unsigned int i = 0; i < h.vlen; i++) {
+		pv_free(vals[i]);
+	}
+	free(vals);
+	return (plc_exe){main, h.glen, globals};
+}
+
+void plc_exe_dump(plc_exe exe, char *filename) {
+	plcp_exe *exedata = pl_exe_new();
+
+	for (int i = 0; i < exe.glen; i++) {
+		plcp_exe_add_global(exedata, exe.globals[i]);
+	}
+	plcp_exe_set_main(exedata, exe.main);
+
+	plcp_exe_dump_file(exedata, filename);
+	plcp_exe_free(exedata);
 }
