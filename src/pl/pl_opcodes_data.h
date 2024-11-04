@@ -79,6 +79,5 @@ OPCODE(ITERV, iterv, {}) // create a values iterator
 OPCODE(ITERE, itere, {}) // create a entries iterator
 OPCODE(ITERATE, iterate, {int target;}) // pop an iterator, step it, and push the stepped iterator and result or jump to target (bytes relative to the next instruction)
 
-OPCODE(RET, ret, {}) // return one value (in generator, same as YIELD + GRET)
-OPCODE(YIELD, yield, {}) // return one value
-OPCODE(GRET, gret, {}) // return from a generator (no return value)
+OPCODE(RET, ret, {}) // return one value (ends a normal function)
+OPCODE(GRET, gret, {}) // return from a generator or return pv_invalid

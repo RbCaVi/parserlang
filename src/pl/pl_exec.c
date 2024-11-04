@@ -275,11 +275,8 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 			opcase(RET) {
 				return pl_stack_top(state->stack);
 			}
-			opcase(YIELD) {
-				abort();
-			}
 			opcase(GRET) {
-				abort();
+				return pv_invalid();
 			}
 			opcase(SLICEA) {
 				abort();
