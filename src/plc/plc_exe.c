@@ -22,6 +22,8 @@ struct plcp_exe {
 	char *valdata;
 };
 
+typedef struct plcp_exe plcp_exe;
+
 static plcp_exe *plcp_exe_new() {
 	plcp_exe *out = malloc(sizeof(plcp_exe));
 	*out = (plcp_exe){
@@ -223,7 +225,7 @@ plc_exe pl_exe_parse(char *data) {
 }
 
 void plc_exe_dump(plc_exe exe, char *filename) {
-	plcp_exe *exedata = pl_exe_new();
+	plcp_exe *exedata = plcp_exe_new();
 
 	for (int i = 0; i < exe.glen; i++) {
 		plcp_exe_add_global(exedata, exe.globals[i]);

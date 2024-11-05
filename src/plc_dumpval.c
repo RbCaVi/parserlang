@@ -20,10 +20,9 @@ int main(int argc, char **argv) {
 	pl_bytecode bytecode = pl_bytecode_from_builder(b);
 	
 	pv f = pl_func(bytecode);
-	pv *globals = malloc(sizeof(pv));
-	globals[0] = PV_ARRAY(pv_double(15), pv_double(3));
+	pv val = PV_ARRAY(pv_double(15), pv_double(3));
 	
-	plc_exe exe = {f, 1, globals};
+	plc_exe exe = {f, 1, &val}; // treat a value as a one element array
 
 	plc_exe_dump(exe, argv[1]);
 
