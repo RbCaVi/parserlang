@@ -155,9 +155,9 @@ test-pl_run: ../main.plc
 test-plc_dumptree: ../fib.plp
 test-plc_dumpval: dump.plc
 
-test-valgrins-pl_run: ../main.plc
-test-valgrins-plc_dumptree: ../fib.plp
-test-valgrins-plc_dumpval: dump.plc
+test-valgrind-pl_run: ../main.plc
+test-valgrind-plc_dumptree: ../fib.plp
+test-valgrind-plc_dumpval: dump.plc
 
 .PHONY: dump.plc # hack i guess - test-plc_dumpval creates dump.plc
 
