@@ -36,8 +36,6 @@ test-valgrind-%: FORCE %
 
 # this is a "hack" so i don't have to manage a variable for dependencies of each exe
 .PHONY: -l\:pv.so -l\:pl.so
--l\$(:)pv.so: pv.so
--l\$(:)pl.so: pl.so
 
 exes = pv_main pl_main pl_run plc_dumptree plc_dumpval
 
@@ -115,7 +113,8 @@ pl_run.o: \
 	pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h \
 	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h \
 	pl/pl_func.h pl/pl_iter.h \
-	pv/pv.h pv/pv_install.h
+	pv/pv.h pv/pv_install.h \
+	plc/plc_exe.h
 
 plc/plc_parsetree.o: plc/plc_op_ids.h
 
@@ -127,11 +126,11 @@ plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h p
 
 pt_dump.o: pv/pv_to_string.h pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
 
-pv_main: | -l\:pv.so
+pv_main: -l\:pv.so | pv.so
 
-pl_main: | -l\:pv.so -l\:pl.so pt_dump.so
+pl_main: -l\:pv.so -l\:pl.so | pv.so pl.so pt_dump.so
 
-pl_run: | -l\:pv.so -l\:pl.so
+pl_run: plc/plc_exe.o -l\:pv.so -l\:pl.so | pv.so pl.so
 
 plc_dumptree: plc/plc_parsetree.o
 
@@ -146,10 +145,8 @@ pl.so: pl/pl_bytecode.o pl/pl_stack.o pl/pl_exec.o \
 	pl/pl_iter.o pl/pl_func.o \
 	pl/util_pl.o pl/pl_dump.o \
 	| -l\:pv.so
-	
 
-pt_dump.so: pt_dump.o \
-	| -l\:pl.so
+pt_dump.so: pt_dump.o -l\:pl.so | pl.so
 
 test-pl_run: ../main.plc
 test-plc_dumptree: ../fib.plp
