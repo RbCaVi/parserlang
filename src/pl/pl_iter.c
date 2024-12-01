@@ -20,15 +20,12 @@ typedef struct {
   	OBJECTV,
   	ARRAYKV,
   	OBJECTKV,
+  	GEN,
   } iter_type;
+  pv val;
   union {
-   struct {
-    pv val;
-    union {
-     uint32_t aiter;
-     int oiter;
-    };
-   };
+   uint32_t aiter;
+   int oiter;
    pl_state *pl;
 	};
 } plp_iter_data;
@@ -48,6 +45,9 @@ static void pv_iter_free(pv val) {
 	plp_iter_data *i = plp_iter_get_data(val);
 
 	pv_free(i->val);
+ if (i->iter_type == GEN) {
+  pl_state_free(i->pl);
+ }
 	free(i);
 }
 
@@ -68,11 +68,11 @@ static pv plp_setup_iter(pv val, enum pv_iter_type type) {
 	if (pv_get_kind(val) == array_kind) {
 		switch (type) {
 		case KEYS:
-			i->val_type = ARRAYK;
+			i->iter_type = ARRAYK;
 		case VALUES:
-			i->val_type = ARRAYV;
+			i->iter_type = ARRAYV;
 		case ENTRIES:
-			i->val_type = ARRAYKV;
+			i->iter_type = ARRAYKV;
 		default:
 			abort();
 		}
@@ -80,11 +80,11 @@ static pv plp_setup_iter(pv val, enum pv_iter_type type) {
 	} else {
 		switch (type) {
 		case KEYS:
-			i->val_type = OBJECTK;
+			i->iter_type = OBJECTK;
 		case VALUES:
-			i->val_type = OBJECTV;
+			i->iter_type = OBJECTV;
 		case ENTRIES:
-			i->val_type = OBJECTKV;
+			i->iter_type = OBJECTKV;
 		default:
 			abort();
 		}
@@ -117,6 +117,7 @@ pv pl_iter_gen(pl_state *pl) {
 	plp_iter_data *i = plp_iter_alloc();
 	i->type = GEN;
  i->pl = pl;
+ i->val = pv_invalid();
 	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
 }
 
@@ -124,7 +125,7 @@ pv pl_iter_value(pv val) {
 	assert(val.kind == iter_kind);
 	plp_iter_data *i = plp_iter_get_data(val);
 	pv out;
-	switch (i->val_type) {
+	switch (i->iter_type) {
 	case ARRAYK:
 	case ARRAYV:
 	case ARRAYKV:
@@ -132,7 +133,7 @@ pv pl_iter_value(pv val) {
 			out = pv_invalid();
 			break;
 		}
-		switch (i->val_type) {
+		switch (i->iter_type) {
 		case ARRAYK:
 			out = pv_int((int)i->aiter);
 			break;
@@ -154,7 +155,7 @@ pv pl_iter_value(pv val) {
 			out = pv_invalid();
 			break;
 		}
-		switch (i->val_type) {
+		switch (i->iter_type) {
 		case OBJECTK:
 			out = pv_object_iter_key(pv_copy(i->val), i->oiter);
 			break;
@@ -169,6 +170,16 @@ pv pl_iter_value(pv val) {
 			break;
 		}
 		break;
+ case GEN:
+  if (i->pl == NULL) {
+   out = pv_invalid();
+  } else {
+   if (i->val.kind == 0) {
+    i->val = pl_next(i->pl);
+   }
+   out = i->val;
+  }
+  break;
 	default:
 		out = pv_invalid();
 		break;
@@ -192,7 +203,7 @@ static plp_iter_data *plp_iter_realloc(plp_iter_data *iin) {
 pv pl_iter_next(pv val) {
 	assert(val.kind == iter_kind);
 	plp_iter_data *i = plp_iter_realloc(plp_iter_get_data(val));
-	switch (i->val_type) {
+	switch (i->iter_type) {
 	case ARRAYK:
 	case ARRAYV:
 	case ARRAYKV:
@@ -206,6 +217,9 @@ pv pl_iter_next(pv val) {
 		}
 		i->oiter = pv_object_iter_next(pv_copy(i->val), i->oiter);
 		break;
+ case GEN:
+  i->val = pv_invalid();
+  break;
 	}
 	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
 }
