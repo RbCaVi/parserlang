@@ -12,6 +12,8 @@ pv pl_iter_keys(pv);
 pv pl_iter_values(pv);
 pv pl_iter_entries(pv); // [key, value]...
 
+pv pl_iter_gen(pl_state*); // takes a pl_state with the function set up by pl_state_set_call()
+
 pv pl_iter_value(pv); // the current value of the iterator
 pv pl_iter_next(pv); // step the iterator
 

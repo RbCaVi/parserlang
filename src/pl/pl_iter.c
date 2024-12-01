@@ -21,10 +21,15 @@ typedef struct {
   	ARRAYKV,
   	OBJECTKV,
   } iter_type;
-  pv val;
   union {
-	  uint32_t aiter;
-	  int oiter;
+   struct {
+    pv val;
+    union {
+     uint32_t aiter;
+     int oiter;
+    };
+   };
+   pl_state *pl;
 	};
 } plp_iter_data;
 
@@ -106,6 +111,13 @@ pv pl_iter_values(pv val) {
 
 pv pl_iter_entries(pv val) {
 	return plp_setup_iter(val, ENTRIES);
+}
+
+pv pl_iter_gen(pl_state *pl) {
+	plp_iter_data *i = plp_iter_alloc();
+	i->type = GEN;
+ i->pl = pl;
+	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
 }
 
 pv pl_iter_value(pv val) {
