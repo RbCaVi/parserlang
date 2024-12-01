@@ -57,8 +57,7 @@ int main(int argc, char **argv) {
 
 		pv f = pl_func(bytecode);
 
-		pl_state *pl = malloc(sizeof(pl_state));
-		pl->stack = pl_stack_new();
+		pl_state *pl = pl_state_new();
 		pl->globals = malloc(1 * sizeof(pv));
 
 		/* approximately
@@ -193,8 +192,7 @@ int main(int argc, char **argv) {
 
 		pv f = pl_func(bytecode);
 
-		pl_state *pl = malloc(sizeof(pl_state));
-		pl->stack = pl_stack_new();
+		pl_state *pl = pl_state_new();
 		pl->globals = malloc(0 * sizeof(pv));
 
 		pv ret = pl_func_call(f, pl);
@@ -210,8 +208,7 @@ int main(int argc, char **argv) {
 	{
 		pv f = pl_func_native(dump_pv);
 
-		pl_state *pl = malloc(sizeof(pl_state));
-		pl->stack = pl_stack_new();
+		pl_state *pl = pl_state_new();
 
 		pl->stack = pl_stack_push(pl->stack, PV_ARRAY(pv_int(15)));
 
@@ -226,8 +223,7 @@ int main(int argc, char **argv) {
 	{
 		pv f = pl_func_from_symbol("./pt_dump.so", "pt_dump_pv");
 
-		pl_state *pl = malloc(sizeof(pl_state));
-		pl->stack = pl_stack_new();
+		pl_state *pl = pl_state_new();
 
 		pl->stack = pl_stack_push(pl->stack, PV_ARRAY(pv_int(15)));
 

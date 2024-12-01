@@ -54,8 +54,7 @@ int main(int argc, char **argv) {
 	pl_bytecode_dump(bytecode);
 	printf("\n");
 
-	pl_state *pl = malloc(sizeof(pl_state));
-	pl->stack = pl_stack_new();
+	pl_state *pl = pl_state_new();
 	pl->globals = e.globals;
 
 	pv ret = pl_func_call(main, pl);

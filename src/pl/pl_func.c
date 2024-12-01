@@ -64,7 +64,9 @@ pv pl_func_call(pv fun, pl_state *pl) {
 	pv out;
 	switch (f->type) {
 	case BYTECODE:
-		out = pl_call(pl, f->bytecode);
+  pl->stack = pl_stack_push(pl->stack, f);
+  pl_state_set_call(pl, 0, NULL); // assuming f is already on the stack - ret is the return address
+  out = pl_next(pl);
 		break;
 	case NATIVE:
 		out = f->func(pl);

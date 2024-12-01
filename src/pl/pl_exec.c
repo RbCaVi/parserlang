@@ -320,3 +320,7 @@ pv pl_next(pl_state *state) {
 		}
 	}
 }
+
+pl_state *pl_state_new() {
+ 
+}
