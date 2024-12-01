@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 struct pl_retinfo {
+ const char *ret;
   int locals; // -1 means no return
 };
 
@@ -159,7 +160,7 @@ pl_stack pl_stack_pop_frame(pl_stack stack){
   return stack;
 }
 
-pl_stack pl_stack_split_frame(pl_stack stack, int idx) {
+pl_stack pl_stack_split_frame(pl_stack stack, int idx, const char *ret) {
   // split makes a new stack always
   stack = move_stack(stack);
 
@@ -169,6 +170,7 @@ pl_stack pl_stack_split_frame(pl_stack stack, int idx) {
   pv_free(stack_cell(stack,i).value); // delete the previous value
   stack_cell(stack,i).type = RET;
   stack_cell(stack,i).ret.locals = (int)stack.locals;
+  stack_cell(stack,i).ret.ret = ret;
 
   stack.locals = i;
 
