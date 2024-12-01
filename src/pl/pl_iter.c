@@ -13,21 +13,26 @@ pv_kind iter_kind;
 
 typedef struct {
   pv_refcnt refcnt;
-  enum pv_iter_val_type {
-  	ARRAY,
-  	OBJECT,
-  } val_type;
-  enum pv_iter_type {
-  	KEYS,
-  	VALUES,
-  	ENTRIES,
-  } type;
+  enum pv_iter_out_type {
+  	ARRAYK,
+  	OBJECTK,
+  	ARRAYV,
+  	OBJECTV,
+  	ARRAYKV,
+  	OBJECTKV,
+  } iter_type;
   pv val;
   union {
 	  uint32_t aiter;
 	  int oiter;
 	};
 } plp_iter_data;
+
+typedef enum {
+  	KEYS,
+  	VALUES,
+  	ENTRIES,
+} pv_iter_type;
 
 static plp_iter_data *plp_iter_get_data(pv val) {
 	plp_iter_data *i = (plp_iter_data*)val.data;
@@ -56,10 +61,28 @@ static pv plp_setup_iter(pv val, enum pv_iter_type type) {
 	i->val = val;
 	i->type = type;
 	if (pv_get_kind(val) == array_kind) {
-		i->val_type = ARRAY;
+		switch (type) {
+		case KEYS:
+			i->val_type = ARRAYK;
+		case VALUES:
+			i->val_type = ARRAYV;
+		case ENTRIES:
+			i->val_type = ARRAYKV;
+		default:
+			abort();
+		}
 		i->aiter = 0;
 	} else {
-		i->val_type = OBJECT;
+		switch (type) {
+		case KEYS:
+			i->val_type = OBJECTK;
+		case VALUES:
+			i->val_type = OBJECTV;
+		case ENTRIES:
+			i->val_type = OBJECTKV;
+		default:
+			abort();
+		}
 		i->oiter = pv_object_iter(pv_copy(val));
 	}
 	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
@@ -90,19 +113,21 @@ pv pl_iter_value(pv val) {
 	plp_iter_data *i = plp_iter_get_data(val);
 	pv out;
 	switch (i->val_type) {
-	case ARRAY:
+	case ARRAYK:
+	case ARRAYV:
+	case ARRAYKV:
 		if (i->aiter >= pv_array_length(pv_copy(i->val))) {
 			out = pv_invalid();
 			break;
 		}
-		switch (i->type) {
-		case KEYS:
+		switch (i->val_type) {
+		case ARRAYK:
 			out = pv_int((int)i->aiter);
 			break;
-		case VALUES:
+		case ARRAYV:
 			out = pv_array_get(pv_copy(i->val), (int)i->aiter);
 			break;
-		case ENTRIES:
+		case ARRAYKV:
 			out = PV_ARRAY(pv_int((int)i->aiter), pv_array_get(pv_copy(i->val), (int)i->aiter));
 			break;
 		default:
@@ -110,19 +135,21 @@ pv pl_iter_value(pv val) {
 			break;
 		}
 		break;
-	case OBJECT:
+	case OBJECTK:
+	case OBJECTV:
+	case OBJECTKV:
 		if (!pv_object_iter_valid(pv_copy(i->val), i->oiter)) {
 			out = pv_invalid();
 			break;
 		}
-		switch (i->type) {
-		case KEYS:
+		switch (i->val_type) {
+		case OBJECTK:
 			out = pv_object_iter_key(pv_copy(i->val), i->oiter);
 			break;
-		case VALUES:
+		case OBJECTV:
 			out = pv_object_iter_value(pv_copy(i->val), i->oiter);
 			break;
-		case ENTRIES:
+		case OBJECTKV:
 			out = PV_ARRAY(pv_object_iter_key(pv_copy(i->val), i->oiter), pv_object_iter_value(pv_copy(i->val), i->oiter));
 			break;
 		default:
@@ -154,10 +181,14 @@ pv pl_iter_next(pv val) {
 	assert(val.kind == iter_kind);
 	plp_iter_data *i = plp_iter_realloc(plp_iter_get_data(val));
 	switch (i->val_type) {
-	case ARRAY:
+	case ARRAYK:
+	case ARRAYV:
+	case ARRAYKV:
 		i->aiter++;
 		break;
-	case OBJECT:
+	case OBJECTK:
+	case OBJECTV:
+	case OBJECTKV:
 		if (!pv_object_iter_valid(pv_copy(i->val), i->oiter)) {
 			break;
 		}
