@@ -147,6 +147,17 @@ pl_stack pl_stack_push_frame(pl_stack stack) {
   return stack;
 }
 
+const char *pl_stack_retaddr(pl_stack stack){
+  uint32_t idx = stack.top - 1;
+  while (stack_cell(stack,idx).type != RET) {
+    idx--;
+  }
+  // the top of the stack should be a retinfo
+  assert(stack_cell(stack,idx).type == RET);
+
+  return stack_cell(stack,idx).ret;
+}
+
 pl_stack pl_stack_pop_frame(pl_stack stack){
   uint32_t idx = stack.top - 1;
   while (stack_cell(stack,idx).type != RET) {
@@ -156,6 +167,7 @@ pl_stack pl_stack_pop_frame(pl_stack stack){
   // the top of the stack should be a retinfo
   assert(stack_cell(stack,idx).type == RET);
   stack.top = idx;
+  stack.locals = stack_cell(stack,idx).locals;
 
   return stack;
 }

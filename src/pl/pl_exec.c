@@ -28,8 +28,17 @@ case(op):; \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
 
-pv pl_call(pl_state *state, pl_bytecode f) {
-	const char *bytecode = f.bytecode;
+void pl_state_set_call(pl_state *state, int argc, const char *ret) {
+ pv f = pl_stack_get(state->stack, -(argc + 1));
+ state->code = pl_func_get_bytecode(f);
+ state->stack = pl_stack_split_frame(state->stack, -(argc + 1));
+}
+pv pl_next(pl_state *state);
+pl_state *pl_state_copy(pl_state *state);
+pl_state *pl_state_free(pl_state *state);
+
+pv pl_next(pl_state *state) {
+	const char *bytecode = stack->code;
 	while (1) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP) {
@@ -197,10 +206,13 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				break;
 			}
 			opcase(CALL) {
-				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
-				state->stack = pl_stack_split_frame(state->stack, -(CALL_data.n + 1));
-				pv ret = pl_func_call(f, state);
-				state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
+    if (!pl_func_is_native(pl_stack_get(state->stack, -(CALL_data.n + 1)))) {
+     pl_state_set_call(state, CALL_data.n, bytecode);
+     bytecode = state->code;
+    } else {
+     pv ret = pl_func_call(f, state);
+     state->stack = pl_stack_push(pl_stack_popn(state->stack, CALL_data.n + 1), ret);
+    }
 				break;
 			}
 #define UOP(upper_name, lower_name, expr) \
@@ -273,7 +285,14 @@ pv pl_call(pl_state *state, pl_bytecode f) {
 				break;
 			}
 			opcase(RET) {
-				return pl_stack_top(state->stack);
+    if (pl_stack_retaddr(state->stack) == NULL) {
+     pl->code = bytecode;
+ 				return pl_stack_top(state->stack);
+    } else {
+     pv val = pl_stack_top(state->stack);
+     state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);
+     bytecode = pl_stack_retaddr(state->stack);
+    }
 			}
 			opcase(GRET) {
 				return pv_invalid();
