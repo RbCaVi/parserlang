@@ -29,15 +29,17 @@ case(op):; \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
 
-void pl_state_set_call(pl_state *state, int argc, const char *ret) {
+void pl_state_set_call(pl_state *state, int argc) {
 	pv f = pl_stack_get(state->stack, -(argc + 1));
-	state->code = pl_func_get_bytecode(f).bytecode;
 	state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code);
+	state->code = pl_func_get_bytecode(f).bytecode;
 }
 
 pv pl_next(pl_state *state) {
 	const char *bytecode = state->code;
 	while (1) {
+		printf("sus. %i\n", plp_get_opcode(bytecode));
+		pl_dump_stack(state->stack);
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP) {
 				state->stack = pl_stack_push(state->stack, pl_stack_top(state->stack));
@@ -204,9 +206,10 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(CALL) {
-				printf("in\n");
 				if (!pl_func_is_native(pl_stack_get(state->stack, -(CALL_data.n + 1)))) {
-					pl_state_set_call(state, CALL_data.n, bytecode);
+					state->code = bytecode;
+					pl_state_set_call(state, CALL_data.n);
+					printf("in %x\n", state->code);
 					bytecode = state->code;
 				} else {
 					pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
@@ -285,15 +288,16 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(RET) {
-				printf("out\n");
+				printf("out %x\n", pl_stack_retaddr(state->stack));
 				if (pl_stack_retaddr(state->stack) == NULL) {
 					state->code = bytecode;
 					return pl_stack_top(state->stack);
 				} else {
 					pv val = pl_stack_top(state->stack);
-					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);
 					bytecode = pl_stack_retaddr(state->stack);
+					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);
 				}
+				break;
 			}
 			opcase(GRET) {
 				return pv_invalid();
@@ -317,6 +321,7 @@ pv pl_next(pl_state *state) {
 				abort();
 			}
 			default:
+				printf("what? %i\n", plp_get_opcode(bytecode));
 				abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
 	}

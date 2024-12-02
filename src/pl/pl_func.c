@@ -64,9 +64,12 @@ pv pl_func_call(pv fun, pl_state *pl) {
 	pv out;
 	switch (f->type) {
 	case BYTECODE:
-		pl->stack = pl_stack_push(pl->stack, fun);
-		pl_state_set_call(pl, 0, NULL); // assuming f is already on the stack - ret is the return address
+		pl->stack = pl_stack_push(pl->stack, pv_copy(fun));
+		const char *saved_return = pl->code;
+		pl->code = NULL;
+		pl_state_set_call(pl, 0); // assuming f is already on the stack - ret is the return address
 		out = pl_next(pl);
+		pl->code = saved_return;
 		break;
 	case NATIVE:
 		out = f->func(pl);
@@ -121,6 +124,7 @@ pv pl_func_native(pl_func_type func) {
 int pl_func_is_native(pv fun) {
 	assert(fun.kind == func_kind);
 	pl_func_data *f = plp_func_get_data(fun);
+	pv_free(fun);
 	return f->type == NATIVE;
 }
 

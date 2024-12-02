@@ -12,7 +12,7 @@ typedef struct pl_state {
 	pl_stack stack;
 } pl_state;
 
-void pl_state_set_call(pl_state *state, int argc, const char *ret); // assuming f is already on the stack - ret is the return address
+void pl_state_set_call(pl_state *state, int argc); // assuming f is already on the stack - ret is the return address
 pv pl_next(pl_state *state);
 pl_state *pl_state_new();
 pl_state *pl_state_dup(pl_state *state);
