@@ -10,20 +10,20 @@
 pv_kind func_kind;
 
 typedef struct {
-  pv_refcnt refcnt;
-  enum {
-  	BYTECODE,
-  	NATIVE,
-  } type;
-  union {
-  	pl_bytecode bytecode;
-  	struct {
-  		void *library;
-  		char *file;
-  		char *name;
-  		pl_func_type func;
-  	};
-  };
+		pv_refcnt refcnt;
+		enum {
+			BYTECODE,
+			NATIVE,
+		} type;
+		union {
+			pl_bytecode bytecode;
+			struct {
+				void *library;
+				char *file;
+				char *name;
+				pl_func_type func;
+			};
+		};
 } pl_func_data;
 
 static pl_func_data *plp_func_get_data(pv val) {
@@ -64,9 +64,9 @@ pv pl_func_call(pv fun, pl_state *pl) {
 	pv out;
 	switch (f->type) {
 	case BYTECODE:
-  pl->stack = pl_stack_push(pl->stack, f);
-  pl_state_set_call(pl, 0, NULL); // assuming f is already on the stack - ret is the return address
-  out = pl_next(pl);
+		pl->stack = pl_stack_push(pl->stack, fun);
+		pl_state_set_call(pl, 0, NULL); // assuming f is already on the stack - ret is the return address
+		out = pl_next(pl);
 		break;
 	case NATIVE:
 		out = f->func(pl);

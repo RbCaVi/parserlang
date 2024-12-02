@@ -19,7 +19,7 @@ typedef struct {
 typedef struct {
 	struct {
 		uint32_t size;
-	  pl_dump_prefix_part parts[];
+		pl_dump_prefix_part parts[];
 	} *data;
 	uint32_t count;
 } pl_dump_prefix;

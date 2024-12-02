@@ -4,10 +4,10 @@
 #include "pl_stack.h"
 #include "pl_bytecode.h"
 
-typedef struct {
- const char *code;
- pl_state *save; // the last save point - may be NULL - linked list
- pl_state *parent; // the state that called this generator - may be NULL for top level
+typedef struct pl_state {
+  const char *code;
+  struct pl_state *save; // the last save point - may be NULL - linked list
+  struct pl_state *parent; // the state that called this generator - may be NULL for top level
 	pv *globals;
 	pl_stack stack;
 } pl_state;

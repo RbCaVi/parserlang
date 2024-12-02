@@ -75,11 +75,14 @@ pv/pv_object.o: pv/pv_object.h \
 	pv/pv.h pv/pv_private.h
 pl/pl_func.o: pl/pl_func.h \
 	pl/pl_exec.h pl/pl_stack.h pl/pl_dump.h \
-	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h \
+	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h \
 	pv/pv.h pv/pv_private.h
 pl/pl_iter.o: pl/pl_iter.h \
 	pv/pv_number.h pv/pv_array.h pv/pv_object.h \
-	pv/pv.h pv/pv_private.h
+	pv/pv.h pv/pv_private.h \
+	pl/pl_exec.h \
+	pl/pl_stack.h pl/pl_dump.h \
+	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h
 
 # actual "vm" code
 #pl/pl_ffi.o: pl/util_pl.h pv/pv.h
@@ -91,11 +94,11 @@ pl/pl_dump.o: pl/pl_dump.h \
 	pl/util_pl.h pv/pv.h
 pl/pl_exec.o: pl/pl_exec.h \
 	pl/pl_stack.h pl/pl_dump.h \
-	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h \
+	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h \
 	pv/pv_singletons.h pv/pv_number.h pv/pv_array.h pv/pv_object.h pl/pl_func.h pl/pl_iter.h \
 	pv/pv.h
 pl/pl_bytecode.o: pl/pl_bytecode.h \
-	pl/pl_opcodes.h  pl/pl_opcodes_data.h
+	pl/pl_opcodes.h  pl/pl_opcodes_data.h pv/pv_number_ops_data.h
 
 # the executables
 pv_main.o: \
@@ -107,24 +110,24 @@ pl_main.o: \
 	pv/pv_to_string.h \
 	pv/pv.h pv/pv_install.h \
 	pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h \
-	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
+	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h
 pl_run.o: \
 	pv/pv_number.h pv/pv_array.h \
 	pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h \
-	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h \
+	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h \
 	pl/pl_func.h pl/pl_iter.h \
 	pv/pv.h pv/pv_install.h \
 	plc/plc_exe.h
 
 plc/plc_parsetree.o: plc/plc_op_ids.h
 
-plc/plc_exe.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
+plc/plc_exe.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
 
 plc_dumptree.o: plc/plc_parsetree.h
 
-plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
+plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
 
-pt_dump.o: pv/pv_to_string.h pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h
+pt_dump.o: pv/pv_to_string.h pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h
 
 pv_main: | -l\:pv.so pv.so
 

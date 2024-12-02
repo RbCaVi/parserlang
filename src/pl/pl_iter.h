@@ -3,6 +3,8 @@
 
 #include "pv.h"
 
+#include "pl_exec.h"
+
 extern pv_kind iter_kind;
 
 void pl_iter_install();

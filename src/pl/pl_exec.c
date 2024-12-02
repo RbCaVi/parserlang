@@ -10,6 +10,7 @@
 #include "pl_iter.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 static pl_opcode plp_get_opcode(const char *bytecode) { \
 	return ((pl_opcode*)bytecode)[0]; \
@@ -29,16 +30,13 @@ case(op):; \
 	(void)op ## _data;
 
 void pl_state_set_call(pl_state *state, int argc, const char *ret) {
- pv f = pl_stack_get(state->stack, -(argc + 1));
- state->code = pl_func_get_bytecode(f);
- state->stack = pl_stack_split_frame(state->stack, -(argc + 1));
+	pv f = pl_stack_get(state->stack, -(argc + 1));
+	state->code = pl_func_get_bytecode(f).bytecode;
+	state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code);
 }
-pv pl_next(pl_state *state);
-pl_state *pl_state_copy(pl_state *state);
-pl_state *pl_state_free(pl_state *state);
 
 pv pl_next(pl_state *state) {
-	const char *bytecode = stack->code;
+	const char *bytecode = state->code;
 	while (1) {
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP) {
@@ -206,13 +204,15 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(CALL) {
-    if (!pl_func_is_native(pl_stack_get(state->stack, -(CALL_data.n + 1)))) {
-     pl_state_set_call(state, CALL_data.n, bytecode);
-     bytecode = state->code;
-    } else {
-     pv ret = pl_func_call(f, state);
-     state->stack = pl_stack_push(pl_stack_popn(state->stack, CALL_data.n + 1), ret);
-    }
+				printf("in\n");
+				if (!pl_func_is_native(pl_stack_get(state->stack, -(CALL_data.n + 1)))) {
+					pl_state_set_call(state, CALL_data.n, bytecode);
+					bytecode = state->code;
+				} else {
+					pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
+					pv ret = pl_func_call(f, state);
+					state->stack = pl_stack_push(pl_stack_popn(state->stack, CALL_data.n + 1), ret);
+				}
 				break;
 			}
 #define UOP(upper_name, lower_name, expr) \
@@ -285,14 +285,15 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(RET) {
-    if (pl_stack_retaddr(state->stack) == NULL) {
-     pl->code = bytecode;
- 				return pl_stack_top(state->stack);
-    } else {
-     pv val = pl_stack_top(state->stack);
-     state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);
-     bytecode = pl_stack_retaddr(state->stack);
-    }
+				printf("out\n");
+				if (pl_stack_retaddr(state->stack) == NULL) {
+					state->code = bytecode;
+					return pl_stack_top(state->stack);
+				} else {
+					pv val = pl_stack_top(state->stack);
+					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);
+					bytecode = pl_stack_retaddr(state->stack);
+				}
 			}
 			opcase(GRET) {
 				return pv_invalid();
@@ -322,6 +323,11 @@ pv pl_next(pl_state *state) {
 }
 
 pl_state *pl_state_new() {
- pl_state *state = malloc(sizeof(pl_state));
- *state = (pl_state){NULL, NULL, NULL, NULL, pl_stack_new()};
+	pl_state *state = malloc(sizeof(pl_state));
+	*state = (pl_state){NULL, NULL, NULL, NULL, pl_stack_new()};
+	return state;
+}
+
+void pl_state_free(pl_state *state) {
+	pl_stack_unref(state->stack);
 }

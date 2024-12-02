@@ -12,28 +12,28 @@
 pv_kind iter_kind;
 
 typedef struct {
-  pv_refcnt refcnt;
-  enum pv_iter_out_type {
-  	ARRAYK,
-  	OBJECTK,
-  	ARRAYV,
-  	OBJECTV,
-  	ARRAYKV,
-  	OBJECTKV,
-  	GEN,
-  } iter_type;
-  pv val;
-  union {
-   uint32_t aiter;
-   int oiter;
-   pl_state *pl;
+	pv_refcnt refcnt;
+	enum pv_iter_out_type {
+		ARRAYK,
+		OBJECTK,
+		ARRAYV,
+		OBJECTV,
+		ARRAYKV,
+		OBJECTKV,
+		GEN,
+	} iter_type;
+	pv val;
+	union {
+		uint32_t aiter;
+		int oiter;
+		pl_state *pl;
 	};
 } plp_iter_data;
 
 typedef enum {
-  	KEYS,
-  	VALUES,
-  	ENTRIES,
+	KEYS,
+	VALUES,
+	ENTRIES,
 } pv_iter_type;
 
 static plp_iter_data *plp_iter_get_data(pv val) {
@@ -45,9 +45,9 @@ static void pv_iter_free(pv val) {
 	plp_iter_data *i = plp_iter_get_data(val);
 
 	pv_free(i->val);
- if (i->iter_type == GEN) {
-  pl_state_free(i->pl);
- }
+	if (i->iter_type == GEN) {
+		pl_state_free(i->pl);
+	}
 	free(i);
 }
 
@@ -61,18 +61,20 @@ static plp_iter_data *plp_iter_alloc() {
 	return i;
 }
 
-static pv plp_setup_iter(pv val, enum pv_iter_type type) {
+static pv plp_setup_iter(pv val, pv_iter_type type) {
 	plp_iter_data *i = plp_iter_alloc();
 	i->val = val;
-	i->type = type;
 	if (pv_get_kind(val) == array_kind) {
 		switch (type) {
 		case KEYS:
 			i->iter_type = ARRAYK;
+			break;
 		case VALUES:
 			i->iter_type = ARRAYV;
+			break;
 		case ENTRIES:
 			i->iter_type = ARRAYKV;
+			break;
 		default:
 			abort();
 		}
@@ -81,10 +83,13 @@ static pv plp_setup_iter(pv val, enum pv_iter_type type) {
 		switch (type) {
 		case KEYS:
 			i->iter_type = OBJECTK;
+			break;
 		case VALUES:
 			i->iter_type = OBJECTV;
+			break;
 		case ENTRIES:
 			i->iter_type = OBJECTKV;
+			break;
 		default:
 			abort();
 		}
@@ -115,9 +120,9 @@ pv pl_iter_entries(pv val) {
 
 pv pl_iter_gen(pl_state *pl) {
 	plp_iter_data *i = plp_iter_alloc();
-	i->type = GEN;
- i->pl = pl;
- i->val = pv_invalid();
+	i->iter_type = GEN;
+	i->pl = pl;
+	i->val = pv_invalid();
 	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
 }
 
@@ -170,16 +175,16 @@ pv pl_iter_value(pv val) {
 			break;
 		}
 		break;
- case GEN:
-  if (i->pl == NULL) {
-   out = pv_invalid();
-  } else {
-   if (i->val.kind == 0) {
-    i->val = pl_next(i->pl);
-   }
-   out = i->val;
-  }
-  break;
+	case GEN:
+		if (i->pl == NULL) {
+			out = pv_invalid();
+		} else {
+			if (i->val.kind == 0) {
+				i->val = pl_next(i->pl);
+			}
+			out = i->val;
+		}
+		break;
 	default:
 		out = pv_invalid();
 		break;
@@ -217,9 +222,9 @@ pv pl_iter_next(pv val) {
 		}
 		i->oiter = pv_object_iter_next(pv_copy(i->val), i->oiter);
 		break;
- case GEN:
-  i->val = pv_invalid();
-  break;
+	case GEN:
+		i->val = pv_invalid();
+		break;
 	}
 	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
 }
