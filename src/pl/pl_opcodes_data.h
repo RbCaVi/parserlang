@@ -22,6 +22,11 @@ CALLCONST addr
 CALLCONSTN addr n
 */
 
+#ifndef JOPCODE
+#define JOPCODE OPCODE
+#define _NO_JOPCODE
+#endif
+
 // each definition is OPCODE(opcode name, data members (as struct))
 
 OPCODE(DUP, dup, {}) // duplicate top of stack (= DUPN -n)
@@ -70,14 +75,18 @@ OPCODE(upper_name, lower_name, {})
 #undef UOP
 #undef BOP
 
-OPCODE(JUMP, jump, {int target;}) // unconditional jump - target is bytes relative to the next instruction
-OPCODE(JUMPIF, jumpif, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
+JOPCODE(JUMP, jump, {int target;}) // unconditional jump - target is bytes relative to the next instruction
+JOPCODE(JUMPIF, jumpif, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
 
 OPCODE(ITER, iter, {}) // create an iterator (values for array, keys for object)
 OPCODE(ITERK, iterk, {}) // create a keys iterator
 OPCODE(ITERV, iterv, {}) // create a values iterator
 OPCODE(ITERE, itere, {}) // create a entries iterator
-OPCODE(ITERATE, iterate, {int target;}) // pop an iterator, step it, and push the stepped iterator and result or jump to target (bytes relative to the next instruction)
+JOPCODE(ITERATE, iterate, {int target;}) // pop an iterator, step it, and push the stepped iterator and result or jump to target (bytes relative to the next instruction)
 
 OPCODE(RET, ret, {}) // return one value (ends a normal function)
 OPCODE(GRET, gret, {}) // return from a generator or return pv_invalid
+
+#ifdef _NO_JOPCODE
+#undef JOPCODE
+#endif
