@@ -45,7 +45,7 @@ static void pv_iter_free(pv val) {
 	plp_iter_data *i = plp_iter_get_data(val);
 
 	pv_free(i->val);
-	if (i->iter_type == GEN) {
+	if (i->iter_type == GEN && i->pl != NULL) {
 		pl_state_free(i->pl);
 	}
 	free(i);
@@ -181,6 +181,9 @@ pv pl_iter_value(pv val) {
 		} else {
 			if (i->val.kind == 0) {
 				i->val = pl_next(i->pl);
+			}
+			if (i->val.kind == 0) {
+				i->pl = NULL;
 			}
 			out = i->val;
 		}
