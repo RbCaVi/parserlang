@@ -67,7 +67,7 @@ pv pl_func_call(pv fun, pl_state *pl) {
 		pl->stack = pl_stack_push(pl->stack, pv_copy(fun));
 		const char *saved_return = pl->code;
 		pl->code = NULL;
-		pl_state_set_call(pl, 0); // assuming f is already on the stack - ret is the return address
+		pl_state_set_call(pl, 0);
 		out = pl_next(pl);
 		pl->code = saved_return;
 		break;

@@ -235,6 +235,38 @@ int main(int argc, char **argv) {
 
 		free(pl);
 	}
+	{
+		pl_bytecode_builder *b = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {8});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {15});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+		printf("bytecode1\n");
+		pl_bytecode_dump(bytecode);
+
+		pv f = pl_func(bytecode);
+
+		pl_state *pl = pl_state_new();
+		pl->globals = malloc(0 * sizeof(pv));
+
+		pl->stack = pl_stack_push(pl->stack, f);
+		pl_state_set_call(pl, 0);
+
+		pv ret1 = pl_next(pl);
+		pl_dump_pv(ret1);
+
+		pv ret2 = pl_next(pl);
+		pl_dump_pv(ret2);
+
+		pl_dump_stack(pl->stack);
+		pl_stack_unref(pl->stack);
+
+		free(pl->globals);
+
+		free(pl);
+	}
 
 	return 0;
 }

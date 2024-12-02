@@ -286,7 +286,9 @@ pv pl_next(pl_state *state) {
 			opcase(RET) {
 				if (pl_stack_retaddr(state->stack) == NULL) {
 					state->code = bytecode;
-					return pl_stack_top(state->stack);
+					pv ret = pl_stack_top(state->stack);
+					state->stack = pl_stack_pop(state->stack);
+					return ret;
 				} else {
 					pv val = pl_stack_top(state->stack);
 					bytecode = pl_stack_retaddr(state->stack);
