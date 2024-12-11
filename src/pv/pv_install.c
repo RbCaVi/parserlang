@@ -4,6 +4,7 @@
 #include "pv_string.h"
 #include "pv_array.h"
 #include "pv_object.h"
+#include "pv_userdata.h"
 
 void pv_install() {
 	pv_singletons_install();
@@ -11,4 +12,5 @@ void pv_install() {
 	pv_string_install();
 	pv_array_install();
 	pv_object_install();
+	pv_userdata_install();
 }
