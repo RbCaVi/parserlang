@@ -1,32 +1,40 @@
 #include "plc_codegen.h"
 
+#include "pv.h"
+#include "pv_array.h"
+#include "pv_object.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
-struct pl_codegen_context {
-	pl_bytecode_builder *code;
+struct plc_codegen_context {
 	// i'm using pv here because i'm too lazy to manage c types now
 	pv vars; // object[str:stack pos] // i can either implement this with a chained object or just "copy" the parent's map
 	// these have to be passed upward through scopes until resolved
 	// the code offset actually has to be bytecode + offset because of unresolved variables in inner functions
 	pv unresolved; // object[var:array[code offset]]
-	// not used yet - i don't have any loops yet
 	// unresolved breaks and continues
+	// not used yet - i don't have any loops yet
 	pv breaks; // array[code offset]
 	pv continues; // array[code offset]
 };
 
-pl_codegen_context *pl_codegen_context_new() {
-	pl_codegen_context *out = malloc(sizeof(pl_codegen_context));
-	*out = (pl_codegen_context){pl_bytecode_builder_new(), pv_object(), pv_object(), pv_array(), pv_array()};
+plc_codegen_context *plc_codegen_context_new() {
+	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
+	*out = (plc_codegen_context){pv_object(), pv_object(), pv_array(), pv_array()};
 	return out;
 }
 
-void pl_codegen_stmt(pl_codegen_context *c, stmt *s) {
+pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
+	pl_bytecode_builder *code = pl_bytecode_new_builder();
 	switch (s->type) {
 		case BLOCK: {
-			printf("BLOCK isn't implemented yet :(\n");
-			abort();
+			plc_codegen_context *c2 = plc_codegen_context_new();
+			for (int i = 0; i < s->block.len; i++) {
+				pl_bytecode_builder *added = plc_codegen_stmt(c2, &(s->block.children[i]));
+				pl_bytecode_builder_add_builder(code, added);
+				pl_bytecode_builder_free(added);
+			}
 			break;
 		}
 		case DEFFUNC: {
@@ -45,16 +53,20 @@ void pl_codegen_stmt(pl_codegen_context *c, stmt *s) {
 			break;
 		}
 		case RETURN: {
-			printf("RETURN isn't implemented yet :(\n");
-			abort();
+			pl_bytecode_builder *added = plc_codegen_expr(c, s->ret.val);
+			pl_bytecode_builder_add_builder(code, added);
+			pl_bytecode_builder_free(added);
+			pl_bytecode_builder_add(code, RET, {});
 			break;
 		}
 		default:
 			abort();
 	}
+	return code;
 }
 
-void pl_codegen_expr(pl_codegen_context *c, expr *e) {
+pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
+	pl_bytecode_builder *code = pl_bytecode_new_builder();
 	switch (e->type) {
 		case EXPR: {
 			printf("EXPR isn't implemented yet :(\n");
@@ -62,7 +74,7 @@ void pl_codegen_expr(pl_codegen_context *c, expr *e) {
 			break;
 		}
 		case NUM: {
-			pl_bytecode_builder_add(c->code, PUSHINT, {e->n.value});
+			pl_bytecode_builder_add(code, PUSHINT, {e->n.value});
 			break;
 		}
 		case SYM: {
@@ -73,4 +85,5 @@ void pl_codegen_expr(pl_codegen_context *c, expr *e) {
 		default:
 			abort();
 	}
+	return code;
 }

@@ -132,6 +132,8 @@ plc_dumptree.o: plc/plc_parsetree.h
 
 plc_dumpval.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
 
+plc_compile.o:
+
 pt_dump.o: pv/pv_to_string.h pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h
 
 pv_main: | -l\:pv.so pv.so
@@ -143,6 +145,8 @@ pl_run: plc/plc_exe.o | -l\:pv.so pv.so -l\:pl.so pl.so
 plc_dumptree: plc/plc_parsetree.o
 
 plc_dumpval: plc/plc_exe.o | -l\:pv.so -l\:pl.so
+
+plc_compile: plc/plc_parsetree.o plc/plc_codegen.o | -l\:pv.so -l\:pl.so
 
 pv.so: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \

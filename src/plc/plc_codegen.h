@@ -1,13 +1,14 @@
 #ifndef PLC_CODEGEN_H
 #define PLC_CODEGEN_H
 
+#include "pl_bytecode.h"
 #include "plc_parsetree.h"
 
-typedef struct pl_codegen_context pl_codegen_context;
+typedef struct plc_codegen_context plc_codegen_context;
 
-pl_codegen_context *pl_codegen_context_new();
+plc_codegen_context *plc_codegen_context_new();
 
-void pl_codegen_stmt(pl_codegen_context *c, stmt *s);
-void pl_codegen_expr(pl_codegen_context *c, expr *e);
+pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s);
+pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e);
 
 #endif
