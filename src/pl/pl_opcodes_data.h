@@ -41,6 +41,7 @@ OPCODE(PUSHINT, pushint, {int n;}) // push an int with value n
 OPCODE(PUSHDOUBLE, pushdouble, {double n;}) // push a double with value n
 OPCODE(PUSHARRAY, pusharray, {}) // push an empty array
 OPCODE(PUSHOBJECT, pushobject, {}) // push an empty object
+
 OPCODE(PUSHGLOBAL, pushglobal, {int i;}) // push entry i in the global table
 
 OPCODE(MAKEARRAY, makearray, {unsigned int n;}) // create an array with the top n values

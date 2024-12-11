@@ -39,6 +39,10 @@ pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder *b, pl_ 
 #include "pl_opcodes_data.h"
 #undef OPCODE
 
+uint32_t pl_bytecode_builder_len(pl_bytecode_builder *b) {
+	return b->end;
+}
+
 pl_bytecode_builder *pl_bytecode_builder_add_builder(pl_bytecode_builder *b, pl_bytecode_builder *b2) {
 	uint32_t offset = b->end;
 	b = pl_bytecode_extend(b, b2->end);
