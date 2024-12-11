@@ -26,6 +26,8 @@ uint32_t pl_bytecode_builder_len(pl_bytecode_builder*);
 
 pl_bytecode_builder *pl_bytecode_builder_add_builder(pl_bytecode_builder*, pl_bytecode_builder*);
 
+void pl_bytecode_builder_free(pl_bytecode_builder*);
+
 pl_bytecode pl_bytecode_from_builder(pl_bytecode_builder*);
 
 void pl_bytecode_dump(pl_bytecode);

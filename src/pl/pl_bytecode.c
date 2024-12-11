@@ -52,6 +52,10 @@ pl_bytecode_builder *pl_bytecode_builder_add_builder(pl_bytecode_builder *b, pl_
 	return b;
 }
 
+void pl_bytecode_builder_free(pl_bytecode_builder *b) {
+	free(b);
+}
+
 // this is duplicated from pl_exec.c
 static pl_opcode plp_get_opcode(const char *bytecode) { \
 	return ((pl_opcode*)bytecode)[0]; \
