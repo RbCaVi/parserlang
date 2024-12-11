@@ -1,17 +1,13 @@
 #ifndef PLC_CODEGEN_H
 #define PLC_CODEGEN_H
 
-typedef struct code code;
+#include "plc_parsetree.h"
 
-#define OPCODE(op, op_lower, __data) \
-code *plc_code_inst_ ## op_lower(pl_ ## op ## _data data);
-#define JOPCODE(op, op_lower, data) /* you do NOT get to make unrestricted jumps */
-#include "pl_opcodes_data.h"
-#undef OPCODE
+typedef struct pl_codegen_context pl_codegen_context;
 
-code *plc_code_if(code *truecode);
-code *plc_code_if_else(code *truecode, code *falsecode);
+pl_codegen_context *pl_codegen_context_new();
 
-pl_bytecode pl_code_gen(code *c);
+void pl_codegen_stmt(pl_codegen_context *c, stmt *s);
+void pl_codegen_expr(pl_codegen_context *c, expr *e);
 
 #endif
