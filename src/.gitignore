@@ -5,3 +5,4 @@ pv_main
 pl_run
 plc_dumptree
 plc_dumpval
+plc_compile
