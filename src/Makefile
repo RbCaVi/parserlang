@@ -146,7 +146,7 @@ plc_dumpval: plc/plc_exe.o | -l\:pv.so -l\:pl.so
 
 pv.so: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
-	pv/pv_string.o pv/pv_array.o pv/pv_object.o \
+	pv/pv_string.o pv/pv_array.o pv/pv_object.o pv/pv_userdata.o \
 	pv/pv_to_string.o pv/pv_equal.o pv/pv_hash.o
 
 pl.so: pl/pl_bytecode.o pl/pl_stack.o pl/pl_exec.o \
