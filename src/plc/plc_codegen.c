@@ -8,9 +8,10 @@ struct pl_codegen_context {
 	// i'm using pv here because i'm too lazy to manage c types now
 	pv vars; // object[str:stack pos] // i can either implement this with a chained object or just "copy" the parent's map
 	// these have to be passed upward through scopes until resolved
-	pv unresolved; // object[str:array[stack pos]]
+	// the code offset actually has to be bytecode + offset because of unresolved variables in inner functions
+	pv unresolved; // object[var:array[code offset]]
 	// not used yet - i don't have any loops yet
-	// the code offset actually has to be bytecode + offset for unresolved variables in inner functions
+	// unresolved breaks and continues
 	pv breaks; // array[code offset]
 	pv continues; // array[code offset]
 };
@@ -61,8 +62,7 @@ void pl_codegen_expr(pl_codegen_context *c, expr *e) {
 			break;
 		}
 		case NUM: {
-			printf("NUM isn't implemented yet :(\n");
-			abort();
+			pl_bytecode_builder_add(c->code, PUSHINT, {e->n.value});
 			break;
 		}
 		case SYM: {

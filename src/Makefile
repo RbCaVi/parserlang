@@ -123,7 +123,7 @@ plc/plc_parsetree.o: plc/plc_op_ids.h
 
 plc/plc_exe.o: plc/plc_exe.h pv/pv.h pv/pv_number.h pv/pv_array.h pl/pl_func.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h pl/pl_dump.h pl/pl_stack.h pl/pl_exec.h
 
-plc/plc_codegen.o: plc/plc_codegen.h
+plc/plc_codegen.o: plc/plc_codegen.h plc/plc_parsetree.h
 
 plc_dumptree.o: plc/plc_parsetree.h
 
