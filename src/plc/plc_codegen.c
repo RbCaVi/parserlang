@@ -8,11 +8,11 @@
 #include <stdlib.h>
 
 struct plc_codegen_context {
+	plc_codegen_context *code;
 	// i'm using pv here because i'm too lazy to manage c types now
-	pv vars; // object[str:stack pos] // i can either implement this with a chained object or just "copy" the parent's map
+	pv *globals; // object[name:global index] // pointer so 
+	pv vars; // object[name:stack pos] // i can either implement this with a chained object or just copy the parent's vars
 	// these have to be passed upward through scopes until resolved
-	// the code offset actually has to be bytecode + offset because of unresolved variables in inner functions
-	pv unresolved; // object[var:array[code offset]]
 	// unresolved breaks and continues
 	// not used yet - i don't have any loops yet
 	pv breaks; // array[code offset]
@@ -21,7 +21,9 @@ struct plc_codegen_context {
 
 plc_codegen_context *plc_codegen_context_new() {
 	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
-	*out = (plc_codegen_context){pv_object(), pv_object(), pv_array(), pv_array()};
+	pv *globals = malloc(sizeof(pv));
+	*globals = pv_object();
+	*out = (plc_codegen_context){pl_bytecode_new_builder(), globals, pv_object(), pv_array(), pv_array()};
 	return out;
 }
 
