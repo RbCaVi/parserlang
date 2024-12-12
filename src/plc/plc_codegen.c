@@ -10,7 +10,8 @@
 struct plc_codegen_context {
 	plc_codegen_context *code;
 	// i'm using pv here because i'm too lazy to manage c types now
-	pv *globals; // object[name:global index] // pointer so 
+	int *nextglobal; // the next free global index (for inner functions)
+	pv globals; // object[name:global index]
 	pv vars; // object[name:stack pos] // i can either implement this with a chained object or just copy the parent's vars
 	// these have to be passed upward through scopes until resolved
 	// unresolved breaks and continues
@@ -27,15 +28,32 @@ plc_codegen_context *plc_codegen_context_new() {
 	return out;
 }
 
+plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
+	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
+	pv_copy(*c->globals); // refcount even though this is a pointer - i will free it in plc_codegen_context_free
+	*out = (plc_codegen_context){c->globals, pv_copy(c->vars), pv_array(), pv_array()};
+	return out;
+}
+
+static void plc_codegen_context_add(plc_codegen_context *c, plc_codegen_context *c2) {
+	pv offset = pv_int(pl_bytecode_builder_len(c->code));
+	pv_array_foreach(c2->breaks, i, b) {
+		c->breaks = pv_array_append(c->breaks, pv_number_add(offset, b));
+	}
+	pv_array_foreach(c2->continues, i, c) {
+		c->continues = pv_array_append(c->continues, pv_number_add(offset, c));
+	}
+	pl_bytecode_builder_add_builder(c->code, c2->code);
+	plc_codegen_context_free(c2);
+}
+
 pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
-	pl_bytecode_builder *code = pl_bytecode_new_builder();
 	switch (s->type) {
 		case BLOCK: {
 			plc_codegen_context *c2 = plc_codegen_context_new();
 			for (int i = 0; i < s->block.len; i++) {
-				pl_bytecode_builder *added = plc_codegen_stmt(c2, &(s->block.children[i]));
-				pl_bytecode_builder_add_builder(code, added);
-				pl_bytecode_builder_free(added);
+				plc_codegen_stmt(c2, &(s->block.children[i]));
+				plc_codegen_context_add(c, c2);
 			}
 			break;
 		}
@@ -55,10 +73,8 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case RETURN: {
-			pl_bytecode_builder *added = plc_codegen_expr(c, s->ret.val);
-			pl_bytecode_builder_add_builder(code, added);
-			pl_bytecode_builder_free(added);
-			pl_bytecode_builder_add(code, RET, {});
+			plc_codegen_expr(c, s->ret.val);
+			pl_bytecode_builder_add(c->code, RET, {});
 			break;
 		}
 		default:
@@ -68,7 +84,6 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 }
 
 pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
-	pl_bytecode_builder *code = pl_bytecode_new_builder();
 	switch (e->type) {
 		case EXPR: {
 			printf("EXPR isn't implemented yet :(\n");
@@ -76,7 +91,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 			break;
 		}
 		case NUM: {
-			pl_bytecode_builder_add(code, PUSHINT, {e->n.value});
+			pl_bytecode_builder_add(c->code, PUSHINT, {e->n.value});
 			break;
 		}
 		case SYM: {
