@@ -8,10 +8,11 @@
 #include <stdlib.h>
 
 struct plc_codegen_context {
-	plc_codegen_context *code;
+	pl_bytecode_builder *code;
 	// i'm using pv here because i'm too lazy to manage c types now
-	int *nextglobal; // the next free global index (for inner functions)
-	pv globals; // object[name:global index]
+	pv *globals; // the list of globals (for inner functions)
+	pv globalmap; // object[name:global index]
+	pv stacktops; // array[stack pos]
 	pv vars; // object[name:stack pos] // i can either implement this with a chained object or just copy the parent's vars
 	// these have to be passed upward through scopes until resolved
 	// unresolved breaks and continues
@@ -23,15 +24,15 @@ struct plc_codegen_context {
 plc_codegen_context *plc_codegen_context_new() {
 	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
 	pv *globals = malloc(sizeof(pv));
-	*globals = pv_object();
-	*out = (plc_codegen_context){pl_bytecode_new_builder(), globals, pv_object(), pv_array(), pv_array()};
+	*globals = pv_array();
+	*out = (plc_codegen_context){pl_bytecode_new_builder(), globals, pv_object(), pv_array(), pv_object(), pv_array(), pv_array(), pv_array()};
 	return out;
 }
 
 plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
 	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
 	pv_copy(*c->globals); // refcount even though this is a pointer - i will free it in plc_codegen_context_free
-	*out = (plc_codegen_context){c->globals, pv_copy(c->vars), pv_array(), pv_array()};
+	*out = (plc_codegen_context){pl_bytecode_new_builder(), c->globals, pv_copy(c->globalmap), pv_copy(c->stacktops), pv_copy(c->vars), pv_array(), pv_array()};
 	return out;
 }
 
@@ -43,6 +44,7 @@ static void plc_codegen_context_add(plc_codegen_context *c, plc_codegen_context 
 	//pv_array_foreach(c2->continues, i, cont) {
 	//	c->continues = pv_array_append(c->continues, pv_number_add(offset, cont));
 	//}
+	c->code = pl_bytecode_builder_add_builder(c->code, c2->code);
 	plc_codegen_context_free(c2);
 }
 
@@ -62,8 +64,12 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case IF: {
-			printf("IF isn't implemented yet :(\n");
-			abort();
+			plc_codegen_expr(c, s->ifs.cond);
+			plc_codegen_context *c2 = plc_codegen_context_new();
+			plc_codegen_stmt(c2, s->ifs.code);
+			pl_bytecode_builder_add(c->code, JUMPIF, {8});
+			pl_bytecode_builder_add(c->code, JUMP, {pl_bytecode_builder_len(c2->code)});
+			plc_codegen_context_add(c, c2);
 			break;
 		}
 		case DEF: {
@@ -79,7 +85,9 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 		default:
 			abort();
 	}
-	return code;
+	//printf("bytecode:\n");
+	//pl_bytecode_dump(pl_bytecode_from_builder(pl_bytecode_builder_add_builder(pl_bytecode_new_builder(), c->code)));
+	return c->code;
 }
 
 pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
@@ -101,7 +109,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 		default:
 			abort();
 	}
-	return code;
+	return c->code;
 }
 
 void plc_codegen_context_free(plc_codegen_context *c) {

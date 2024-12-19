@@ -1,1 +1,1 @@
-return 0
+if 1 then return 0
