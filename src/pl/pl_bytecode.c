@@ -20,7 +20,10 @@ pl_bytecode_builder *pl_bytecode_new_builder() {
 pl_bytecode_builder *pl_bytecode_extend(pl_bytecode_builder *b, uint32_t size) {
 	b->end += size;
 	if (b->end > b->size) {
-		uint32_t newsize = (b->size * 3) / 2;
+		uint32_t newsize = b->size;
+		while (b->end > newsize) {
+			newsize = (newsize * 3) / 2;
+		}
 		b = realloc(b, sizeof(pl_bytecode_builder) + newsize);
 		b->size = newsize;
 	}
