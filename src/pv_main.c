@@ -14,6 +14,14 @@ int main(int argc, char **argv) {
 	(void)argc, (void)argv;
 	pv_install();
 	{
+		pv val = pv_invalid();
+		char *s = pv_to_string(val);
+		printf("%s\n", s);
+		pv_free(val);
+		free(s);
+	}
+	printf("\n");
+	{
 		pv val = pv_int(15);
 		char *s = pv_to_string(val);
 		double num = pv_number_value(val);
