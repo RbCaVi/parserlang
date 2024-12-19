@@ -104,3 +104,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 	}
 	return code;
 }
+
+void plc_codegen_context_free(plc_codegen_context *c) {
+	// "TODO"
+}
