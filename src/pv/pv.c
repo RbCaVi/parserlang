@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+//#include <stdio.h>
 
 static const char *kind_names[256] = {"INVALID"};
 static pv_free_func kind_free[256];
@@ -58,6 +59,10 @@ void pv_free(pv val) {
     return; // they don't have any allocated memory anyway
   }
   // aaaaaaaaaa somebody's not freeing their memory
+  //printf("trying to free value of kind %s with no allocation and no registered pv_free()\n", pv_kind_name(pv_get_kind(val)));
+  //if (pv_get_kind(val) == 0) { // it's an invalid
+  //  printf("(i think you might have forgotten to call a kind install function)\n");
+  //}
   abort();
 }
 
