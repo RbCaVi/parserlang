@@ -35,7 +35,7 @@ pv pv_userdata(void *ptr) {
 }
 
 void *pv_userdata_ptr(pv val) {
-	// don't have to do a decref because number isn't allocated
+	// don't have to do a decref because userdata isn't allocated
 	assert(val.kind == userdata_kind);
 	void *ptr = val.data;
 	return ptr;
