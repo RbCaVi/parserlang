@@ -1,3 +1,4 @@
+#include "pv_install.h"
 #include "pl_bytecode.h"
 #include "plc_parsetree.h"
 #include "plc_codegen.h"
@@ -30,6 +31,8 @@ int main(int argc, char **argv) {
 	if (argc < 2) {
 		return 1;
 	}
+
+	pv_install();
 
 	file_data f = readfile(argv[1]);
 
