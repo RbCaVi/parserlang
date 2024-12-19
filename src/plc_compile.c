@@ -41,10 +41,13 @@ int main(int argc, char **argv) {
 	plc_codegen_context *c = plc_codegen_context_new();
 
 	pl_bytecode_builder *b = plc_codegen_stmt(c, &s);
-
 	pl_bytecode code = pl_bytecode_from_builder(b);
+
 	pl_bytecode_dump(code);
+	
 	pl_bytecode_free(code);
+
+	plc_codegen_context_free(c);
 
 	free_stmt(s);
 

@@ -113,5 +113,11 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 }
 
 void plc_codegen_context_free(plc_codegen_context *c) {
-	// "TODO"
+	pl_bytecode_builder_free(c->code);
+	pv_free(*c->globals);
+	free(c->globals);
+	pv_free(c->globalmap);
+	pv_free(c->stacktops);
+	pv_free(c->vars);
+	free(c);
 }
