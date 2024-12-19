@@ -16,8 +16,8 @@ struct plc_codegen_context {
 	// these have to be passed upward through scopes until resolved
 	// unresolved breaks and continues
 	// not used yet - i don't have any loops yet
-	pv breaks; // array[code offset]
-	pv continues; // array[code offset]
+	//pv breaks; // array[{code offset, stack top}] // the stack top is for a popn to restore the stack
+	//pv continues; // array[{code offset, stack top}] // the stack top is for a popn to restore the stack
 };
 
 plc_codegen_context *plc_codegen_context_new() {
@@ -36,14 +36,13 @@ plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
 }
 
 static void plc_codegen_context_add(plc_codegen_context *c, plc_codegen_context *c2) {
-	pv offset = pv_int(pl_bytecode_builder_len(c->code));
-	pv_array_foreach(c2->breaks, i, b) {
-		c->breaks = pv_array_append(c->breaks, pv_number_add(offset, b));
-	}
-	pv_array_foreach(c2->continues, i, c) {
-		c->continues = pv_array_append(c->continues, pv_number_add(offset, c));
-	}
-	pl_bytecode_builder_add_builder(c->code, c2->code);
+	//pv offset = pv_int(pl_bytecode_builder_len(c->code));
+	//pv_array_foreach(c2->breaks, i, b) {
+	//	c->breaks = pv_array_append(c->breaks, pv_number_add(offset, b));
+	//}
+	//pv_array_foreach(c2->continues, i, cont) {
+	//	c->continues = pv_array_append(c->continues, pv_number_add(offset, cont));
+	//}
 	plc_codegen_context_free(c2);
 }
 
