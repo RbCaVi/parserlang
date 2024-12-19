@@ -57,8 +57,8 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			plc_codegen_context *c2 = plc_codegen_context_new();
 			for (int i = 0; i < s->block.len; i++) {
 				plc_codegen_stmt(c2, &(s->block.children[i]));
-				plc_codegen_context_add(c, c2);
 			}
+			plc_codegen_context_add(c, c2);
 			break;
 		}
 		case DEFFUNC: {
@@ -77,7 +77,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 		}
 		case DEF: {
 			plc_codegen_expr(c, s->def.val);
-			pv_object_set(c->vars, pv_string_from_data(s->def.name, s->def.namelen), pv_int(c->stacksize++));
+			c->vars = pv_object_set(c->vars, pv_string_from_data(s->def.name, s->def.namelen), pv_int(c->stacksize++));
 			break;
 		}
 		case RETURN: {
@@ -105,7 +105,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 			break;
 		}
 		case SYM: {
-			pl_bytecode_builder_add(c->code, DUPN, {pv_int_value(pv_object_get(c->vars, pv_string_from_data(e->s.name, e->s.len)))});
+			pl_bytecode_builder_add(c->code, DUPN, {pv_int_value(pv_object_get(pv_copy(c->vars), pv_string_from_data(e->s.name, e->s.len)))});
 			break;
 		}
 		default:
