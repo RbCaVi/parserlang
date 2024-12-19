@@ -109,9 +109,12 @@ static pv_string_data *pv_string_alloc(size_t size) {
 }
 
 pv pv_string(const char *str) {
-	uint32_t len = (uint32_t)strlen(str);
+	return pv_string_from_data(str, (uint32_t)strlen(str));
+}
+
+pv pv_string_from_data(const char *data, uint32_t len) {
 	pv_string_data *s = pv_string_alloc(len * 2);
-  memcpy(s->data, str, len);
+  memcpy(s->data, data, len);
   s->data[len] = '\0';
   s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string and cause overflow
   pv val = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
