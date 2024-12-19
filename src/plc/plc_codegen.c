@@ -1,6 +1,8 @@
 #include "plc_codegen.h"
 
 #include "pv.h"
+#include "pv_number.h"
+#include "pv_string.h"
 #include "pv_array.h"
 #include "pv_object.h"
 
@@ -13,6 +15,7 @@ struct plc_codegen_context {
 	pv *globals; // the list of globals (for inner functions)
 	pv globalmap; // object[name:global index]
 	pv stacktops; // array[stack pos]
+	int stacksize; // current size of the stack
 	pv vars; // object[name:stack pos] // i can either implement this with a chained object or just copy the parent's vars
 	// these have to be passed upward through scopes until resolved
 	// unresolved breaks and continues
@@ -25,14 +28,14 @@ plc_codegen_context *plc_codegen_context_new() {
 	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
 	pv *globals = malloc(sizeof(pv));
 	*globals = pv_array();
-	*out = (plc_codegen_context){pl_bytecode_new_builder(), globals, pv_object(), pv_array(), pv_object(), pv_array(), pv_array(), pv_array()};
+	*out = (plc_codegen_context){pl_bytecode_new_builder(), globals, pv_object(), pv_array(), 0, pv_object(), pv_array()};
 	return out;
 }
 
 plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
 	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
 	pv_copy(*c->globals); // refcount even though this is a pointer - i will free it in plc_codegen_context_free
-	*out = (plc_codegen_context){pl_bytecode_new_builder(), c->globals, pv_copy(c->globalmap), pv_copy(c->stacktops), pv_copy(c->vars), pv_array(), pv_array()};
+	*out = (plc_codegen_context){pl_bytecode_new_builder(), c->globals, pv_copy(c->globalmap), pv_array_append(pv_copy(c->stacktops), pv_int(c->stacksize)), c->stacksize, pv_copy(c->vars)};
 	return out;
 }
 
@@ -73,8 +76,8 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case DEF: {
-			printf("DEF isn't implemented yet :(\n");
-			abort();
+			plc_codegen_expr(c, s->def.val);
+			pv_object_set(c->vars, pv_string_from_data(s->def.name, s->def.namelen), pv_int(c->stacksize++));
 			break;
 		}
 		case RETURN: {
@@ -102,8 +105,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 			break;
 		}
 		case SYM: {
-			printf("SYM isn't implemented yet :(\n");
-			abort();
+			pl_bytecode_builder_add(c->code, DUPN, {pv_int_value(pv_object_get(c->vars, pv_string_from_data(e->s.name, e->s.len)))});
 			break;
 		}
 		default:
