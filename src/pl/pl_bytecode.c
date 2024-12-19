@@ -211,7 +211,6 @@ pl_bytecode pl_bytecode_from_builder(pl_bytecode_builder *b) {
 	char *bytecode = malloc(b->end);
 	memcpy(bytecode, b->bytecode, b->end);
 	uint32_t len = b->end;
-	free(b);
 	return (pl_bytecode){bytecode, len, 1};
 }
 
