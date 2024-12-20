@@ -1,6 +1,5 @@
 #include "plc_codegen.h"
 
-#include "pv.h"
 #include "pv_number.h"
 #include "pv_string.h"
 #include "pv_array.h"
@@ -157,6 +156,10 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 			abort();
 	}
 	return c->code;
+}
+
+pv plc_codegen_context_get_globals(plc_codegen_context *c) {
+	return pv_copy(*c->globals);
 }
 
 void plc_codegen_context_free(plc_codegen_context *c) {

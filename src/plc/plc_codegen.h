@@ -1,6 +1,7 @@
 #ifndef PLC_CODEGEN_H
 #define PLC_CODEGEN_H
 
+#include "pv.h"
 #include "pl_bytecode.h"
 #include "plc_parsetree.h"
 
@@ -11,6 +12,8 @@ plc_codegen_context *plc_codegen_context_chain(plc_codegen_context*);
 
 pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s);
 pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e);
+
+pv plc_codegen_context_get_globals(plc_codegen_context *c);
 
 void plc_codegen_context_free(plc_codegen_context *c);
 
