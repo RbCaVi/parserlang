@@ -43,9 +43,8 @@ plc_codegen_context *plc_codegen_context_new() {
 	return out;
 }
 
-plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
+plc_codegen_context *plc_codegen_context_chain_scope(plc_codegen_context *c) {
 	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
-	pv_copy(*c->globals); // refcount even though this is a pointer - i will free it in plc_codegen_context_free
 	(*c->globalrefcount)++;
 	*out = (plc_codegen_context){
 		pl_bytecode_new_builder(),
@@ -55,6 +54,21 @@ plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
 		pv_array_append(pv_copy(c->stacktops), pv_int(c->stacksize)),
 		c->stacksize,
 		pv_copy(c->vars)
+	};
+	return out;
+}
+
+plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
+	plc_codegen_context *out = malloc(sizeof(plc_codegen_context));
+	(*c->globalrefcount)++;
+	*out = (plc_codegen_context){
+		pl_bytecode_new_builder(),
+		c->globals,
+		c->globalrefcount,
+		pv_copy(c->globalmap),
+		pv_array(),
+		0,
+		pv_object()
 	};
 	return out;
 }
@@ -77,7 +91,9 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 	// usually delimited by brackets
 	switch (s->type) {
 		case DEFFUNC: {
-			c->globalmap = pv_object_set(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen), pv_int((int)pv_array_length(*c->globals)));
+			//printf("collected DEFFUNC: ");
+			//pl_dump_pv(pv_string_from_data(s->deffunc.name, s->deffunc.namelen));
+			c->globalmap = pv_object_set(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen), pv_int((int)pv_array_length(pv_copy(*c->globals))));
 			*c->globals = pv_array_append(*c->globals, pv_invalid());
 			break;
 		}
@@ -92,12 +108,16 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 }
 
 pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
+	//printf("s->type: %i\n", s->type);
 	switch (s->type) {
 		case BLOCK: {
-			plc_codegen_context *c2 = plc_codegen_context_chain(c);
+			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			for (uint32_t i = 0; i < s->block.len; i++) {
 				plc_codegen_stmt_collect_deffunc(c2, &(s->block.children[i]));
 			}
+			//printf("globals:\n");
+			//pl_dump_pv(pv_copy(*c2->globals));
+			//pl_dump_pv(pv_copy(c2->globalmap));
 			for (uint32_t i = 0; i < s->block.len; i++) {
 				plc_codegen_stmt(c2, &(s->block.children[i]));
 			}
@@ -105,11 +125,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case DEFFUNC: {
-			// unsigned int arity;
-			// unsigned int *arglens;
-			// char **args;
-			// stmt *code;
-			plc_codegen_context *c2 = plc_codegen_context_new();
+			plc_codegen_context *c2 = plc_codegen_context_chain(c);
 			for (uint32_t i = 0; i < s->deffunc.arity; i++) {
 				c2->vars = pv_object_set(c2->vars, pv_string_from_data(s->deffunc.args[i], s->deffunc.arglens[i]), pv_int(c2->stacksize++));
 			}
@@ -117,13 +133,11 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode code = pl_bytecode_from_builder(b);
 			plc_codegen_context_free(c2);
 			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen))), pl_func(code));
-			printf("DEFFUNC isn't implemented yet :(\n");
-			abort();
 			break;
 		}
 		case IF: {
 			plc_codegen_expr(c, s->ifs.cond);
-			plc_codegen_context *c2 = plc_codegen_context_chain(c);
+			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			plc_codegen_stmt(c2, s->ifs.code);
 			pl_bytecode_builder_add(c->code, JUMPIF, {8});
 			pl_bytecode_builder_add(c->code, JUMP, {(int)pl_bytecode_builder_len(c2->code)});
@@ -180,9 +194,9 @@ pv plc_codegen_context_get_globals(plc_codegen_context *c) {
 
 void plc_codegen_context_free(plc_codegen_context *c) {
 	pl_bytecode_builder_free(c->code);
-	pv_free(*c->globals);
 	(*c->globalrefcount)--;
 	if (*c->globalrefcount == 0) {
+		pv_free(*c->globals);
 		free(c->globals);
 		free(c->globalrefcount);
 	}
