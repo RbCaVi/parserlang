@@ -141,6 +141,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 				plc_codegen_stmt(c2, &(s->block.children[i]));
 			}
 			plc_codegen_context_add(c, c2);
+			pl_bytecode_builder_add(c->code, POPTO, {c->stacksize});
 			break;
 		}
 		case DEFFUNC: {
