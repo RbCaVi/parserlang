@@ -1,5 +1,8 @@
 #include "pv_install.h"
+#include "pv_array.h"
 #include "pl_bytecode.h"
+#include "pl_func.h"
+#include "pl_dump.h"
 #include "plc_parsetree.h"
 #include "plc_codegen.h"
 
@@ -34,6 +37,8 @@ int main(int argc, char **argv) {
 
 	pv_install();
 
+	pl_func_install();
+
 	file_data f = readfile(argv[1]);
 
 	stmt s = parse_stmt(f.data);
@@ -46,6 +51,14 @@ int main(int argc, char **argv) {
 	pl_bytecode_dump(code);
 	
 	pl_bytecode_free(code);
+
+	pv globals = plc_codegen_context_get_globals(c);
+
+	pv_array_foreach(globals, i, f) {
+		pl_bytecode_dump(pl_func_get_bytecode(f));
+	}
+
+	pv_free(globals);
 
 	plc_codegen_context_free(c);
 
