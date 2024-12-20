@@ -122,21 +122,33 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
 
 static void pv_object_free(pv obj) {
 	pvp_object_data *o = pvp_object_get_data(obj);
+	int *buckets = pvp_object_buckets(o);
 
-	// the refcount is 0,
-	// and the loop copies and then frees the object,
-	// which calls this function again,
-	// so to avoid stack overflow,
-	// i incref the object before the loop
-	pvp_incref(&(o->refcnt));
-	pv_object_foreach(obj, k, v) {
-		// free twice because the loop creates a reference
-		pv_free(k);
-		pv_free(k);
-		pv_free(v);
-		pv_free(v);
+  int iter = -1;
+	if (o->length != 0) {
+		for (uint32_t i = 0; i < o->alloc_size * 2; i++) {
+			if (buckets[i] != -1) {
+				iter = buckets[i];
+				break;
+			}
+		}
 	}
-	pvp_decref(&(o->refcnt));
+  while (iter != -1) {
+		pv_free(o->elements[iter].key);
+		pv_free(o->elements[iter].value);
+		if (o->elements[iter].next == -1) {
+  		int newiter = -1;
+			for (uint32_t i = pvp_object_get_bucket(o, o->elements[iter].hash) + 1; i < o->alloc_size * 2; i++) {
+				if (buckets[i] != -1) {
+					newiter = buckets[i];
+					break;
+				}
+			}
+			iter = newiter;
+		} else {
+			iter = (int)o->elements[iter].next;
+		}
+  }
 	free(o);
 }
 
