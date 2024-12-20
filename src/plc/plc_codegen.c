@@ -56,7 +56,7 @@ plc_codegen_context *plc_codegen_context_new() {
 		globalrefcount,
 		pv_object(),
 		pv_array(),
-		0,
+		1,
 		pv_object()
 	};
 	return out;
@@ -86,7 +86,7 @@ plc_codegen_context *plc_codegen_context_chain(plc_codegen_context *c) {
 		c->globalrefcount,
 		pv_copy(c->globalmap),
 		pv_array(),
-		0,
+		1,
 		pv_object()
 	};
 	return out;
