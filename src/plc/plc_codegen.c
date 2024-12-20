@@ -132,7 +132,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode_builder *b = plc_codegen_stmt(c2, s->deffunc.code);
 			pl_bytecode code = pl_bytecode_from_builder(b);
 			plc_codegen_context_free(c2);
-			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen))), pl_func(code));
+			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(pv_copy(c->globalmap), pv_string_from_data(s->deffunc.name, s->deffunc.namelen))), pl_func(code));
 			break;
 		}
 		case IF: {
@@ -146,7 +146,9 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 		}
 		case DEF: {
 			plc_codegen_expr(c, s->def.val);
+			//printf("vars refcount          %i\n", pv_get_refcount(c->vars));
 			c->vars = pv_object_set(c->vars, pv_string_from_data(s->def.name, s->def.namelen), pv_int(c->stacksize++));
+			//pl_dump_pv(pv_copy(c->vars));
 			break;
 		}
 		case RETURN: {
@@ -158,15 +160,22 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			abort();
 	}
 	//printf("bytecode:\n");
-	//pl_bytecode_dump(pl_bytecode_from_builder(pl_bytecode_builder_add_builder(pl_bytecode_new_builder(), c->code)));
+	//pl_bytecode code = pl_bytecode_from_builder(c->code);
+	//pl_bytecode_dump(code);
+	//pl_bytecode_free(code);
 	return c->code;
 }
 
 pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 	switch (e->type) {
 		case EXPR: {
-			printf("EXPR isn't implemented yet :(\n");
-			abort();
+			assert(ops[e->e.id].arity == 0 || ops[e->e.id].arity == e->e.arity);
+			for (unsigned int i = 0; i < e->e.arity; i++) {
+				plc_codegen_expr(c, &(e->e.children[i]));
+			}
+			switch ((opcode)e->e.id) {
+
+			}
 			break;
 		}
 		case NUM: {
@@ -175,6 +184,9 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 		}
 		case SYM: {
 			pv var = pv_string_from_data(e->s.name, e->s.len);
+			//pl_dump_pv(pv_copy(c->vars));
+			//pl_dump_pv(pv_copy(c->globalmap));
+			//pl_dump_pv(pv_copy(var));
 			if (pv_object_has(pv_copy(c->vars), pv_copy(var))) {
 				pl_bytecode_builder_add(c->code, DUPN, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
 			} else {
