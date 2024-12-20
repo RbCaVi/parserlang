@@ -146,7 +146,7 @@ plc_dumptree: plc/plc_parsetree.o
 
 plc_dumpval: plc/plc_exe.o | -l\:pv.so -l\:pl.so
 
-plc_compile: plc/plc_parsetree.o plc/plc_codegen.o | -l\:pv.so -l\:pl.so
+plc_compile: plc/plc_parsetree.o plc/plc_codegen.o plc/plc_exe.o | -l\:pv.so -l\:pl.so
 
 pv.so: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \

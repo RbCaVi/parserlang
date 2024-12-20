@@ -5,6 +5,7 @@
 #include "pl_dump.h"
 #include "plc_parsetree.h"
 #include "plc_codegen.h"
+#include "plc_exe.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,7 +32,7 @@ file_data readfile(char *path) {
 }
 
 int main(int argc, char **argv) {
-	if (argc < 2) {
+	if (argc < 3) {
 		return 1;
 	}
 
@@ -50,17 +51,34 @@ int main(int argc, char **argv) {
 
 	printf("top level bytecode:\n");
 	pl_bytecode_dump(code);
-	
-	pl_bytecode_free(code);
 
 	pv globals = plc_codegen_context_get_globals(c);
 
-	pv_array_foreach(globals, i, f) {
-		printf("function %i bytecode:\n", i);
-		pl_bytecode_dump(pl_func_get_bytecode(f));
+	plc_exe exe;
+
+	exe.main = pl_func(code);
+
+	exe.glen = pv_array_length(pv_copy(globals));
+	exe.globals = malloc(exe.glen * sizeof(pv));
+
+	pv_array_foreach(globals, i, v) {
+		if (pv_get_kind(v) == func_kind) {
+			printf("function at %i bytecode:\n", i);
+			pl_bytecode_dump(pl_func_get_bytecode(pv_copy(v)));
+		}
+		exe.globals[i] = pv_copy(v);
 	}
 
 	pv_free(globals);
+
+	plc_exe_dump(exe, argv[2]);
+
+	for (int i = 0; i < exe.glen; i++) {
+		pv_free(exe.globals[i]);
+	}
+	free(exe.globals);
+
+	pl_bytecode_free(code);
 
 	plc_codegen_context_free(c);
 
