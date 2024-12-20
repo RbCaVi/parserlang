@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder *b = plc_codegen_stmt(c, &s);
 	pl_bytecode code = pl_bytecode_from_builder(b);
 
+	printf("top level bytecode:\n");
 	pl_bytecode_dump(code);
 	
 	pl_bytecode_free(code);
@@ -55,6 +56,7 @@ int main(int argc, char **argv) {
 	pv globals = plc_codegen_context_get_globals(c);
 
 	pv_array_foreach(globals, i, f) {
+		printf("function %i bytecode:\n", i);
 		pl_bytecode_dump(pl_func_get_bytecode(f));
 	}
 
