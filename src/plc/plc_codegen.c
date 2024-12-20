@@ -12,7 +12,7 @@
 struct plc_codegen_context {
 	pl_bytecode_builder *code;
 	// i'm using pv here because i'm too lazy to manage c types now
-	pv *globals; // the list of globals (for inner functions)
+	pv *globals; // the list of globals (for inner functions mostly)
 	pv globalmap; // object[name:global index]
 	pv stacktops; // array[stack pos]
 	int stacksize; // current size of the stack
@@ -51,10 +51,33 @@ static void plc_codegen_context_add(plc_codegen_context *c, plc_codegen_context 
 	plc_codegen_context_free(c2);
 }
 
+void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
+	// add this deffunc (if it is one) to the scope and globals
+	// this is because function definitions are hoisted to the top of their scope
+	// usually delimited by brackets
+	switch (s->type) {
+		case DEFFUNC: {
+			c->globalmap = pv_object_set(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen), pv_int(pv_array_length(c->globals)));
+			*c->globals = pv_array_append(*c->globals, pv_invalid());
+			break;
+		}
+		case BLOCK:
+		case IF:
+		case DEF:
+		case RETURN:
+			break;
+		default:
+			abort();
+	}
+}
+
 pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 	switch (s->type) {
 		case BLOCK: {
 			plc_codegen_context *c2 = plc_codegen_context_new();
+			for (int i = 0; i < s->block.len; i++) {
+				plc_codegen_stmt_collect_deffunc(c2, &(s->block.children[i]));
+			}
 			for (int i = 0; i < s->block.len; i++) {
 				plc_codegen_stmt(c2, &(s->block.children[i]));
 			}
@@ -105,7 +128,12 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 			break;
 		}
 		case SYM: {
-			pl_bytecode_builder_add(c->code, DUPN, {pv_int_value(pv_object_get(pv_copy(c->vars), pv_string_from_data(e->s.name, e->s.len)))});
+			pv var = pv_string_from_data(e->s.name, e->s.len);
+			if (pv_object_has(pv_copy(c->vars), pv_copy(var))) {
+				pl_bytecode_builder_add(c->code, DUPN, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
+			} else {
+				pl_bytecode_builder_add(c->code, PUSHGLOBAL, {pv_int_value(pv_object_get(pv_copy(c->globalmap), var))});
+			}
 			break;
 		}
 		default:
