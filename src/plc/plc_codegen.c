@@ -5,9 +5,28 @@
 #include "pv_array.h"
 #include "pv_object.h"
 #include "pl_func.h"
+#include "pl_dump.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+
+typedef enum {
+#define OP(upper_name, lower_name, op, arity) OP_ ## upper_name,
+#include "plc_op_ids.h"
+#undef OP
+} opcode;
+
+typedef struct {
+	opcode op;
+	int arity;
+} op;
+
+static op ops[] = {
+#define OP(upper_name, lower_name, op, arity) {OP_ ## upper_name, arity},
+#include "plc_op_ids.h"
+#undef OP
+};
 
 struct plc_codegen_context {
 	pl_bytecode_builder *code;
