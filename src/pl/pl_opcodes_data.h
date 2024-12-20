@@ -32,7 +32,7 @@ CALLCONSTN addr n
 OPCODE(DUP, dup, {}) // duplicate top of stack (= DUPN -1)
 OPCODE(DUPN, dupn, {int n;}) // duplicate n below
 OPCODE(POP, pop, {}) // delete top of stack
-OPCODE(POPTO, popto, {int n;}) // pop elements until locals is n elements tall
+OPCODE(POPTO, popto, {unsigned int n;}) // pop elements until locals is n elements tall
 OPCODE(SWAPN, swapn, {int n;}) // swap top with n below (= SWAPNN n -1)
 OPCODE(SWAPNN, swapnn, {int n1;int n2;}) // swap n1 below with n2 below
 
@@ -77,6 +77,8 @@ OPCODE(upper_name, lower_name, {})
 #include "pv_number_ops_data.h"
 #undef UOP
 #undef BOP
+
+OPCODE(EQUAL, equal, {})
 
 JOPCODE(JUMP, jump, {int target;}) // unconditional jump - target is bytes relative to the next instruction
 JOPCODE(JUMPIF, jumpif, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction

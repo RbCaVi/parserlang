@@ -5,6 +5,7 @@
 #include "pv_number.h"
 #include "pv_array.h"
 #include "pv_object.h"
+#include "pv_equal.h"
 #include "pl_opcodes.h"
 #include "pl_func.h"
 #include "pl_iter.h"
@@ -237,6 +238,14 @@ pv pl_next(pl_state *state) {
 #include "pv_number_ops_data.h"
 #undef UOP
 #undef BOP
+			opcase(EQUAL) {
+				pv v1 = pl_stack_get(state->stack, -2);
+				pv v2 = pl_stack_get(state->stack, -1);
+				int v = pv_equal(v1, v2);
+				state->stack = pl_stack_pop(state->stack);
+				state->stack = pl_stack_set(state->stack, pv_bool(v), -1);
+				break;
+			}
 			opcase(JUMP) {
 				bytecode += JUMP_data.target;
 				break;
