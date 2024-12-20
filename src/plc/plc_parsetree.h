@@ -12,7 +12,7 @@ struct expr {
 	union {
 		struct {
 			unsigned int id;
-			int arity;
+			unsigned int arity;
 			expr *children;
 		} e;
 		struct {

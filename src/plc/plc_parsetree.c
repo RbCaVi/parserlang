@@ -7,7 +7,7 @@
 
 typedef struct {
 	char *name;
-	int arity;
+	unsigned int arity;
 } op;
 
 static op ops[] = {
@@ -85,7 +85,7 @@ static sig parse_sig(char *data) {
 	int *lens = (int*)data;
 	data += sizeof(int) * arity;
 	out.arglens = lens;
-	for (int i = 0; i < arity; i++) {
+	for (unsigned int i = 0; i < arity; i++) {
 		int len = lens[i];
 		out.args[i] = data;
 		data += len;
@@ -106,7 +106,7 @@ stmt parse_stmt(char *data) {
 		out.block.children = malloc(sizeof(stmt) * len);
 		int *lens = (int*)data;
 		data += sizeof(int) * len;
-		for (int i = 0; i < len; i++) {
+		for (unsigned int i = 0; i < len; i++) {
 			int len = lens[i];
 			out.block.children[i] = parse_stmt(data);
 			data += len;
@@ -148,9 +148,9 @@ stmt parse_stmt(char *data) {
 	}
 	case NODE_DEF: {
 		out.type = DEF;
-		int namelen = *(int*)data;
+		unsigned int namelen = *(unsigned int*)data;
 		out.def.namelen = namelen;
-		data += sizeof(int);
+		data += sizeof(unsigned int);
 		out.def.name = data;
 		data += namelen;
 		out.def.val = malloc(sizeof(expr));
@@ -181,7 +181,7 @@ static void print_expr(expr e, int indent) {
 		print_indent(indent);
 		printf("EXPR %s\n", ops[e.e.id].name);
 		assert(ops[e.e.id].arity == 0 || ops[e.e.id].arity == e.e.arity);
-		for (int i = 0; i < e.e.arity; i++) {
+		for (unsigned int i = 0; i < e.e.arity; i++) {
 			print_expr(e.e.children[i], indent + 1);
 		}
 		break;
@@ -201,7 +201,7 @@ void print_stmt(stmt s, int indent) {
 	case BLOCK:
 		print_indent(indent);
 		printf("BLOCK\n");
-		for (int i = 0; i < s.block.len; i++) {
+		for (unsigned int i = 0; i < s.block.len; i++) {
 			print_stmt(s.block.children[i], indent + 1);
 		}
 		break;
@@ -210,7 +210,7 @@ void print_stmt(stmt s, int indent) {
 		printf("DEFFUNC %.*s\n", s.deffunc.namelen, s.deffunc.name);
 		print_indent(indent + 1);
 		printf("SIG\n");
-		for (int i = 0; i < s.deffunc.arity; i++) {
+		for (unsigned int i = 0; i < s.deffunc.arity; i++) {
 			print_indent(indent + 2);
 			printf("%.*s\n", s.deffunc.arglens[i], s.deffunc.args[i]);
 		}
@@ -238,7 +238,7 @@ void print_stmt(stmt s, int indent) {
 static void free_expr(expr e) {
 	switch (e.type) {
 	case EXPR:
-		for (int i = 0; i < e.e.arity; i++) {
+		for (unsigned int i = 0; i < e.e.arity; i++) {
 			free_expr(e.e.children[i]);
 		}
 		free(e.e.children);
@@ -253,7 +253,7 @@ static void free_expr(expr e) {
 void free_stmt(stmt s) {
 	switch (s.type) {
 	case BLOCK:
-		for (int i = 0; i < s.block.len; i++) {
+		for (unsigned int i = 0; i < s.block.len; i++) {
 			free_stmt(s.block.children[i]);
 		}
 		free(s.block.children);
