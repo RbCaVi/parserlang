@@ -57,7 +57,7 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 	// usually delimited by brackets
 	switch (s->type) {
 		case DEFFUNC: {
-			c->globalmap = pv_object_set(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen), pv_int(pv_array_length(c->globals)));
+			c->globalmap = pv_object_set(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen), pv_int(pv_array_length(*c->globals)));
 			*c->globals = pv_array_append(*c->globals, pv_invalid());
 			break;
 		}
