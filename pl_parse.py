@@ -10,7 +10,7 @@ import re
 opcodedata = subprocess.check_output(["gcc", "-E", "-I", "src/pv", "-I", "src/pl", "src/plc/plc_op_ids.h", "-o", "-"], encoding = 'utf-8')
 
 opids = {}
-for i,(op,arity) in enumerate(re.findall('OP\\(\\s*"(\\S*)"\\s*,\\s*(\\S+)\\s*\\)', opcodedata)):
+for i,(op,arity) in enumerate(re.findall('OP\\(\\s*\\S*\\s*,\\s*\\S*\\s*,\\s*"(\\S*)"\\s*,\\s*(\\S+)\\s*\\)', opcodedata)):
 	opids[(op, int(arity))] = i
 
 print(opids)

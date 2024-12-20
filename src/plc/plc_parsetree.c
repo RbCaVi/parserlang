@@ -10,8 +10,8 @@ typedef struct {
 	int arity;
 } op;
 
-op ops[] = {
-#define OP(op, arity) {op, arity},
+static op ops[] = {
+#define OP(upper_name, lower_name, op, arity) {op, arity},
 #include "plc_op_ids.h"
 #undef OP
 };
