@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+//#include <stdio.h>
 
 pv_kind object_kind;
 
@@ -79,6 +80,27 @@ static uint32_t round_up_next_pow2(uint32_t v) {
 	return v;
 }
 
+//static void pvp_object_dump_internal(pvp_object_data *o) {
+//	printf("length = %i\n", o->length);
+//	int *buckets = pvp_object_buckets(o);
+//	for (uint32_t i = 0; i < o->alloc_size * 2; i++) {
+//		printf("bucket %i:\n", i);
+//		if (buckets[i] == -1) {
+//			printf("  (empty)\n", i);
+//			continue;
+//		}
+//		struct object_slot *slot;
+//		int sloti;
+//		for ((sloti = buckets[i]), (slot = &(o->elements[sloti])); sloti !=-1; (sloti = (int)slot->next), (slot = &(o->elements[sloti]))) {
+//			char *s1 = pv_to_string(pv_copy(slot->key));
+//			char *s2 = pv_to_string(pv_copy(slot->value));
+//			printf("  %i #%x - %s [%i]: %s\n", sloti, slot->hash, s1, pv_get_refcount(slot->key), s2);
+//			free(s1);
+//			free(s2);
+//		}
+//	}
+//}
+
 static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) {
 	assert(size >= oin->length);
 
@@ -138,7 +160,14 @@ static void pv_object_free(pv obj) {
 			}
 		}
 	}
+	//printf("freeing: \n");
   while (iter != -1) {
+		//char *s1 = pv_to_string(pv_copy(o->elements[iter].key));
+		//char *s2 = pv_to_string(pv_copy(o->elements[iter].value));
+		//printf("  %s [%i]: %s [%i]\n", s1, pv_get_refcount(o->elements[iter].key), s2, pv_get_refcount(o->elements[iter].value));
+		//free(s1);
+		//free(s2);
+
 		pv_free(o->elements[iter].key);
 		pv_free(o->elements[iter].value);
 		if (o->elements[iter].next == -1) {
@@ -247,6 +276,9 @@ pv pv_object_get(pv obj, pv key) {
 	assert(obj.kind == object_kind);
 	
 	pvp_object_data *o = pvp_object_get_data(obj);
+
+	//printf("pre get\n");
+	//pvp_object_dump_internal(o);
 	
 	struct object_slot *slot = pvp_object_get_slot(o, pv_hash(pv_copy(key)), key);
 	
@@ -256,6 +288,9 @@ pv pv_object_get(pv obj, pv key) {
 	}
 	
 	pv val = pv_copy(slot->value);
+
+	//printf("post get\n");
+	//pvp_object_dump_internal(o);
 	
 	pv_free(obj);
 
@@ -274,33 +309,13 @@ int pv_object_has(pv obj, pv key) {
 	return out;
 }
 
-// #include <stdio.h>
-
-// static void pvp_object_dump_internal(pvp_object_data *o) {
-// 	printf("length = %i\n", o->length);
-// 	int *buckets = pvp_object_buckets(o);
-// 	for (uint32_t i = 0; i < o->alloc_size * 2; i++) {
-// 		printf("bucket %i:\n", i);
-// 		if (buckets[i] == -1) {
-// 			printf("  (empty)\n", i);
-// 			continue;
-// 		}
-// 		struct object_slot *slot;
-// 		int sloti;
-// 		for ((sloti = buckets[i]), (slot = &(o->elements[sloti])); sloti !=-1; (sloti = (int)slot->next), (slot = &(o->elements[sloti]))) {
-// 			char *s1 = pv_to_string(pv_copy(slot->key));
-// 			char *s2 = pv_to_string(pv_copy(slot->value));
-// 			printf("  %i #%x - %s: %s\n", sloti, slot->hash, s1, s2);
-// 			free(s1);
-// 			free(s2);
-// 		}
-// 	}
-// }
-
 pv pv_object_set(pv obj, pv key, pv value) {
 	assert(obj.kind == object_kind);
 	
 	pvp_object_data *o = pvp_object_get_data(obj);
+
+	//printf("pre set\n");
+	//pvp_object_dump_internal(o);
 
 	o = pvp_object_realloc(o, o->length + 1); // simpler than uh
 
@@ -331,6 +346,10 @@ pv pv_object_set(pv obj, pv key, pv value) {
 		slot->value = value;
 		pv_free(key);
 	}
+
+	//printf("post set\n");
+	//pvp_object_dump_internal(o);
+
   pv val = {object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)};
   return val;
 }
