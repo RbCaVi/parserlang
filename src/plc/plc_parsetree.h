@@ -11,7 +11,7 @@ struct expr {
 	} type;
 	union {
 		struct {
-			int id;
+			unsigned int id;
 			int arity;
 			expr *children;
 		} e;
@@ -19,7 +19,7 @@ struct expr {
 			int value;
 		} n;
 		struct {
-			int len;
+			unsigned int len;
 			char *name;
 		} s;
 	};
@@ -37,14 +37,14 @@ struct stmt {
 	} type;
 	union {
 		struct {
-			int len;
+			unsigned int len;
 			stmt *children;
 		} block;
 		struct {
-			int namelen;
+			unsigned int namelen;
 			char *name;
-			int arity;
-			int *arglens;
+			unsigned int arity;
+			unsigned int *arglens;
 			char **args;
 			stmt *code;
 		} deffunc;
@@ -53,7 +53,7 @@ struct stmt {
 			stmt *code;
 		} ifs;
 		struct {
-			int namelen;
+			unsigned int namelen;
 			char *name;
 			expr *val;
 		} def;

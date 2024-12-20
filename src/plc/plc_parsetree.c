@@ -29,8 +29,8 @@ typedef enum {
 } node_type;
 
 typedef struct {
-	int arity;
-	int *arglens;
+	unsigned int arity;
+	unsigned int *arglens;
 	char **args;
 } sig;
 
@@ -41,16 +41,16 @@ static expr parse_expr(char *data) {
 	switch (type) {
 	case NODE_EXPR:
 		out.type = EXPR;
-		int opid = *(int*)data;
-		data += sizeof(int);
+		unsigned int opid = *(unsigned int*)data;
+		data += sizeof(unsigned int);
 		out.e.id = opid;
-		int arity = *(int*)data;
-		data += sizeof(int);
+		unsigned int arity = *(unsigned int*)data;
+		data += sizeof(unsigned int);
 		out.e.arity = arity;
 		out.e.children = malloc(sizeof(expr) * arity);
 		int *lens = (int*)data;
 		data += sizeof(int) * arity;
-		for (int i = 0; i < arity; i++) {
+		for (unsigned int i = 0; i < arity; i++) {
 			int len = lens[i];
 			out.e.children[i] = parse_expr(data);
 			data += len;
@@ -62,9 +62,9 @@ static expr parse_expr(char *data) {
 		break;
 	case NODE_SYM:
 		out.type = SYM;
-		int namelen = *(int*)data;
+		unsigned int namelen = *(unsigned int*)data;
 		out.s.len = namelen;
-		data += sizeof(int);
+		data += sizeof(unsigned int);
 		out.s.name = data;
 		break;
 	default:
@@ -78,8 +78,8 @@ static sig parse_sig(char *data) {
 	data += sizeof(node_type);
 	assert(type == NODE_SIG);
 	sig out;
-	int arity = *(int*)data;
-	data += sizeof(int);
+	unsigned int arity = *(unsigned int*)data;
+	data += sizeof(unsigned int);
 	out.arity = arity;
 	out.args = malloc(sizeof(char*) * arity);
 	int *lens = (int*)data;
@@ -100,8 +100,8 @@ stmt parse_stmt(char *data) {
 	switch (type) {
 	case NODE_BLOCK: {
 		out.type = BLOCK;
-		int len = *(int*)data;
-		data += sizeof(int);
+		unsigned int len = *(unsigned int*)data;
+		data += sizeof(unsigned int);
 		out.block.len = len;
 		out.block.children = malloc(sizeof(stmt) * len);
 		int *lens = (int*)data;
@@ -115,12 +115,12 @@ stmt parse_stmt(char *data) {
 	}
 	case NODE_DEFFUNC: {
 		out.type = DEFFUNC;
-		int namelen = *(int*)data;
+		unsigned int namelen = *(unsigned int*)data;
 		out.deffunc.namelen = namelen;
-		data += sizeof(int);
+		data += sizeof(unsigned int);
 		int siglen = *(int*)data;
 		data += sizeof(int);
-		int codelen = *(int*)data;
+		//int codelen = *(int*)data;
 		data += sizeof(int);
 		out.deffunc.name = data;
 		data += namelen;
@@ -137,7 +137,7 @@ stmt parse_stmt(char *data) {
 		out.type = IF;
 		int condlen = *(int*)data;
 		data += sizeof(int);
-		int codelen = *(int*)data;
+		//int codelen = *(int*)data;
 		data += sizeof(int);
 		out.ifs.cond = malloc(sizeof(expr));
 		*out.ifs.cond = parse_expr(data);
