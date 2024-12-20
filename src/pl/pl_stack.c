@@ -120,6 +120,17 @@ pl_stack pl_stack_popn(pl_stack stack, uint32_t n) {
 	return stack;
 }
 
+// pop as many elements as needed to make the current frame n elements
+pl_stack pl_stack_popto(pl_stack stack, uint32_t n) {
+	stack = move_stack(stack); // i actually need this
+	for (uint32_t i = stack.top - 1; i >= stack.locals + n; i--) {
+		assert(stack_cell(stack, i).type == VAL); // don't pop a retinfo
+		pv_free(stack_cell(stack, i).value); // delete the stack top
+	}
+	stack.top = stack.locals + n;
+	return stack;
+}
+
 pl_stack pl_stack_push(pl_stack stack,pv val) {
 	uint32_t idx;
 	// push makes a new stack always

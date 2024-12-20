@@ -50,6 +50,10 @@ pv pl_next(pl_state *state) {
 				state->stack = pl_stack_pop(state->stack);
 				break;
 			}
+			opcase(POPTO) {
+				state->stack = pl_stack_popto(state->stack, POPTO_data.n);
+				break;
+			}
 			opcase(SWAPN) {
 				// is that a reference to the hit game ultrakill???
 				pv v1 = pl_stack_top(state->stack);

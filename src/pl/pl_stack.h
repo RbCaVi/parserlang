@@ -27,6 +27,7 @@ pl_stack pl_stack_new();
 pv pl_stack_get(pl_stack,int);
 #define pl_stack_top(stack) pl_stack_get(stack,-1)
 pl_stack pl_stack_popn(pl_stack, uint32_t);
+pl_stack pl_stack_popto(pl_stack, uint32_t);
 #define pl_stack_pop(stack) pl_stack_popn(stack,1)
 pl_stack pl_stack_set(pl_stack,pv,int);
 pl_stack pl_stack_push(pl_stack,pv);
