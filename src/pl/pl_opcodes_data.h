@@ -43,7 +43,7 @@ OPCODE(PUSHARRAY, pusharray, {}) // push an empty array
 OPCODE(PUSHOBJECT, pushobject, {}) // push an empty object
 
 OPCODE(PUSHGLOBAL, pushglobal, {int i;}) // push entry i in the global table
-OPCODE(SETGLOBAL, setglobal, {int i;}) // pop from the stack and set entry i in the global table // should only be used in the global scope before calling functions
+//OPCODE(SETGLOBAL, setglobal, {int i;}) // pop from the stack and set entry i in the global table // should only be used in the global scope before calling functions
 
 OPCODE(MAKEARRAY, makearray, {unsigned int n;}) // create an array with the top n values
 OPCODE(APPENDA, appenda, {}) // pop a value and append it to the array below it
