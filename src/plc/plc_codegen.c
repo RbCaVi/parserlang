@@ -19,7 +19,7 @@ typedef enum {
 
 typedef struct {
 	opcode op;
-	int arity;
+	unsigned int arity;
 } op;
 
 static op ops[] = {
@@ -195,7 +195,20 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 				plc_codegen_expr(c, &(e->e.children[i]));
 			}
 			switch ((opcode)e->e.id) {
-
+#define UOP(op, op_lower, expr) \
+case OP_ ## op: \
+	pl_bytecode_builder_add(c->code, op, {}); \
+	break;
+#define BOP(op, op_lower, expr, isdefault) UOP(op, op_lower, expr)
+#include "pv_number_ops_data.h"
+#undef UOP
+#undef BOP
+			case OP_CALL:
+				pl_bytecode_builder_add(c->code, CALL, {(int)e->e.arity - 1});
+				break;
+			case OP_EQUAL:
+				pl_bytecode_builder_add(c->code, EQUAL, {});
+				break;
 			}
 			break;
 		}
