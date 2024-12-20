@@ -104,8 +104,8 @@ static pvp_object_data *pvp_object_realloc(pvp_object_data *oin, uint32_t size) 
 			buckets[bucket] = (int)newsloti;
 
 			o->elements[newsloti].hash = slot->hash;
-			o->elements[newsloti].key = slot->key;
-			o->elements[newsloti].value = slot->value;
+			o->elements[newsloti].key = pv_copy(slot->key);
+			o->elements[newsloti].value = pv_copy(slot->value);
 		}
 	}
 
