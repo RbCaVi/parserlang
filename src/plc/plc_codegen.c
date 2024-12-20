@@ -5,6 +5,7 @@
 #include "pv_string.h"
 #include "pv_array.h"
 #include "pv_object.h"
+#include "pl_func.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,6 +90,18 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case DEFFUNC: {
+			// unsigned int arity;
+			// unsigned int *arglens;
+			// char **args;
+			// stmt *code;
+			plc_codegen_context *c2 = plc_codegen_context_new();
+			for (int i = 0; i < s->deffunc.arity; i++) {
+				c2->vars = pv_object_set(c2->vars, pv_string_from_data(s->deffunc.args[i], s->deffunc.arglens[i]), pv_int(c2->stacksize++));
+			}
+			pl_bytecode_builder *b = plc_codegen_stmt(c2, s->deffunc.code);
+			pl_bytecode code = pl_bytecode_from_builder(b);
+			plc_codegen_context_free(c2);
+			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen))), pl_func(code));
 			printf("DEFFUNC isn't implemented yet :(\n");
 			abort();
 			break;
