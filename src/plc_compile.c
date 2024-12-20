@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
 	plc_exe_dump(exe, argv[2]);
 
-	for (int i = 0; i < exe.glen; i++) {
+	for (unsigned int i = 0; i < exe.glen; i++) {
 		pv_free(exe.globals[i]);
 	}
 	free(exe.globals);

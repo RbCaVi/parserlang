@@ -227,7 +227,7 @@ plc_exe pl_exe_parse(char *data) {
 void plc_exe_dump(plc_exe exe, char *filename) {
 	plcp_exe *exedata = plcp_exe_new();
 
-	for (int i = 0; i < exe.glen; i++) {
+	for (unsigned int i = 0; i < exe.glen; i++) {
 		plcp_exe_add_global(exedata, exe.globals[i]);
 	}
 	plcp_exe_set_main(exedata, exe.main);
