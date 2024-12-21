@@ -37,7 +37,7 @@ test-valgrind-%: FORCE %
 # this is a "hack" so i don't have to manage a variable for dependencies of each exe
 .PHONY: -l\:pv.so -l\:pl.so
 
-exes = pv_main pl_main pl_run plc_dumptree plc_dumpval
+exes = pv_main pl_main pl_run plc_dumptree plc_dumpval plc_compile
 
 all: $(exes) pt_dump.so
 test: $(addprefix test-,$(exes))
@@ -171,7 +171,7 @@ test-valgrind-plc_dumpval: dump.plc
 .PHONY: dump.plc # hack i guess - test-plc_dumpval creates dump.plc
 
 clean:
-	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval pt_dump.so
+	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval plc_compile pt_dump.so
 	rm -f pv.so pl.so
 	rm -f *.o
 	rm -f *.d
