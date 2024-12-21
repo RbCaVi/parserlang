@@ -6,6 +6,10 @@ from stmt import stmt,stmts
 def treeexpr2(expr):
 	return treeexpr(expr)+'\n\n'
 
+printresults(stmt,'1=[]',formatter=treeexpr2)
+printresults(stmt,'return []',formatter=treeexpr2) # thinks this is an index???? (i thought it would try return first)
+printresults(stmt,'return [1]',formatter=treeexpr2)
+printresults(stmt,'return ([])',formatter=treeexpr2)
 printresults(stmt,'1=2',formatter=treeexpr2)
 printresults(stmt,'1+=2',formatter=treeexpr2) # won't work until backtracking
 printresults(stmt,'def a=2',formatter=treeexpr2)
