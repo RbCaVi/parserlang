@@ -11,6 +11,7 @@
 #include "pl_iter.h"
 
 #include <stdlib.h>
+//#include <stdio.h>
 
 static pl_opcode plp_get_opcode(const char *bytecode) { \
 	return ((pl_opcode*)bytecode)[0]; \
@@ -25,6 +26,7 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 
 #define opcase(op) \
 case(op):; \
+	//printf("\n" #op "\n"); \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
@@ -333,6 +335,7 @@ pv pl_next(pl_state *state) {
 			default:
 				abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
+		//pl_dump_stack(state->stack);
 	}
 }
 

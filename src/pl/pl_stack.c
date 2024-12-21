@@ -79,6 +79,7 @@ static pl_stack move_stack(pl_stack stack) {
 
 pl_stack pl_stack_new() {
 	unsigned int size = 16;
+	//printf("init size: %li", sizeof(struct pl_stack_cells) + size * sizeof(struct pl_stack_cell));
 	struct pl_stack_cells *data = malloc(sizeof(struct pl_stack_cells) + size * sizeof(struct pl_stack_cell));
 	data->refcount.refcount = 1;
 	data->refcount.size = size;
@@ -136,7 +137,7 @@ pl_stack pl_stack_push(pl_stack stack,pv val) {
 	// push makes a new stack always
 	stack = move_stack(stack);
 
-	inc_size(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(uint32_t)((float)stack.cells->refcount.size * 1.5f));
+	inc_size2(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(uint32_t)((float)stack.cells->refcount.size * 1.5f), stack.cells->cells);
 	// initialize the new cell
 	stack_cell(stack,idx).type = VAL;
 	stack_cell(stack,idx).value = val;
@@ -149,7 +150,7 @@ pl_stack pl_stack_push(pl_stack stack,pv val) {
 //	// push makes a new stack always
 //	stack = move_stack(stack);
 //	
-//	inc_size(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(uint32_t)((float)stack.cells->refcount.size * 1.5f));
+//	inc_size2(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(uint32_t)((float)stack.cells->refcount.size * 1.5f), stack.cells->cells);
 //	// initialize the new cell
 //	stack_cell(stack,idx).type = RET;
 //	stack_cell(stack,idx).ret.locals = (int)stack.locals;
@@ -229,18 +230,15 @@ void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts) {
 	uint32_t idx;
 	parts = pl_dump_dup_prefix(parts);
 	inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
-	parts.data->parts[idx].type = KEY;
-	parts.data->parts[idx].str = "frames";
-	inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
 	parts.data->parts[idx].type = IDX;
 	parts.data->parts[idx].idx = frame;
 	inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
 	for (uint32_t i = 0; i < stack.top; i++) {
+		parts.data->parts[idx-1].idx = i;
 		switch (stack_cell(stack,i).type) {
 		case RET:
 			frame++;
 			vidx = 0;
-			parts.data->parts[idx-1].idx = frame;
 			parts.count -= 1;
 			print_prefix(parts); // frame.0: frame
 			printf("frame %u\n",frame);

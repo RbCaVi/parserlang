@@ -5,4 +5,4 @@ fn fib(x) {
 	def b = fib(x - 2)
 	return a + b
 }
-return fib(5)
+return fib(6)
