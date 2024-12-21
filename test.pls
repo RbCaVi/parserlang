@@ -1,1 +1,2 @@
-return [1]
+def a = []
+def b = [1]
