@@ -211,6 +211,9 @@ case OP_ ## op: \
 			case OP_CALL:
 				pl_bytecode_builder_add(c->code, CALL, {(int)e->e.arity - 1});
 				break;
+			case OP_ARRAY:
+				pl_bytecode_builder_add(c->code, MAKEARRAY, {(int)e->e.arity});
+				break;
 			case OP_EQUAL:
 				pl_bytecode_builder_add(c->code, EQUAL, {});
 				break;

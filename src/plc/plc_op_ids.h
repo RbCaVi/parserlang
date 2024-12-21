@@ -8,3 +8,4 @@ OP(upper_name, lower_name, #op, 2)
 
 OP(EQUAL, equal, "==", 2)
 OP(CALL, call, "(", 0)
+OP(ARRAY, array, "[]", 0)
