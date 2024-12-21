@@ -34,6 +34,7 @@ struct stmt {
 		IF,
 		DEF,
 		RETURN,
+		YIELD,
 	} type;
 	union {
 		struct {
@@ -60,6 +61,9 @@ struct stmt {
 		struct {
 			expr *val;
 		} ret;
+		struct {
+			expr *val;
+		} yield;
 	};
 };
 

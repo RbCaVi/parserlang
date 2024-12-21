@@ -26,6 +26,7 @@ typedef enum {
 	NODE_EXPR,
 	NODE_NUM,
 	NODE_SYM,
+	NODE_YIELD,
 } node_type;
 
 typedef struct {
@@ -163,6 +164,12 @@ stmt parse_stmt(char *data) {
 		*out.ret.val = parse_expr(data);
 		break;
 	}
+	case NODE_YIELD: {
+		out.type = YIELD;
+		out.yield.val = malloc(sizeof(expr));
+		*out.yield.val = parse_expr(data);
+		break;
+	}
 	default:
 		assert(false);
 	}
@@ -232,6 +239,11 @@ void print_stmt(stmt s, int indent) {
 		printf("RETURN\n");
 		print_expr(*s.ret.val, indent + 1);
 		break;
+	case YIELD:
+		print_indent(indent);
+		printf("YIELD\n");
+		print_expr(*s.ret.val, indent + 1);
+		break;
 	}
 }
 
@@ -274,6 +286,10 @@ void free_stmt(stmt s) {
 		free(s.def.val);
 		break;
 	case RETURN:
+		free_expr(*s.ret.val);
+		free(s.ret.val);
+		break;
+	case YIELD:
 		free_expr(*s.ret.val);
 		free(s.ret.val);
 		break;

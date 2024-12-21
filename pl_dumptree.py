@@ -19,6 +19,7 @@ types = [
 	'EXPR',
 	'NUM',
 	'SYM',
+	'YIELD',
 ]
 
 import struct
@@ -56,6 +57,8 @@ def undump(data):
 		out.append(name.decode('utf-8'))
 		out.append(undump(val))
 	elif typ == 'RETURN':
+		out.append(undump(data))
+	elif typ == 'YIELD':
 		out.append(undump(data))
 	elif typ == 'SIG':
 		(n,),data = unpackstart('<I', data)
