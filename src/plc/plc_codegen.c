@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 typedef enum {
 #define OP(upper_name, lower_name, op, arity) OP_ ## upper_name,
@@ -199,6 +200,31 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 	switch (e->type) {
 		case EXPR: {
 			assert(ops[e->e.id].arity == 0 || ops[e->e.id].arity == e->e.arity);
+			if ((opcode)e->e.id == OP_CALL && e->e.arity >= 1 && e->e.children[0].type == SYM) {
+				// builtins
+				pv funcname = pv_string_from_data(e->s.name, e->s.len);
+				if ((!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)))) {
+					// variables and functions can override builtins
+					pv_free(funcname);
+#define putargs() \
+					for (unsigned int i = 1; i < e->e.arity; i++) \
+						plc_codegen_expr(c, &(e->e.children[i]))
+#define putarg(i) \
+					plc_codegen_expr(c, &(e->e.children[i + 1]))
+					if (strncmp(e->e.children[0].s.name, "add", e->e.children[0].s.len)) {
+						if (e->e.arity - 1 > 0) {
+							putargs();
+							for (unsigned int i = 0; i < e->e.arity - 2; i++) {
+								pl_bytecode_builder_add(c->code, ADD, {});
+							}
+						} else {
+							pl_bytecode_builder_add(c->code, PUSHINT, {0});
+						}
+					}
+				} else {
+					pv_free(funcname);
+				}
+			}
 			for (unsigned int i = 0; i < e->e.arity; i++) {
 				plc_codegen_expr(c, &(e->e.children[i]));
 			}
