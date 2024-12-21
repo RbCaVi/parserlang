@@ -26,7 +26,7 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 
 #define opcase(op) \
 case(op):; \
-	/*printf("\n" #op "\n");/**/ \
+	/*printf("\n" #op "\n");*/ \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
@@ -217,7 +217,7 @@ pv pl_next(pl_state *state) {
 				} else {
 					pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
 					pv ret = pl_func_call(f, state);
-					state->stack = pl_stack_push(pl_stack_popn(state->stack, CALL_data.n + 1), ret);
+					state->stack = pl_stack_push(pl_stack_popn(state->stack, (uint32_t)CALL_data.n + 1), ret);
 				}
 				break;
 			}

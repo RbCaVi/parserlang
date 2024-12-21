@@ -179,7 +179,7 @@ pl_stack pl_stack_pop_frame(pl_stack stack){
 	// the top of the stack should be a retinfo
 	assert(stack_cell(stack,idx).type == RET);
 	stack.top = idx;
-	stack.locals = stack_cell(stack,idx).ret.locals;
+	stack.locals = (uint32_t)stack_cell(stack,idx).ret.locals;
 
 	return stack;
 }
