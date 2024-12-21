@@ -80,13 +80,15 @@ def one(p):
 		yield next(iter(p(s)))
 	return one
 
-@transform(concatstrip(one(alternate(strs('return'),strs(''))),expr))
+@transform(concatstrip(one(alternate(strs('return'),strs('yield'),strs(''))),expr))
 def exprstmt(data):
 	(_,typ),e=data
 	if typ == '':
 		return ["EXPRSTMT",e]
 	if typ == 'return':
 		return ["RETURN",e]
+	if typ == 'yield':
+		return ["YIELD",e]
 
 @transform(alternate(func,ifstmt,declare,block,setstmt,setop,exprstmt))
 def stmt(data):
