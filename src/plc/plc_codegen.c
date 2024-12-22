@@ -204,7 +204,9 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 			assert(ops[e->e.id].arity == 0 || ops[e->e.id].arity == e->e.arity);
 			if ((opcode)e->e.id == OP_CALL && e->e.arity >= 1 && e->e.children[0].type == SYM) {
 				// builtins
-				pv funcname = pv_string_from_data(e->s.name, e->s.len);
+				pv funcname = pv_string_from_data(e->e.children[0].s.name, e->e.children[0].s.len);
+				//pl_dump_pv(pv_copy(funcname));
+				//printf("in vars: %i, in globals: %i, check builtin?: %i\n", pv_object_has(pv_copy(c->vars), pv_copy(funcname)), pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)), (!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname))));
 				if ((!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)))) {
 					// variables and functions can override builtins
 					pv_free(funcname);
@@ -213,7 +215,8 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 						plc_codegen_expr(c, &(e->e.children[i]))
 #define putarg(i) \
 					plc_codegen_expr(c, &(e->e.children[i + 1]))
-					if (strncmp(e->e.children[0].s.name, "add", e->e.children[0].s.len)) {
+					//printf("funcname: %.*s\n", e->e.children[0].s.len, e->e.children[0].s.name);
+					if (strncmp(e->e.children[0].s.name, "add", e->e.children[0].s.len) == 0) {
 						if (e->e.arity - 1 > 0) {
 							putargs();
 							for (unsigned int i = 0; i < e->e.arity - 2; i++) {
@@ -222,6 +225,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 						} else {
 							pl_bytecode_builder_add(c->code, PUSHINT, {0});
 						}
+						break;
 					}
 				} else {
 					pv_free(funcname);
