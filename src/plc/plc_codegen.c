@@ -151,10 +151,12 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 				c2->vars = pv_object_set(c2->vars, pv_string_from_data(s->deffunc.args[i], s->deffunc.arglens[i]), pv_int(c2->stacksize++));
 			}
 			pl_bytecode_builder *b = plc_codegen_stmt(c2, s->deffunc.code);
+			b = pl_bytecode_dup_builder(b); // the original is freed by plc_codegen_context_free(c2)
 			pl_bytecode_builder_add(b, PUSHNULL, {});
 			pl_bytecode_builder_add(b, RET, {});
 			pl_bytecode_builder_add(b, GRET, {});
 			pl_bytecode code = pl_bytecode_from_builder(b);
+			pl_bytecode_builder_free(b);
 			plc_codegen_context_free(c2);
 			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(pv_copy(c->globalmap), pv_string_from_data(s->deffunc.name, s->deffunc.namelen))), pl_func(code));
 			break;

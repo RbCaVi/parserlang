@@ -48,9 +48,11 @@ int main(int argc, char **argv) {
 
 	pl_bytecode_builder *b = plc_codegen_stmt(c, &s);
 	// in case control flow reaches the end, return null
+	b = pl_bytecode_dup_builder(b); // the original is freed by plc_codegen_context_free(2
 	pl_bytecode_builder_add(b, PUSHNULL, {});
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode_builder_add(b, GRET, {});
+	pl_bytecode_builder_free(b);
 	pl_bytecode code = pl_bytecode_from_builder(b);
 
 	printf("top level bytecode:\n");
