@@ -30,6 +30,7 @@ def eof(s):
 		yield None,''
 
 def prgm(s):
+	s = re.sub('#[^\n]*\n', '\n', s)
 	return next(iter(concat(stmts, eof)(s)))[0][0]
 
 import struct
