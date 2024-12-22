@@ -15,6 +15,8 @@ typedef struct {
 
 pl_bytecode_builder *pl_bytecode_new_builder();
 
+pl_bytecode_builder *pl_bytecode_dup_builder(pl_bytecode_builder*);
+
 #define OPCODE(op, op_lower, data) \
 pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder*, pl_ ## op ## _data);
 #include "pl_opcodes_data.h"

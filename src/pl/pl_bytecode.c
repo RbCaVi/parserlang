@@ -17,6 +17,10 @@ pl_bytecode_builder *pl_bytecode_new_builder() {
 	return b;
 }
 
+pl_bytecode_builder *pl_bytecode_dup_builder(pl_bytecode_builder *b) {
+	return pl_bytecode_builder_add_builder(pl_bytecode_new_builder(), b);
+}
+
 pl_bytecode_builder *pl_bytecode_extend(pl_bytecode_builder *b, uint32_t size) {
 	b->end += size;
 	if (b->end > b->size) {
