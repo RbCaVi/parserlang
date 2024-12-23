@@ -29,6 +29,10 @@ static op ops[] = {
 #undef OP
 };
 
+pv plcp_sym_to_pv(struct plc_sym sym) {
+	return pv_string_from_data(sym.name, sym.len);
+}
+
 struct plc_codegen_context {
 	pl_bytecode_builder *code;
 	// i'm using pv here because i'm too lazy to manage c types now
@@ -188,6 +192,14 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode_builder_add(c->code, RET, {});
 			break;
 		}
+		case SET: {
+			assert(s->set.var.type == SYM);
+			pv var = plcp_sym_to_pv(s->set.var);
+			assert(pv_object_has(pv_copy(c->vars), pv_copy(var)));
+			plc_codegen_expr(c, s->set.val);
+			pl_bytecode_builder_add(c->code, SET, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
+			break;
+		}
 		default:
 			abort();
 	}
@@ -204,7 +216,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 			assert(ops[e->e.id].arity == 0 || ops[e->e.id].arity == e->e.arity);
 			if ((opcode)e->e.id == OP_CALL && e->e.arity >= 1 && e->e.children[0].type == SYM) {
 				// builtins
-				pv funcname = pv_string_from_data(e->e.children[0].s.name, e->e.children[0].s.len);
+				pv funcname = plcp_sym_to_pv(e->e.children[0].s);
 				//pl_dump_pv(pv_copy(funcname));
 				//printf("in vars: %i, in globals: %i, check builtin?: %i\n", pv_object_has(pv_copy(c->vars), pv_copy(funcname)), pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)), (!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname))));
 				if ((!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)))) {
@@ -260,7 +272,7 @@ case OP_ ## op: \
 			break;
 		}
 		case SYM: {
-			pv var = pv_string_from_data(e->s.name, e->s.len);
+			pv var = plcp_sym_to_pv(e->s);
 			//pl_dump_pv(pv_copy(c->vars));
 			//pl_dump_pv(pv_copy(c->globalmap));
 			//pl_dump_pv(pv_copy(var));

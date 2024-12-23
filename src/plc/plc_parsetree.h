@@ -18,7 +18,7 @@ struct expr {
 		struct {
 			int value;
 		} n;
-		struct {
+		struct plc_sym {
 			unsigned int len;
 			char *name;
 		} s;
