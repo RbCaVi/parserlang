@@ -30,11 +30,11 @@ CALLCONSTN addr n
 // each definition is OPCODE(opcode name, data members (as struct))
 
 OPCODE(DUP, dup, {}) // duplicate top of stack (= DUPN -1)
-OPCODE(DUPN, dupn, {int n;}) // duplicate n below
+OPCODE(DUPN, dupn, {int n;}) // duplicate stack[n]
 OPCODE(POP, pop, {}) // delete top of stack
 OPCODE(POPTO, popto, {unsigned int n;}) // pop elements until locals is n elements tall
-OPCODE(SWAPN, swapn, {int n;}) // swap top with n below (= SWAPNN n -1)
-OPCODE(SWAPNN, swapnn, {int n1;int n2;}) // swap n1 below with n2 below
+OPCODE(SWAPN, swapn, {int n;}) // swap top with stack[n] (= SWAPNN n -1)
+OPCODE(SWAPNN, swapnn, {int n1;int n2;}) // swap stack[n1] with stack[n2]
 
 OPCODE(PUSHNULL, pushnull, {}) // push null (literally just that)
 OPCODE(PUSHBOOL, pushbool, {int v;}) // push a bool with value v (0 or 1)

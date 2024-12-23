@@ -60,17 +60,17 @@ pv pl_next(pl_state *state) {
 			opcase(SWAPN) {
 				// is that a reference to the hit game ultrakill???
 				pv v1 = pl_stack_top(state->stack);
-				pv v2 = pl_stack_get(state->stack, -SWAPN_data.n);
+				pv v2 = pl_stack_get(state->stack, SWAPN_data.n);
 				state->stack = pl_stack_set(state->stack, v2, -1);
-				state->stack = pl_stack_set(state->stack, v1, -SWAPN_data.n);
+				state->stack = pl_stack_set(state->stack, v1, SWAPN_data.n);
 				break;
 			}
 			opcase(SWAPNN) {
 				// is that a reference to the hit game ultrakill???
-				pv v1 = pl_stack_get(state->stack, -SWAPNN_data.n1);
-				pv v2 = pl_stack_get(state->stack, -SWAPNN_data.n2);
-				state->stack = pl_stack_set(state->stack, v2, -SWAPNN_data.n1);
-				state->stack = pl_stack_set(state->stack, v1, -SWAPNN_data.n2);
+				pv v1 = pl_stack_get(state->stack, SWAPNN_data.n1);
+				pv v2 = pl_stack_get(state->stack, SWAPNN_data.n2);
+				state->stack = pl_stack_set(state->stack, v2, SWAPNN_data.n1);
+				state->stack = pl_stack_set(state->stack, v1, SWAPNN_data.n2);
 				break;
 			}
 			opcase(PUSHNULL) {
