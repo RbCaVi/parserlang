@@ -125,6 +125,8 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 		case IF:
 		case DEF:
 		case RETURN:
+		case YIELD:
+		case SET:
 			break;
 		default:
 			abort();
@@ -193,11 +195,11 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case SET: {
-			assert(s->set.var.type == SYM);
-			pv var = plcp_sym_to_pv(s->set.var);
+			assert(s->set.var->type == SYM);
+			pv var = plcp_sym_to_pv(s->set.var->s);
 			assert(pv_object_has(pv_copy(c->vars), pv_copy(var)));
 			plc_codegen_expr(c, s->set.val);
-			pl_bytecode_builder_add(c->code, SET, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
+			pl_bytecode_builder_add(c->code, SETN, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
 			break;
 		}
 		default:

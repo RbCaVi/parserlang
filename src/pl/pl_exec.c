@@ -52,7 +52,7 @@ pv pl_next(pl_state *state) {
 			opcase(SETN) {
 				pv v = pl_stack_top(state->stack);
 				state->stack = pl_stack_pop(state->stack);
-				state->stack = pl_stack_set(state->stack, v1, DUPN_data.n);
+				state->stack = pl_stack_set(state->stack, v, SETN_data.n);
 				break;
 			}
 			opcase(POP) {
