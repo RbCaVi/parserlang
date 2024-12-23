@@ -27,6 +27,9 @@ typedef enum {
 	NODE_NUM,
 	NODE_SYM,
 	NODE_YIELD,
+	NODE_SETSTMT,
+	//NODE_EXPRSTMT,
+	//NODE_SETOPSTMT,
 } node_type;
 
 typedef struct {
@@ -170,6 +173,19 @@ stmt parse_stmt(char *data) {
 		*out.yield.val = parse_expr(data);
 		break;
 	}
+	case NODE_SETSTMT: {
+		out.type = SET;
+		int varlen = *(int*)data;
+		data += sizeof(int);
+		//int vallen = *(int*)data;
+		data += sizeof(int);
+		out.set.var = malloc(sizeof(expr));
+		*out.set.var = parse_expr(data);
+		data += varlen;
+		out.set.val = malloc(sizeof(expr));
+		*out.set.val = parse_expr(data);
+		break;
+	}
 	default:
 		assert(false);
 	}
@@ -242,7 +258,13 @@ void print_stmt(stmt s, int indent) {
 	case YIELD:
 		print_indent(indent);
 		printf("YIELD\n");
-		print_expr(*s.ret.val, indent + 1);
+		print_expr(*s.yield.val, indent + 1);
+		break;
+	case SET:
+		print_indent(indent);
+		printf("SET\n");
+		print_expr(*s.set.var, indent + 1);
+		print_expr(*s.set.val, indent + 1);
 		break;
 	}
 }
@@ -290,8 +312,14 @@ void free_stmt(stmt s) {
 		free(s.ret.val);
 		break;
 	case YIELD:
-		free_expr(*s.ret.val);
-		free(s.ret.val);
+		free_expr(*s.yield.val);
+		free(s.yield.val);
+		break;
+	case SET:
+		free_expr(*s.set.var);
+		free(s.set.var);
+		free_expr(*s.set.val);
+		free(s.set.val);
 		break;
 	}
 }

@@ -35,6 +35,7 @@ struct stmt {
 		DEF,
 		RETURN,
 		YIELD,
+		SET,
 	} type;
 	union {
 		struct {
@@ -64,6 +65,10 @@ struct stmt {
 		struct {
 			expr *val;
 		} yield;
+		struct {
+			expr *var; // right now only plain variables are allowed
+			expr *val;
+		} set;
 	};
 };
 

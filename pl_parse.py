@@ -46,6 +46,7 @@ types = {typ:i for i,typ in enumerate([
 	'NUM',
 	'SYM',
 	'YIELD',
+	'SETSTMT',
 ])}
 
 def dump(stmt, indent = 'a:'):
@@ -114,6 +115,13 @@ def dump(stmt, indent = 'a:'):
 	elif typ == 'YIELD':
 		_,val = stmt
 		data += dump(val)
+	elif typ == 'SETSTMT':
+		_,var,val = stmt
+		var = dump(var)
+		val = dump(val)
+		data += struct.pack('<II', len(var), len(val))
+		data += var
+		data += val
 	else:
 		raise ValueError(f'what??? ({stmt})')
 	return data
