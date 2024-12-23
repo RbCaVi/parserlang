@@ -45,6 +45,7 @@ types = {typ:i for i,typ in enumerate([
 	'EXPR',
 	'NUM',
 	'SYM',
+	'YIELD',
 ])}
 
 def dump(stmt, indent = 'a:'):
@@ -110,6 +111,9 @@ def dump(stmt, indent = 'a:'):
 		sym = stmt[1]
 		data += struct.pack('<I', len(sym))
 		data += sym.encode('utf-8')
+	elif typ == 'YIELD':
+		_,val = stmt
+		data += dump(val)
 	else:
 		raise ValueError(f'what??? ({stmt})')
 	return data
