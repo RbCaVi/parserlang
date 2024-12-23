@@ -31,6 +31,7 @@ CALLCONSTN addr n
 
 OPCODE(DUP, dup, {}) // duplicate top of stack (= DUPN -1)
 OPCODE(DUPN, dupn, {int n;}) // duplicate stack[n]
+OPCODE(SETN, setn, {int n;}) // pop and set stack[n]
 OPCODE(POP, pop, {}) // delete top of stack
 OPCODE(POPTO, popto, {unsigned int n;}) // pop elements until locals is n elements tall
 OPCODE(SWAPN, swapn, {int n;}) // swap top with stack[n] (= SWAPNN n -1)

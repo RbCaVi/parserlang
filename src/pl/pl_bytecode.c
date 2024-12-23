@@ -154,6 +154,9 @@ void pl_bytecode_dump(pl_bytecode b) {
 			opcase(DUPN)
 				printf(" %i\n", DUPN_data.n);
 				break;
+			opcase(SETN)
+				printf(" %i\n", SETN_data.n);
+				break;
 			opcase(POPTO)
 				printf(" %i\n", POPTO_data.n);
 				break;

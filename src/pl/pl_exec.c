@@ -49,6 +49,12 @@ pv pl_next(pl_state *state) {
 				state->stack = pl_stack_push(state->stack, pl_stack_get(state->stack, DUPN_data.n));
 				break;
 			}
+			opcase(SETN) {
+				pv v = pl_stack_top(state->stack);
+				state->stack = pl_stack_pop(state->stack);
+				state->stack = pl_stack_set(state->stack, v1, DUPN_data.n);
+				break;
+			}
 			opcase(POP) {
 				state->stack = pl_stack_pop(state->stack);
 				break;
