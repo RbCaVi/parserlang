@@ -3,6 +3,11 @@
 
 typedef struct expr expr;
 
+typedef struct {
+	unsigned int len;
+	char *name;
+} plc_sym;
+
 struct expr {
 	enum expr_type {
 		EXPR,
@@ -18,10 +23,7 @@ struct expr {
 		struct {
 			int value;
 		} n;
-		struct plc_sym {
-			unsigned int len;
-			char *name;
-		} s;
+		plc_sym s;
 	};
 };
 
@@ -44,11 +46,9 @@ struct stmt {
 			stmt *children;
 		} block;
 		struct {
-			unsigned int namelen;
-			char *name;
+			plc_sym name;
+			plc_sym *args;
 			unsigned int arity;
-			unsigned int *arglens;
-			char **args;
 			stmt *code;
 		} deffunc;
 		struct {
@@ -56,8 +56,7 @@ struct stmt {
 			stmt *code;
 		} ifs;
 		struct {
-			unsigned int namelen;
-			char *name;
+			plc_sym name;
 			expr *val;
 		} def;
 		struct {
@@ -71,8 +70,7 @@ struct stmt {
 			expr *val;
 		} set;
 		struct {
-			unsigned int varlen;
-			char *var; // right now only plain variables are allowed
+			plc_sym var;
 			expr *val;
 			stmt *code;
 		} fors;

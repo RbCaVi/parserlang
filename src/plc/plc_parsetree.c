@@ -35,8 +35,7 @@ typedef enum {
 
 typedef struct {
 	unsigned int arity;
-	unsigned int *arglens;
-	char **args;
+	plc_sym *args;
 } sig;
 
 static expr parse_expr(char *data) {
@@ -86,13 +85,13 @@ static sig parse_sig(char *data) {
 	unsigned int arity = *(unsigned int*)data;
 	data += sizeof(unsigned int);
 	out.arity = arity;
-	out.args = malloc(sizeof(char*) * arity);
-	int *lens = (int*)data;
+	out.args = malloc(sizeof(plc_sym) * arity);
+	unsigned int *lens = (unsigned int*)data;
 	data += sizeof(int) * arity;
-	out.arglens = lens;
 	for (unsigned int i = 0; i < arity; i++) {
-		int len = lens[i];
-		out.args[i] = data;
+		unsigned int len = lens[i];
+		out.args[i].name = data;
+		out.args[i].len = len;
 		data += len;
 	}
 	return out;
@@ -121,18 +120,17 @@ stmt parse_stmt(char *data) {
 	case NODE_DEFFUNC: {
 		out.type = DEFFUNC;
 		unsigned int namelen = *(unsigned int*)data;
-		out.deffunc.namelen = namelen;
+		out.deffunc.name.len = namelen;
 		data += sizeof(unsigned int);
 		int siglen = *(int*)data;
 		data += sizeof(int);
 		//int codelen = *(int*)data;
 		data += sizeof(int);
-		out.deffunc.name = data;
+		out.deffunc.name.name = data;
 		data += namelen;
 		sig s = parse_sig(data);
 		data += siglen;
 		out.deffunc.arity = s.arity;
-		out.deffunc.arglens = s.arglens;
 		out.deffunc.args = s.args;
 		out.deffunc.code = malloc(sizeof(stmt));
 		*out.deffunc.code = parse_stmt(data);
@@ -154,9 +152,9 @@ stmt parse_stmt(char *data) {
 	case NODE_DEF: {
 		out.type = DEF;
 		unsigned int namelen = *(unsigned int*)data;
-		out.def.namelen = namelen;
+		out.def.name.len = namelen;
 		data += sizeof(unsigned int);
-		out.def.name = data;
+		out.def.name.name = data;
 		data += namelen;
 		out.def.val = malloc(sizeof(expr));
 		*out.def.val = parse_expr(data);
@@ -195,8 +193,8 @@ stmt parse_stmt(char *data) {
 		data += sizeof(int);
 		//int codelen = *(int*)data;
 		data += sizeof(int);
-		out.fors.varlen = varlen;
-		out.fors.var = data;
+		out.fors.var.len = varlen;
+		out.fors.var.name = data;
 		data += varlen;
 		out.fors.val = malloc(sizeof(expr));
 		*out.fors.val = parse_expr(data);
@@ -249,12 +247,12 @@ void print_stmt(stmt s, int indent) {
 		break;
 	case DEFFUNC:
 		print_indent(indent);
-		printf("DEFFUNC %.*s\n", s.deffunc.namelen, s.deffunc.name);
+		printf("DEFFUNC %.*s\n", s.deffunc.name.len, s.deffunc.name.name);
 		print_indent(indent + 1);
 		printf("SIG\n");
 		for (unsigned int i = 0; i < s.deffunc.arity; i++) {
 			print_indent(indent + 2);
-			printf("%.*s\n", s.deffunc.arglens[i], s.deffunc.args[i]);
+			printf("%.*s\n", s.deffunc.args[i].len, s.deffunc.args[i].name);
 		}
 		print_stmt(*s.deffunc.code, indent + 1);
 		break;
@@ -266,7 +264,7 @@ void print_stmt(stmt s, int indent) {
 		break;
 	case DEF:
 		print_indent(indent);
-		printf("DEF %.*s\n", s.def.namelen, s.def.name);
+		printf("DEF %.*s\n", s.def.name.len, s.def.name.name);
 		print_expr(*s.def.val, indent + 1);
 		break;
 	case RETURN:
@@ -289,7 +287,7 @@ void print_stmt(stmt s, int indent) {
 		print_indent(indent);
 		printf("FOR\n");
 		print_indent(indent + 1);
-		printf("%.*s\n", s.fors.varlen, s.fors.var);
+		printf("%.*s\n", s.fors.var.len, s.fors.var.name);
 		print_expr(*s.fors.val, indent + 1);
 		print_stmt(*s.fors.code, indent + 1);
 		break;

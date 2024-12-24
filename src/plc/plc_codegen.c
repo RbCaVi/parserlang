@@ -29,7 +29,7 @@ static op ops[] = {
 #undef OP
 };
 
-pv plcp_sym_to_pv(struct plc_sym sym) {
+pv plcp_sym_to_pv(plc_sym sym) {
 	return pv_string_from_data(sym.name, sym.len);
 }
 
@@ -116,8 +116,8 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 	switch (s->type) {
 		case DEFFUNC: {
 			//printf("collected DEFFUNC: ");
-			//pl_dump_pv(pv_string_from_data(s->deffunc.name, s->deffunc.namelen));
-			c->globalmap = pv_object_set(c->globalmap, pv_string_from_data(s->deffunc.name, s->deffunc.namelen), pv_int((int)pv_array_length(pv_copy(*c->globals))));
+			//pl_dump_pv(plcp_sym_to_pv(s->deffunc.name));
+			c->globalmap = pv_object_set(c->globalmap, plcp_sym_to_pv(s->deffunc.name), pv_int((int)pv_array_length(pv_copy(*c->globals))));
 			*c->globals = pv_array_append(*c->globals, pv_invalid());
 			break;
 		}
@@ -154,7 +154,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 		case DEFFUNC: {
 			plc_codegen_context *c2 = plc_codegen_context_chain(c);
 			for (uint32_t i = 0; i < s->deffunc.arity; i++) {
-				c2->vars = pv_object_set(c2->vars, pv_string_from_data(s->deffunc.args[i], s->deffunc.arglens[i]), pv_int(c2->stacksize++));
+				c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->deffunc.args[i]), pv_int(c2->stacksize++));
 			}
 			pl_bytecode_builder *b = plc_codegen_stmt(c2, s->deffunc.code);
 			b = pl_bytecode_dup_builder(b); // the original is freed by plc_codegen_context_free(c2)
@@ -164,7 +164,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode code = pl_bytecode_from_builder(b);
 			pl_bytecode_builder_free(b);
 			plc_codegen_context_free(c2);
-			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(pv_copy(c->globalmap), pv_string_from_data(s->deffunc.name, s->deffunc.namelen))), pl_func(code));
+			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(pv_copy(c->globalmap), plcp_sym_to_pv(s->deffunc.name))), pl_func(code));
 			break;
 		}
 		case IF: {
@@ -179,7 +179,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 		case DEF: {
 			plc_codegen_expr(c, s->def.val);
 			//printf("vars refcount          %i\n", pv_get_refcount(c->vars));
-			c->vars = pv_object_set(c->vars, pv_string_from_data(s->def.name, s->def.namelen), pv_int(c->stacksize++));
+			c->vars = pv_object_set(c->vars, plcp_sym_to_pv(s->def.name), pv_int(c->stacksize++));
 			//pl_dump_pv(pv_copy(c->vars));
 			break;
 		}
