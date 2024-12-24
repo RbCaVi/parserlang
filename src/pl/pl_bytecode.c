@@ -39,7 +39,7 @@ pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder *b, pl_ 
 	uint32_t offset = b->end; \
 	b = pl_bytecode_extend(b, sizeof(pl_opcode) + sizeof(pl_ ## op ## _data)); \
 	char *pos = b->bytecode + offset; \
-	((pl_opcode*)pos)[0] = OP_ ## op; \
+	((pl_opcode*)pos)[0] = OPCODE_ ## op; \
 	((pl_ ## op ## _data*)(((pl_opcode*)pos) + 1))[0] = data; \
 	return b; \
 }
@@ -83,7 +83,7 @@ static int plp_bytecode_instructions_between_(const char *b1, const char *b2) {
 	while (b1 < b2) {
 		switch (plp_get_opcode(b1)) {
 #define OPCODE(op, op_lower, data) \
-case OP_ ## op: \
+case OPCODE_ ## op: \
 	b1 += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	break;
 #include "pl_opcodes_data.h"
@@ -104,7 +104,7 @@ static int plp_bytecode_instructions_between(const char *b1, const char *b2) {
 }
 
 #define opcase(op) \
-case(OP_ ## op):; \
+case(OPCODE_ ## op):; \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	printf(#op); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \

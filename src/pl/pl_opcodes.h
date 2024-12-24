@@ -1,7 +1,7 @@
 #ifndef PL_OPCODES_H
 #define PL_OPCODES_H
 
-#define OPCODE(op, op_lower, data) OP_ ## op,
+#define OPCODE(op, op_lower, data) OPCODE_ ## op,
 typedef enum {
 #include "pl_opcodes_data.h"
 } pl_opcode;
