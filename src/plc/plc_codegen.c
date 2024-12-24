@@ -201,6 +201,15 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode_builder_add(c->code, SETN, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
 			break;
 		}
+		case WHILE: {
+			plc_codegen_expr(c, s->ifs.cond);
+			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
+			plc_codegen_stmt(c2, s->ifs.code);
+			pl_bytecode_builder_add(c2->code, JUMP, {-(int)pl_bytecode_builder_len(c2->code) - 8});
+			pl_bytecode_builder_add(c->code, JUMPIFNOT, {(int)pl_bytecode_builder_len(c2->code)});
+			plc_codegen_context_add(c, c2);
+			break;
+		}
 		default:
 			abort();
 	}
