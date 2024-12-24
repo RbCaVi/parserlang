@@ -90,11 +90,16 @@ def exprstmt(data):
 	if typ == 'yield':
 		return ["YIELD",e]
 
-@transform(concatstrip(strs('for'),sym,strs('in'),expr,blockstmt))
+@transform(concatstrip(strs('for'),sym,strs('in'),expr,strs('do'),blockstmt))
 def forstmt(data):
 	_,var,__,it,(_,*stmts)=data
 	return ['FOR',var,it,["BLOCK",*stmts]]
 
-@transform(alternate(func,ifstmt,forstmt,declare,setstmt,setop,block,exprstmt))
+@transform(concatstrip(strs('while'),expr,strs('then'),blockstmt))
+def whilestmt(data):
+	_,cond,__,(_,*stmts)=data
+	return ['WHILE',cond,["BLOCK",*stmts]]
+
+@transform(alternate(func,ifstmt,forstmt,whilestmt,declare,setstmt,setop,block,exprstmt))
 def stmt(data):
 	return data[1]

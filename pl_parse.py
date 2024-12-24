@@ -48,6 +48,7 @@ types = {typ:i for i,typ in enumerate([
 	'YIELD',
 	'SETSTMT',
 	'FOR',
+	'WHILE',
 ])}
 
 def dump(stmt, indent = 'a:'):
@@ -131,6 +132,13 @@ def dump(stmt, indent = 'a:'):
 		data += struct.pack('<III', len(var), len(val), len(code))
 		data += var
 		data += val
+		data += code
+	elif typ == 'WHILE':
+		_,cond,code = stmt
+		cond = dump(cond)
+		code = dump(code)
+		data += struct.pack('<III', len(cond), len(code))
+		data += cond
 		data += code
 	else:
 		raise ValueError(f'what??? ({stmt})')

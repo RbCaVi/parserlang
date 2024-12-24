@@ -29,6 +29,7 @@ typedef enum {
 	NODE_YIELD,
 	NODE_SETSTMT,
 	NODE_FOR,
+	NODE_WHILE,
 	//NODE_EXPRSTMT,
 	//NODE_SETOPSTMT,
 } node_type;
@@ -203,6 +204,19 @@ stmt parse_stmt(char *data) {
 		*out.fors.code = parse_stmt(data);
 		break;
 	}
+	case NODE_WHILE: {
+		out.type = WHILE;
+		int condlen = *(int*)data;
+		data += sizeof(int);
+		//int codelen = *(int*)data;
+		data += sizeof(int);
+		out.whiles.cond = malloc(sizeof(expr));
+		*out.whiles.cond = parse_expr(data);
+		data += condlen;
+		out.whiles.code = malloc(sizeof(stmt));
+		*out.whiles.code = parse_stmt(data);
+		break;
+	}
 	default:
 		assert(false);
 	}
@@ -291,6 +305,12 @@ void print_stmt(stmt s, int indent) {
 		print_expr(*s.fors.val, indent + 1);
 		print_stmt(*s.fors.code, indent + 1);
 		break;
+	case WHILE:
+		print_indent(indent);
+		printf("WHILE\n");
+		print_expr(*s.whiles.cond, indent + 1);
+		print_stmt(*s.whiles.code, indent + 1);
+		break;
 	}
 }
 
@@ -351,6 +371,12 @@ void free_stmt(stmt s) {
 		free(s.fors.val);
 		free_stmt(*s.fors.code);
 		free(s.fors.code);
+		break;
+	case WHILE:
+		free_expr(*s.whiles.cond);
+		free(s.whiles.cond);
+		free_stmt(*s.whiles.code);
+		free(s.whiles.code);
 		break;
 	}
 }

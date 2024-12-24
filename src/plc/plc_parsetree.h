@@ -39,6 +39,7 @@ struct stmt {
 		YIELD,
 		SET,
 		FOR,
+		WHILE,
 	} type;
 	union {
 		struct {
@@ -74,6 +75,10 @@ struct stmt {
 			expr *val;
 			stmt *code;
 		} fors;
+		struct {
+			expr *cond;
+			stmt *code;
+		} whiles;
 	};
 };
 
