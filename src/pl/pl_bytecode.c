@@ -125,18 +125,6 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(PUSHNULL)
 			nodataopcase(PUSHARRAY)
 			nodataopcase(PUSHOBJECT)
-			nodataopcase(APPENDA)
-			nodataopcase(CONCATA)
-			nodataopcase(SETA)
-			nodataopcase(GETA)
-			nodataopcase(LENA)
-			nodataopcase(SLICEA)
-			nodataopcase(SETO)
-			nodataopcase(APPENDO)
-			nodataopcase(GETO)
-			nodataopcase(DELO)
-			nodataopcase(HASO)
-			nodataopcase(LENO)
 #define UOP(upper_name, lower_name, expr) \
 			nodataopcase(upper_name)
 #define BOP(upper_name, lower_name, expr, isdefault) \
@@ -180,24 +168,6 @@ void pl_bytecode_dump(pl_bytecode b) {
 				break;
 			opcase(MAKEARRAY)
 				printf(" %i\n", MAKEARRAY_data.n);
-				break;
-			opcase(SETAI)
-				printf(" %i\n", SETAI_data.i);
-				break;
-			opcase(GETAI)
-				printf(" %i\n", GETAI_data.i);
-				break;
-			opcase(SLICEAL)
-				printf(" %i\n", SLICEAL_data.i);
-				break;
-			opcase(SLICEAM)
-				printf(" %i\n", SLICEAM_data.i);
-				break;
-			opcase(SLICEAR)
-				printf(" %i\n", SLICEAR_data.i);
-				break;
-			opcase(SLICEAII)
-				printf(" %i %i\n", SLICEAII_data.i1, SLICEAII_data.i2);
 				break;
 			opcase(MAKEOBJECT)
 				printf(" %i\n", MAKEOBJECT_data.n);

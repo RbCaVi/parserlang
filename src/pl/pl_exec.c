@@ -116,59 +116,6 @@ pv pl_next(pl_state *state) {
 				state->stack = pl_stack_push(state->stack, a);
 				break;
 			}
-			opcase(APPENDA) {
-				pv a = pl_stack_get(state->stack, -2);
-				pv v = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2); // have to unref the array from the stack so i can modify it without copying
-				a = pv_array_append(a, v);
-				state->stack = pl_stack_push(state->stack, a);
-				break;
-			}
-			opcase(CONCATA) {
-				pv a1 = pl_stack_get(state->stack, -2);
-				pv a2 = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2); // have to unref the bottom array from the stack so i can modify one without copying
-				pv a = pv_array_append(a1, a2);
-				state->stack = pl_stack_push(state->stack, a);
-				break;
-			}
-			opcase(SETA) {
-				pv a = pl_stack_get(state->stack, -3);
-				pv i = pl_stack_get(state->stack, -2);
-				pv v = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 3); // have to unref the array from the stack so i can modify it without copying
-				a = pv_array_set(a, pv_int_value(i), v);
-				state->stack = pl_stack_push(state->stack, a);
-				break;
-			}
-			opcase(SETAI) {
-				pv a = pl_stack_get(state->stack, -2);
-				pv v = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2); // have to unref the array from the stack so i can modify it without copying
-				a = pv_array_set(a, SETAI_data.i, v);
-				state->stack = pl_stack_push(state->stack, a);
-				break;
-			}
-			opcase(GETA) {
-				pv a = pl_stack_get(state->stack, -2);
-				pv i = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2);
-				pv v = pv_array_get(a, pv_int_value(i));
-				state->stack = pl_stack_push(state->stack, v);
-				break;
-			}
-			opcase(GETAI) {
-				pv a = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 1);
-				pv v = pv_array_get(a, GETAI_data.i);
-				state->stack = pl_stack_push(state->stack, v);
-				break;
-			}
-			opcase(LENA) {
-				pv a = pl_stack_top(state->stack);
-				state->stack = pl_stack_set(state->stack, pv_int((int)pv_array_length(a)), 11);
-				break;
-			}
 			opcase(MAKEOBJECT) {
 				pv o = pv_object();
 				for (int i = -(int)MAKEOBJECT_data.n * 2; i < 0; i++) {
@@ -176,43 +123,6 @@ pv pl_next(pl_state *state) {
 				}
 				state->stack = pl_stack_popn(state->stack, MAKEOBJECT_data.n * 2);
 				state->stack = pl_stack_push(state->stack, o);
-				break;
-			}
-			opcase(SETO) {
-				pv o = pl_stack_get(state->stack, -3);
-				pv k = pl_stack_get(state->stack, -2);
-				pv v = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 3); // have to unref the array from the stack so i can modify it without copying
-				o = pv_object_set(o, k, v);
-				state->stack = pl_stack_push(state->stack, o);
-				break;
-			}
-			opcase(GETO) {
-				pv o = pl_stack_get(state->stack, -2);
-				pv k = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2);
-				pv v = pv_object_get(o, k);
-				state->stack = pl_stack_push(state->stack, v);
-				break;
-			}
-			opcase(DELO) {
-				pv o = pl_stack_get(state->stack, -2);
-				pv k = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2);
-				o = pv_object_delete(o, k);
-				state->stack = pl_stack_push(state->stack, o);
-				break;
-			}
-			opcase(HASO) {
-				pv o = pl_stack_get(state->stack, -2);
-				pv k = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2);
-				state->stack = pl_stack_push(state->stack, pv_bool(pv_object_has(o, k)));
-				break;
-			}
-			opcase(LENO) {
-				pv o = pl_stack_top(state->stack);
-				state->stack = pl_stack_set(state->stack, pv_int((int)pv_object_length(o)), -1);
 				break;
 			}
 			opcase(CALL) {
@@ -327,24 +237,6 @@ pv pl_next(pl_state *state) {
 			}
 			opcase(GRET) {
 				return pv_invalid();
-			}
-			opcase(SLICEA) {
-				abort();
-			}
-			opcase(SLICEAL) {
-				abort();
-			}
-			opcase(SLICEAM) {
-				abort();
-			}
-			opcase(SLICEAR) {
-				abort();
-			}
-			opcase(SLICEAII) {
-				abort();
-			}
-			opcase(APPENDO) {
-				abort();
 			}
 			default:
 				abort(); // how (i think you did something wrong - probably a bad jump offset)

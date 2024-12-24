@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, CALL, {1});
 		pl_bytecode_builder_add(b, MAKEARRAY, {2});
 		pl_bytecode_builder_add(b, PUSHBOOL, {0});
-		pl_bytecode_builder_add(b, APPENDA, {});
+		pl_bytecode_builder_add(b, APPEND, {});
 		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode bytecode = pl_bytecode_from_builder(b);
 
@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
 		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
-		pl_bytecode_builder_add(b, APPENDA, {}); // a i [v]
+		pl_bytecode_builder_add(b, APPEND, {}); // a i [v]
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
 		pl_bytecode_builder_add(b, JUMP, {-52});
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
 		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
-		pl_bytecode_builder_add(b, APPENDA, {}); // a i [v]
+		pl_bytecode_builder_add(b, APPEND, {}); // a i [v]
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
 		pl_bytecode_builder_add(b, JUMP, {-52});
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
 		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
-		pl_bytecode_builder_add(b, APPENDA, {}); // a i [v]
+		pl_bytecode_builder_add(b, APPEND, {}); // a i [v]
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
 		pl_bytecode_builder_add(b, JUMP, {-52});
 		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
