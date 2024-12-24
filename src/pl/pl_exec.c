@@ -269,7 +269,7 @@ pv pl_next(pl_state *state) {
 			opcase(JUMPIFNOT) {
 				int b = pv_bool_value(pl_stack_top(state->stack));
 				if (!b) {
-					bytecode += JUMPIF_data.target;
+					bytecode += JUMPIFNOT_data.target;
 				}
 				state->stack = pl_stack_pop(state->stack);
 				break;

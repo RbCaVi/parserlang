@@ -127,6 +127,7 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 		case RETURN:
 		case YIELD:
 		case SET:
+		case WHILE:
 			break;
 		default:
 			abort();
@@ -202,10 +203,13 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case WHILE: {
+			int len1 = pl_bytecode_builder_len(c->code);
 			plc_codegen_expr(c, s->ifs.cond);
+			int len2 = pl_bytecode_builder_len(c->code);
+			int condlen = len2 - len1;
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			plc_codegen_stmt(c2, s->ifs.code);
-			pl_bytecode_builder_add(c2->code, JUMP, {-(int)pl_bytecode_builder_len(c2->code) - 8});
+			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + condlen + 8)});
 			pl_bytecode_builder_add(c->code, JUMPIFNOT, {(int)pl_bytecode_builder_len(c2->code)});
 			plc_codegen_context_add(c, c2);
 			break;

@@ -137,7 +137,7 @@ def dump(stmt, indent = 'a:'):
 		_,cond,code = stmt
 		cond = dump(cond)
 		code = dump(code)
-		data += struct.pack('<III', len(cond), len(code))
+		data += struct.pack('<II', len(cond), len(code))
 		data += cond
 		data += code
 	else:
