@@ -266,6 +266,14 @@ pv pl_next(pl_state *state) {
 				state->stack = pl_stack_pop(state->stack);
 				break;
 			}
+			opcase(JUMPIFNOT) {
+				int b = pv_bool_value(pl_stack_top(state->stack));
+				if (!b) {
+					bytecode += JUMPIF_data.target;
+				}
+				state->stack = pl_stack_pop(state->stack);
+				break;
+			}
 			opcase(ITER) {
 				pv v = pl_stack_top(state->stack);
 				pv i = pl_iter(v);

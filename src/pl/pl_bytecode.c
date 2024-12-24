@@ -211,6 +211,9 @@ void pl_bytecode_dump(pl_bytecode b) {
 			opcase(JUMPIF)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMPIF_data.target));
 				break;
+			opcase(JUMPIFNOT)
+				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMPIFNOT_data.target));
+				break;
 			opcase(ITERATE)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + ITERATE_data.target));
 				break;

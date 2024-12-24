@@ -83,6 +83,7 @@ OPCODE(EQUAL, equal, {})
 
 JOPCODE(JUMP, jump, {int target;}) // unconditional jump - target is bytes relative to the next instruction
 JOPCODE(JUMPIF, jumpif, {int target;}) // pop one value and jump if it is true (it must be a boolean) - target is bytes relative to the next instruction
+JOPCODE(JUMPIFNOT, jumpifnot, {int target;}) // pop one value and jump if it is false (it must be a boolean) - target is bytes relative to the next instruction
 
 OPCODE(ITER, iter, {}) // create an iterator (values for array, keys for object)
 OPCODE(ITERK, iterk, {}) // create a keys iterator
