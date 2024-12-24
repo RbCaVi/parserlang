@@ -25,7 +25,7 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 #undef OPCODE
 
 #define opcase(op) \
-case(op):; \
+case(OP_ ## op):; \
 	/*printf("\n" #op "\n");*/ \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
