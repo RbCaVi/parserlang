@@ -72,9 +72,9 @@ OPCODE(RIGHTI, righti, {int i;}) // pop x and push x[-i:]
 OPCODE(SLICEII, sliceii, {int i1;int i2;}) // pop x and push x[i1:i2]
 
 // string / array / object
-OPCODE(LEN, len, {}) // pop a x and push len(x)
-OPCODE(SET, set, {}) // pop a idx / key and value and set them on the string, array, or object below them
-OPCODE(GET, get, {}) // pop a idx / key and string, array, or object and push the value at idx in that string, array, or object
+OPCODE(LEN, len, {}) // pop x and push len(x)
+OPCODE(SET, set, {}) // pop v, idx, and x and push x[idx] = v
+OPCODE(GET, get, {}) // pop idx and x and push x[idx]
 
 OPCODE(CALL, call, {int n;}) // call n + 1 below with n arguments above it
 
