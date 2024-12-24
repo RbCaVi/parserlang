@@ -73,7 +73,7 @@ static expr parse_expr(char *data) {
 		out.s.name = data;
 		break;
 	default:
-		assert(false);
+		abort(); // death
 	}
 	return out;
 }
@@ -218,7 +218,7 @@ stmt parse_stmt(char *data) {
 		break;
 	}
 	default:
-		assert(false);
+		abort(); // death
 	}
 	return out;
 }

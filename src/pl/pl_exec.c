@@ -27,6 +27,7 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 #define opcase(op) \
 case(OPCODE_ ## op):; \
 	/*printf("\n" #op "\n");*/ \
+	validinstruction = 1; \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
 	(void)op ## _data;
@@ -40,6 +41,7 @@ void pl_state_set_call(pl_state *state, int argc) {
 pv pl_next(pl_state *state) {
 	const char *bytecode = state->code;
 	while (1) {
+		int validinstruction = 0;
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP) {
 				state->stack = pl_stack_push(state->stack, pl_stack_top(state->stack));
@@ -238,8 +240,9 @@ pv pl_next(pl_state *state) {
 			opcase(GRET) {
 				return pv_invalid();
 			}
-			default:
-				abort(); // how (i think you did something wrong - probably a bad jump offset)
+		}
+		if (!validinstruction) {
+			abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
 		//pl_dump_stack(state->stack);
 	}

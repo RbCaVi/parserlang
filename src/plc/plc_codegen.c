@@ -121,16 +121,6 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 			*c->globals = pv_array_append(*c->globals, pv_invalid());
 			break;
 		}
-		case STMT_BLOCK:
-		case STMT_IF:
-		case STMT_DEF:
-		case STMT_RETURN:
-		case STMT_YIELD:
-		case STMT_SET:
-		case STMT_WHILE:
-			break;
-		default:
-			abort();
 	}
 }
 
@@ -214,8 +204,6 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			plc_codegen_context_add(c, c2);
 			break;
 		}
-		default:
-			abort();
 	}
 	//printf("bytecode:\n");
 	//pl_bytecode code = pl_bytecode_from_builder(c->code);
@@ -297,8 +285,6 @@ case OP_ ## op: \
 			}
 			break;
 		}
-		default:
-			abort();
 	}
 	return c->code;
 }

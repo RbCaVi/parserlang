@@ -75,8 +75,6 @@ static pv plp_setup_iter(pv val, pv_iter_type type) {
 		case ENTRIES:
 			i->iter_type = ARRAYKV;
 			break;
-		default:
-			abort();
 		}
 		i->aiter = 0;
 	} else {
@@ -90,8 +88,6 @@ static pv plp_setup_iter(pv val, pv_iter_type type) {
 		case ENTRIES:
 			i->iter_type = OBJECTKV;
 			break;
-		default:
-			abort();
 		}
 		i->oiter = pv_object_iter(pv_copy(val));
 	}
@@ -129,13 +125,12 @@ pv pl_iter_gen(pl_state *pl) {
 pv pl_iter_value(pv val) {
 	assert(val.kind == iter_kind);
 	plp_iter_data *i = plp_iter_get_data(val);
-	pv out;
+	pv out = pv_invalid();
 	switch (i->iter_type) {
 	case ARRAYK:
 	case ARRAYV:
 	case ARRAYKV:
 		if (i->aiter >= pv_array_length(pv_copy(i->val))) {
-			out = pv_invalid();
 			break;
 		}
 		switch (i->iter_type) {
@@ -148,16 +143,12 @@ pv pl_iter_value(pv val) {
 		case ARRAYKV:
 			out = PV_ARRAY(pv_int((int)i->aiter), pv_array_get(pv_copy(i->val), (int)i->aiter));
 			break;
-		default:
-			out = pv_invalid(); // just in case
-			break;
 		}
 		break;
 	case OBJECTK:
 	case OBJECTV:
 	case OBJECTKV:
 		if (!pv_object_iter_valid(pv_copy(i->val), i->oiter)) {
-			out = pv_invalid();
 			break;
 		}
 		switch (i->iter_type) {
@@ -170,15 +161,10 @@ pv pl_iter_value(pv val) {
 		case OBJECTKV:
 			out = PV_ARRAY(pv_object_iter_key(pv_copy(i->val), i->oiter), pv_object_iter_value(pv_copy(i->val), i->oiter));
 			break;
-		default:
-			out = pv_invalid(); // just in case
-			break;
 		}
 		break;
 	case GEN:
-		if (i->pl == NULL) {
-			out = pv_invalid();
-		} else {
+		if (i->pl != NULL) {
 			if (i->val.kind == 0) {
 				i->val = pl_next(i->pl);
 			}
@@ -187,9 +173,6 @@ pv pl_iter_value(pv val) {
 			}
 			out = i->val;
 		}
-		break;
-	default:
-		out = pv_invalid();
 		break;
 	}
 	pv_free(val);
