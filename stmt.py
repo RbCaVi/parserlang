@@ -95,7 +95,7 @@ def forstmt(data):
 	_,var,__,it,(_,*stmts)=data
 	return ['FOR',var,it,["BLOCK",*stmts]]
 
-@transform(concatstrip(strs('while'),expr,strs('then'),blockstmt))
+@transform(concatstrip(strs('while'),expr,strs('do'),blockstmt))
 def whilestmt(data):
 	_,cond,__,(_,*stmts)=data
 	return ['WHILE',cond,["BLOCK",*stmts]]
