@@ -36,6 +36,7 @@ struct stmt {
 		RETURN,
 		YIELD,
 		SET,
+		FOR,
 	} type;
 	union {
 		struct {
@@ -69,6 +70,12 @@ struct stmt {
 			expr *var; // right now only plain variables are allowed
 			expr *val;
 		} set;
+		struct {
+			unsigned int varlen;
+			char *var; // right now only plain variables are allowed
+			expr *val;
+			stmt *code;
+		} fors;
 	};
 };
 

@@ -28,6 +28,7 @@ typedef enum {
 	NODE_SYM,
 	NODE_YIELD,
 	NODE_SETSTMT,
+	NODE_FOR,
 	//NODE_EXPRSTMT,
 	//NODE_SETOPSTMT,
 } node_type;
@@ -186,6 +187,24 @@ stmt parse_stmt(char *data) {
 		*out.set.val = parse_expr(data);
 		break;
 	}
+	case NODE_FOR: {
+		out.type = FOR;
+		unsigned int varlen = *(unsigned int*)data;
+		data += sizeof(int);
+		int vallen = *(int*)data;
+		data += sizeof(int);
+		//int codelen = *(int*)data;
+		data += sizeof(int);
+		out.fors.varlen = varlen;
+		out.fors.var = data;
+		data += varlen;
+		out.fors.val = malloc(sizeof(expr));
+		*out.fors.val = parse_expr(data);
+		data += vallen;
+		out.fors.code = malloc(sizeof(stmt));
+		*out.fors.code = parse_stmt(data);
+		break;
+	}
 	default:
 		assert(false);
 	}
@@ -266,6 +285,14 @@ void print_stmt(stmt s, int indent) {
 		print_expr(*s.set.var, indent + 1);
 		print_expr(*s.set.val, indent + 1);
 		break;
+	case FOR:
+		print_indent(indent);
+		printf("FOR\n");
+		print_indent(indent + 1);
+		printf("%.*s\n", s.fors.varlen, s.fors.var);
+		print_expr(*s.fors.val, indent + 1);
+		print_stmt(*s.fors.code, indent + 1);
+		break;
 	}
 }
 
@@ -320,6 +347,12 @@ void free_stmt(stmt s) {
 		free(s.set.var);
 		free_expr(*s.set.val);
 		free(s.set.val);
+		break;
+	case FOR:
+		free_expr(*s.fors.val);
+		free(s.fors.val);
+		free_stmt(*s.fors.code);
+		free(s.fors.code);
 		break;
 	}
 }
