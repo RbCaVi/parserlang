@@ -114,20 +114,20 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 	// this is because function definitions are hoisted to the top of their scope
 	// usually delimited by brackets
 	switch (s->type) {
-		case DEFFUNC: {
+		case STMT_DEFFUNC: {
 			//printf("collected DEFFUNC: ");
 			//pl_dump_pv(plcp_sym_to_pv(s->deffunc.name));
 			c->globalmap = pv_object_set(c->globalmap, plcp_sym_to_pv(s->deffunc.name), pv_int((int)pv_array_length(pv_copy(*c->globals))));
 			*c->globals = pv_array_append(*c->globals, pv_invalid());
 			break;
 		}
-		case BLOCK:
-		case IF:
-		case DEF:
-		case RETURN:
-		case YIELD:
-		case SET:
-		case WHILE:
+		case STMT_BLOCK:
+		case STMT_IF:
+		case STMT_DEF:
+		case STMT_RETURN:
+		case STMT_YIELD:
+		case STMT_SET:
+		case STMT_WHILE:
 			break;
 		default:
 			abort();
@@ -137,7 +137,7 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 	//printf("s->type: %i\n", s->type);
 	switch (s->type) {
-		case BLOCK: {
+		case STMT_BLOCK: {
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			for (uint32_t i = 0; i < s->block.len; i++) {
 				plc_codegen_stmt_collect_deffunc(c2, &(s->block.children[i]));
@@ -152,7 +152,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode_builder_add(c->code, POPTO, {(unsigned int)c->stacksize});
 			break;
 		}
-		case DEFFUNC: {
+		case STMT_DEFFUNC: {
 			plc_codegen_context *c2 = plc_codegen_context_chain(c);
 			for (uint32_t i = 0; i < s->deffunc.arity; i++) {
 				c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->deffunc.args[i]), pv_int(c2->stacksize++));
@@ -168,7 +168,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(pv_copy(c->globalmap), plcp_sym_to_pv(s->deffunc.name))), pl_func(code));
 			break;
 		}
-		case IF: {
+		case STMT_IF: {
 			plc_codegen_expr(c, s->ifs.cond);
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			plc_codegen_stmt(c2, s->ifs.code);
@@ -176,33 +176,33 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			plc_codegen_context_add(c, c2);
 			break;
 		}
-		case DEF: {
+		case STMT_DEF: {
 			plc_codegen_expr(c, s->def.val);
 			//printf("vars refcount          %i\n", pv_get_refcount(c->vars));
 			c->vars = pv_object_set(c->vars, plcp_sym_to_pv(s->def.name), pv_int(c->stacksize++));
 			//pl_dump_pv(pv_copy(c->vars));
 			break;
 		}
-		case RETURN: {
+		case STMT_RETURN: {
 			plc_codegen_expr(c, s->ret.val);
 			pl_bytecode_builder_add(c->code, RET, {});
 			pl_bytecode_builder_add(c->code, GRET, {});
 			break;
 		}
-		case YIELD: {
+		case STMT_YIELD: {
 			plc_codegen_expr(c, s->yield.val);
 			pl_bytecode_builder_add(c->code, RET, {});
 			break;
 		}
-		case SET: {
-			assert(s->set.var->type == SYM);
+		case STMT_SET: {
+			assert(s->set.var->type == EXPR_SYM);
 			pv var = plcp_sym_to_pv(s->set.var->s);
 			assert(pv_object_has(pv_copy(c->vars), pv_copy(var)));
 			plc_codegen_expr(c, s->set.val);
 			pl_bytecode_builder_add(c->code, SETN, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
 			break;
 		}
-		case WHILE: {
+		case STMT_WHILE: {
 			int len1 = pl_bytecode_builder_len(c->code);
 			plc_codegen_expr(c, s->ifs.cond);
 			int len2 = pl_bytecode_builder_len(c->code);
@@ -226,9 +226,9 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 
 pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 	switch (e->type) {
-		case EXPR: {
+		case EXPR_OP: {
 			assert(ops[e->e.id].arity == 0 || ops[e->e.id].arity == e->e.arity);
-			if ((opcode)e->e.id == OP_CALL && e->e.arity >= 1 && e->e.children[0].type == SYM) {
+			if ((opcode)e->e.id == OP_CALL && e->e.arity >= 1 && e->e.children[0].type == EXPR_SYM) {
 				// builtins
 				pv funcname = plcp_sym_to_pv(e->e.children[0].s);
 				//pl_dump_pv(pv_copy(funcname));
@@ -281,11 +281,11 @@ case OP_ ## op: \
 			}
 			break;
 		}
-		case NUM: {
+		case EXPR_NUM: {
 			pl_bytecode_builder_add(c->code, PUSHINT, {e->n.value});
 			break;
 		}
-		case SYM: {
+		case EXPR_SYM: {
 			pv var = plcp_sym_to_pv(e->s);
 			//pl_dump_pv(pv_copy(c->vars));
 			//pl_dump_pv(pv_copy(c->globalmap));

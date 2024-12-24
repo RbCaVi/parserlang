@@ -45,7 +45,7 @@ static expr parse_expr(char *data) {
 	expr out;
 	switch (type) {
 	case NODE_EXPR:
-		out.type = EXPR;
+		out.type = EXPR_OP;
 		unsigned int opid = *(unsigned int*)data;
 		data += sizeof(unsigned int);
 		out.e.id = opid;
@@ -62,11 +62,11 @@ static expr parse_expr(char *data) {
 		}
 		break;
 	case NODE_NUM:
-		out.type = NUM;
+		out.type = EXPR_NUM;
 		out.n.value = *(int*)data;
 		break;
 	case NODE_SYM:
-		out.type = SYM;
+		out.type = EXPR_SYM;
 		unsigned int namelen = *(unsigned int*)data;
 		out.s.len = namelen;
 		data += sizeof(unsigned int);
@@ -104,7 +104,7 @@ stmt parse_stmt(char *data) {
 	stmt out;
 	switch (type) {
 	case NODE_BLOCK: {
-		out.type = BLOCK;
+		out.type = STMT_BLOCK;
 		unsigned int len = *(unsigned int*)data;
 		data += sizeof(unsigned int);
 		out.block.len = len;
@@ -119,7 +119,7 @@ stmt parse_stmt(char *data) {
 		break;
 	}
 	case NODE_DEFFUNC: {
-		out.type = DEFFUNC;
+		out.type = STMT_DEFFUNC;
 		unsigned int namelen = *(unsigned int*)data;
 		out.deffunc.name.len = namelen;
 		data += sizeof(unsigned int);
@@ -138,7 +138,7 @@ stmt parse_stmt(char *data) {
 		break;
 	}
 	case NODE_IF: {
-		out.type = IF;
+		out.type = STMT_IF;
 		int condlen = *(int*)data;
 		data += sizeof(int);
 		//int codelen = *(int*)data;
@@ -151,7 +151,7 @@ stmt parse_stmt(char *data) {
 		break;
 	}
 	case NODE_DEF: {
-		out.type = DEF;
+		out.type = STMT_DEF;
 		unsigned int namelen = *(unsigned int*)data;
 		out.def.name.len = namelen;
 		data += sizeof(unsigned int);
@@ -162,19 +162,19 @@ stmt parse_stmt(char *data) {
 		break;
 	}
 	case NODE_RETURN: {
-		out.type = RETURN;
+		out.type = STMT_RETURN;
 		out.ret.val = malloc(sizeof(expr));
 		*out.ret.val = parse_expr(data);
 		break;
 	}
 	case NODE_YIELD: {
-		out.type = YIELD;
+		out.type = STMT_YIELD;
 		out.yield.val = malloc(sizeof(expr));
 		*out.yield.val = parse_expr(data);
 		break;
 	}
 	case NODE_SETSTMT: {
-		out.type = SET;
+		out.type = STMT_SET;
 		int varlen = *(int*)data;
 		data += sizeof(int);
 		//int vallen = *(int*)data;
@@ -187,7 +187,7 @@ stmt parse_stmt(char *data) {
 		break;
 	}
 	case NODE_FOR: {
-		out.type = FOR;
+		out.type = STMT_FOR;
 		unsigned int varlen = *(unsigned int*)data;
 		data += sizeof(int);
 		int vallen = *(int*)data;
@@ -205,7 +205,7 @@ stmt parse_stmt(char *data) {
 		break;
 	}
 	case NODE_WHILE: {
-		out.type = WHILE;
+		out.type = STMT_WHILE;
 		int condlen = *(int*)data;
 		data += sizeof(int);
 		//int codelen = *(int*)data;
@@ -231,37 +231,37 @@ static void print_indent(int indent) {
 
 static void print_expr(expr e, int indent) {
 	switch (e.type) {
-	case EXPR:
+	case EXPR_OP:
 		print_indent(indent);
-		printf("EXPR %s\n", ops[e.e.id].name);
+		printf("EXPR_OP %s\n", ops[e.e.id].name);
 		assert(ops[e.e.id].arity == 0 || ops[e.e.id].arity == e.e.arity);
 		for (unsigned int i = 0; i < e.e.arity; i++) {
 			print_expr(e.e.children[i], indent + 1);
 		}
 		break;
-	case NUM:
+	case EXPR_NUM:
 		print_indent(indent);
-		printf("NUM %i\n", e.n.value);
+		printf("EXPR_NUM %i\n", e.n.value);
 		break;
-	case SYM:
+	case EXPR_SYM:
 		print_indent(indent);
-		printf("SYM %.*s\n", e.s.len, e.s.name);
+		printf("EXPR_SYM %.*s\n", e.s.len, e.s.name);
 		break;
 	}
 }
 
 void print_stmt(stmt s, int indent) {
 	switch (s.type) {
-	case BLOCK:
+	case STMT_BLOCK:
 		print_indent(indent);
-		printf("BLOCK\n");
+		printf("STMT_BLOCK\n");
 		for (unsigned int i = 0; i < s.block.len; i++) {
 			print_stmt(s.block.children[i], indent + 1);
 		}
 		break;
-	case DEFFUNC:
+	case STMT_DEFFUNC:
 		print_indent(indent);
-		printf("DEFFUNC %.*s\n", s.deffunc.name.len, s.deffunc.name.name);
+		printf("STMT_DEFFUNC %.*s\n", s.deffunc.name.len, s.deffunc.name.name);
 		print_indent(indent + 1);
 		printf("SIG\n");
 		for (unsigned int i = 0; i < s.deffunc.arity; i++) {
@@ -270,44 +270,44 @@ void print_stmt(stmt s, int indent) {
 		}
 		print_stmt(*s.deffunc.code, indent + 1);
 		break;
-	case IF:
+	case STMT_IF:
 		print_indent(indent);
-		printf("IF\n");
+		printf("STMT_IF\n");
 		print_expr(*s.ifs.cond, indent + 1);
 		print_stmt(*s.ifs.code, indent + 1);
 		break;
-	case DEF:
+	case STMT_DEF:
 		print_indent(indent);
-		printf("DEF %.*s\n", s.def.name.len, s.def.name.name);
+		printf("STMT_DEF %.*s\n", s.def.name.len, s.def.name.name);
 		print_expr(*s.def.val, indent + 1);
 		break;
-	case RETURN:
+	case STMT_RETURN:
 		print_indent(indent);
-		printf("RETURN\n");
+		printf("STMT_RETURN\n");
 		print_expr(*s.ret.val, indent + 1);
 		break;
-	case YIELD:
+	case STMT_YIELD:
 		print_indent(indent);
-		printf("YIELD\n");
+		printf("STMT_YIELD\n");
 		print_expr(*s.yield.val, indent + 1);
 		break;
-	case SET:
+	case STMT_SET:
 		print_indent(indent);
-		printf("SET\n");
+		printf("STMT_SET\n");
 		print_expr(*s.set.var, indent + 1);
 		print_expr(*s.set.val, indent + 1);
 		break;
-	case FOR:
+	case STMT_FOR:
 		print_indent(indent);
-		printf("FOR\n");
+		printf("STMT_FOR\n");
 		print_indent(indent + 1);
 		printf("%.*s\n", s.fors.var.len, s.fors.var.name);
 		print_expr(*s.fors.val, indent + 1);
 		print_stmt(*s.fors.code, indent + 1);
 		break;
-	case WHILE:
+	case STMT_WHILE:
 		print_indent(indent);
-		printf("WHILE\n");
+		printf("STMT_WHILE\n");
 		print_expr(*s.whiles.cond, indent + 1);
 		print_stmt(*s.whiles.code, indent + 1);
 		break;
@@ -316,63 +316,63 @@ void print_stmt(stmt s, int indent) {
 
 static void free_expr(expr e) {
 	switch (e.type) {
-	case EXPR:
+	case EXPR_OP:
 		for (unsigned int i = 0; i < e.e.arity; i++) {
 			free_expr(e.e.children[i]);
 		}
 		free(e.e.children);
 		break;
-	case NUM:
+	case EXPR_NUM:
 		break;
-	case SYM:
+	case EXPR_SYM:
 		break;
 	}
 }
 
 void free_stmt(stmt s) {
 	switch (s.type) {
-	case BLOCK:
+	case STMT_BLOCK:
 		for (unsigned int i = 0; i < s.block.len; i++) {
 			free_stmt(s.block.children[i]);
 		}
 		free(s.block.children);
 		break;
-	case DEFFUNC:
+	case STMT_DEFFUNC:
 		free(s.deffunc.args);
 		free_stmt(*s.deffunc.code);
 		free(s.deffunc.code);
 		break;
-	case IF:
+	case STMT_IF:
 		free_expr(*s.ifs.cond);
 		free(s.ifs.cond);
 		free_stmt(*s.ifs.code);
 		free(s.ifs.code);
 		break;
-	case DEF:
+	case STMT_DEF:
 		free_expr(*s.def.val);
 		free(s.def.val);
 		break;
-	case RETURN:
+	case STMT_RETURN:
 		free_expr(*s.ret.val);
 		free(s.ret.val);
 		break;
-	case YIELD:
+	case STMT_YIELD:
 		free_expr(*s.yield.val);
 		free(s.yield.val);
 		break;
-	case SET:
+	case STMT_SET:
 		free_expr(*s.set.var);
 		free(s.set.var);
 		free_expr(*s.set.val);
 		free(s.set.val);
 		break;
-	case FOR:
+	case STMT_FOR:
 		free_expr(*s.fors.val);
 		free(s.fors.val);
 		free_stmt(*s.fors.code);
 		free(s.fors.code);
 		break;
-	case WHILE:
+	case STMT_WHILE:
 		free_expr(*s.whiles.cond);
 		free(s.whiles.cond);
 		free_stmt(*s.whiles.code);

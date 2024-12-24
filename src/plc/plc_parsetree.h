@@ -10,9 +10,9 @@ typedef struct {
 
 struct expr {
 	enum expr_type {
-		EXPR,
-		NUM,
-		SYM,
+		EXPR_OP,
+		EXPR_NUM,
+		EXPR_SYM,
 	} type;
 	union {
 		struct {
@@ -31,15 +31,15 @@ typedef struct stmt stmt;
 
 struct stmt {
 	enum stmt_type {
-		BLOCK,
-		DEFFUNC,
-		IF,
-		DEF,
-		RETURN,
-		YIELD,
-		SET,
-		FOR,
-		WHILE,
+		STMT_BLOCK,
+		STMT_DEFFUNC,
+		STMT_IF,
+		STMT_DEF,
+		STMT_RETURN,
+		STMT_YIELD,
+		STMT_SET,
+		STMT_FOR,
+		STMT_WHILE,
 	} type;
 	union {
 		struct {
