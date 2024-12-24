@@ -171,8 +171,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			plc_codegen_expr(c, s->ifs.cond);
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			plc_codegen_stmt(c2, s->ifs.code);
-			pl_bytecode_builder_add(c->code, JUMPIF, {8});
-			pl_bytecode_builder_add(c->code, JUMP, {(int)pl_bytecode_builder_len(c2->code)});
+			pl_bytecode_builder_add(c->code, JUMPIFNOT, {(int)pl_bytecode_builder_len(c2->code)});
 			plc_codegen_context_add(c, c2);
 			break;
 		}
