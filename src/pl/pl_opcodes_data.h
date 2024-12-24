@@ -47,27 +47,34 @@ OPCODE(PUSHOBJECT, pushobject, {}) // push an empty object
 OPCODE(PUSHGLOBAL, pushglobal, {int i;}) // push entry i in the global table
 //OPCODE(SETGLOBAL, setglobal, {int i;}) // pop from the stack and set entry i in the global table // should only be used in the global scope before calling functions
 
+// constructors
+OPCODE(MAKESTRING, makestring, {}) // create an empty string
 OPCODE(MAKEARRAY, makearray, {unsigned int n;}) // create an array with the top n values
-OPCODE(APPENDA, appenda, {}) // pop a value and append it to the array below it
-OPCODE(CONCATA, concata, {}) // pop a value and append it to the array below it
-OPCODE(SETA, seta, {}) // pop a idx and value and set them on the array below them
-OPCODE(SETAI, setai, {int i;}) // pop a value and set it at index i on the array below it
-OPCODE(GETA, geta, {}) // pop a idx and array and push array[idx]
-OPCODE(GETAI, getai, {int i;}) // pop an array and push array[i]
-OPCODE(LENA, lena, {}) // pop an array and push the array's length
-OPCODE(SLICEA, slicea, {}) // pop two idxs and an array and push the array but sliced from those two indexes
-OPCODE(SLICEAL, sliceal, {int i;}) // pop an array and push array[:i]
-OPCODE(SLICEAM, sliceam, {int i;}) // pop an array and push array[i:]
-OPCODE(SLICEAR, slicear, {int i;}) // pop an array and push array[-i:]
-OPCODE(SLICEAII, sliceaii, {int i1;int i2;}) // pop an array and push array[i1:i2]
+OPCODE(MAKEOBJECT, makeobject, {unsigned int n;}) // create an object with the top 2n keys and values (alternating)
 
-OPCODE(MAKEOBJECT, makeobject, {unsigned int n;}) // create an object with the top 2n values
-OPCODE(SETO, seto, {}) // pop a key and value and set them on the object below them
-OPCODE(APPENDO, appendo, {}) // pop a key and value and set them on the object below them (error if the object already has the key)
-OPCODE(GETO, geto, {}) // pop a key and object and push object[key]
+// object only
+OPCODE(APPENDO, appendo, {}) // like SET, but asserts the key does not exist
 OPCODE(DELO, delo, {}) // pop a key and delete it on the object below it
 OPCODE(HASO, haso, {}) // pop a key and object and push key in object
-OPCODE(LENO, leno, {}) // pop an object and push the object's length
+
+// string / array
+OPCODE(APPEND, append, {}) // pop v and x and push x.append(v)
+OPCODE(CONCAT, concat, {}) // pop x1 and x2 and push concat(x1, x2)
+OPCODE(SETI, seti, {int i;}) // pop v and x and push x[i] = v
+OPCODE(GETI, geti, {int i;}) // pop x and push x[i]
+OPCODE(SLICE, slice, {}) // pop idx1, idx2, and x and push x[idx1:idx2]
+OPCODE(LEFT, left, {}) // pop idx and x and push x[:idx]
+OPCODE(MID, mid, {}) // pop idx and x and push x[idx:]
+OPCODE(RIGHT, right, {}) // pop idx and x and push x[-idx:]
+OPCODE(LEFTI, lefti, {int i;}) // pop x and push x[:i]
+OPCODE(MIDI, midi, {int i;}) // pop x and push x[i:]
+OPCODE(RIGHTI, righti, {int i;}) // pop x and push x[-i:]
+OPCODE(SLICEII, sliceii, {int i1;int i2;}) // pop x and push x[i1:i2]
+
+// string / array / object
+OPCODE(LEN, len, {}) // pop a x and push len(x)
+OPCODE(SET, set, {}) // pop a idx / key and value and set them on the string, array, or object below them
+OPCODE(GET, get, {}) // pop a idx / key and string, array, or object and push the value at idx in that string, array, or object
 
 OPCODE(CALL, call, {int n;}) // call n + 1 below with n arguments above it
 
