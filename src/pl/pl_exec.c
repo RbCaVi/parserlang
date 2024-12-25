@@ -132,6 +132,78 @@ pv pl_next(pl_state *state) {
 				state->stack = pl_stack_push(state->stack, o);
 				break;
 			}
+			opcase(APPENDO) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(DELO) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(HASO) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(APPEND) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(CONCAT) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(SETI) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(GETI) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(SLICE) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(LEFT) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(MID) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(RIGHT) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(LEFTI) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(MIDI) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(RIGHTI) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(SLICEII) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(LEN) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(SET) {
+				abort(); // not implemented :(
+				break;
+			}
+			opcase(GET) {
+				abort(); // not implemented :(
+				break;
+			}
 			opcase(CALL) {
 				if (!pl_func_is_native(pl_stack_get(state->stack, -(CALL_data.n + 1)))) {
 					state->code = bytecode;
