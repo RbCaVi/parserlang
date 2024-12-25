@@ -123,8 +123,21 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(DUP)
 			nodataopcase(POP)
 			nodataopcase(PUSHNULL)
+			nodataopcase(PUSHSTRING)
 			nodataopcase(PUSHARRAY)
 			nodataopcase(PUSHOBJECT)
+			nodataopcase(APPENDO)
+			nodataopcase(DELO)
+			nodataopcase(HASO)
+			nodataopcase(APPEND)
+			nodataopcase(CONCAT)
+			nodataopcase(SLICE)
+			nodataopcase(LEFT)
+			nodataopcase(MID)
+			nodataopcase(RIGHT)
+			nodataopcase(LEN)
+			nodataopcase(SET)
+			nodataopcase(GET)
 #define UOP(upper_name, lower_name, expr) \
 			nodataopcase(upper_name)
 #define BOP(upper_name, lower_name, expr, isdefault) \
@@ -171,6 +184,24 @@ void pl_bytecode_dump(pl_bytecode b) {
 				break;
 			opcase(MAKEOBJECT)
 				printf(" %i\n", MAKEOBJECT_data.n);
+				break;
+			opcase(SETI)
+				printf(" %i\n", SETI_data.i);
+				break;
+			opcase(GETI)
+				printf(" %i\n", GETI_data.i);
+				break;
+			opcase(LEFTI)
+				printf(" %i\n", LEFTI_data.i);
+				break;
+			opcase(MIDI)
+				printf(" %i\n", MIDI_data.i);
+				break;
+			opcase(RIGHTI)
+				printf(" %i\n", RIGHTI_data.i);
+				break;
+			opcase(SLICEII)
+				printf(" %i %i\n", SLICEII_data.i1, SLICEII_data.i2);
 				break;
 			opcase(CALL)
 				printf(" %i\n", CALL_data.n);
