@@ -119,6 +119,7 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 			//pl_dump_pv(plcp_sym_to_pv(s->deffunc.name));
 			c->globalmap = pv_object_set(c->globalmap, plcp_sym_to_pv(s->deffunc.name), pv_int((int)pv_array_length(pv_copy(*c->globals))));
 			*c->globals = pv_array_append(*c->globals, pv_invalid());
+		default:
 			break;
 		}
 	}

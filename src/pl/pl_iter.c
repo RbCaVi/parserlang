@@ -143,6 +143,8 @@ pv pl_iter_value(pv val) {
 		case ARRAYKV:
 			out = PV_ARRAY(pv_int((int)i->aiter), pv_array_get(pv_copy(i->val), (int)i->aiter));
 			break;
+		default:
+			break; // should not happen
 		}
 		break;
 	case OBJECTK:
@@ -161,6 +163,8 @@ pv pl_iter_value(pv val) {
 		case OBJECTKV:
 			out = PV_ARRAY(pv_object_iter_key(pv_copy(i->val), i->oiter), pv_object_iter_value(pv_copy(i->val), i->oiter));
 			break;
+		default:
+			break; // should not happen
 		}
 		break;
 	case GEN:
