@@ -41,6 +41,7 @@ OPCODE(PUSHNULL, pushnull, {}) // push null (literally just that)
 OPCODE(PUSHBOOL, pushbool, {int v;}) // push a bool with value v (0 or 1)
 OPCODE(PUSHINT, pushint, {int n;}) // push an int with value n
 OPCODE(PUSHDOUBLE, pushdouble, {double n;}) // push a double with value n
+OPCODE(PUSHSTRING, pushstring, {}) // push an empty string
 OPCODE(PUSHARRAY, pusharray, {}) // push an empty array
 OPCODE(PUSHOBJECT, pushobject, {}) // push an empty object
 
@@ -48,7 +49,6 @@ OPCODE(PUSHGLOBAL, pushglobal, {int i;}) // push entry i in the global table
 //OPCODE(SETGLOBAL, setglobal, {int i;}) // pop from the stack and set entry i in the global table // should only be used in the global scope before calling functions
 
 // constructors
-OPCODE(MAKESTRING, makestring, {}) // create an empty string
 OPCODE(MAKEARRAY, makearray, {unsigned int n;}) // create an array with the top n values
 OPCODE(MAKEOBJECT, makeobject, {unsigned int n;}) // create an object with the top 2n keys and values (alternating)
 
