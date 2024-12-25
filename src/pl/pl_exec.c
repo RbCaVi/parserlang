@@ -133,11 +133,19 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(APPENDO) {
-				abort(); // not implemented :(
+				pv o = pl_stack_get(state->stack, -3);
+				pv k = pl_stack_get(state->stack, -2);
+				pv v = pl_stack_get(state->stack, -1);
+				assert(!pv_object_has(pv_copy(o), pv_copy(k)));
+				state->stack = pl_stack_popn(state->stack, 2);
+				state->stack = pl_stack_set(state->stack, pv_object_set(o, k, v), -1);
 				break;
 			}
 			opcase(DELO) {
-				abort(); // not implemented :(
+				pv o = pl_stack_get(state->stack, -2);
+				pv k = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 1);
+				state->stack = pl_stack_set(state->stack, pv_object_delete(o, k), -1);
 				break;
 			}
 			opcase(HASO) {
