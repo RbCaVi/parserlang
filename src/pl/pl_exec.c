@@ -3,6 +3,7 @@
 #include "pv.h"
 #include "pv_singletons.h"
 #include "pv_number.h"
+#include "pv_string.h"
 #include "pv_array.h"
 #include "pv_object.h"
 #include "pv_equal.h"
@@ -95,6 +96,10 @@ pv pl_next(pl_state *state) {
 			}
 			opcase(PUSHDOUBLE) {
 				state->stack = pl_stack_push(state->stack, pv_double(PUSHDOUBLE_data.n));
+				break;
+			}
+			opcase(PUSHSTRING) {
+				state->stack = pl_stack_push(state->stack, pv_string(""));
 				break;
 			}
 			opcase(PUSHARRAY) {
