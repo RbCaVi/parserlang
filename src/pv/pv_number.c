@@ -68,12 +68,12 @@ static char *pv_double_to_string(pv val) {
 }
 
 static char *pv_int_to_string(pv val) {
-	double num = pv_int_value(val);
-	int l = snprintf(NULL, 0, "%f", num);
+	int num = pv_int_value(val);
+	int l = snprintf(NULL, 0, "%i", num);
 	assert(l >= 0);
 	size_t length = (size_t)l;
 	char* str = malloc(length + 1);
-	snprintf(str, length + 1, "%f", num);
+	snprintf(str, length + 1, "%i", num);
 	return str;
 }
 
