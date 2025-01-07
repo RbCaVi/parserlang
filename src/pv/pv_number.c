@@ -11,51 +11,10 @@
 pv_kind double_kind;
 pv_kind int_kind;
 
+// illegal
+// arrest this man
 // this needs a test at some point
-
-static struct pv_refcnt *cast_double_to_pointer(double val) {
-	// illegal
-	// arrest this man
-	union {
-		struct pv_refcnt *ptr;
-		double val;
-	} u;
-	u.val = val;
-	return u.ptr;
-}
-
-static double cast_pointer_to_double(struct pv_refcnt *ptr) {
-	// illegal
-	// arrest this man
-	union {
-		struct pv_refcnt *ptr;
-		double val;
-	} u;
-	u.ptr = ptr;
-	return u.val;
-}
-
-static struct pv_refcnt *cast_int_to_pointer(int val) {
-	// illegal
-	// arrest this man
-	union {
-		struct pv_refcnt *ptr;
-		int val;
-	} u;
-	u.val = val;
-	return u.ptr;
-}
-
-static int cast_pointer_to_int(struct pv_refcnt *ptr) {
-	// illegal
-	// arrest this man
-	union {
-		struct pv_refcnt *ptr;
-		int val;
-	} u;
-	u.ptr = ptr;
-	return u.val;
-}
+#define reinterpret_cast(t1, t2, v) ((union {t1 v1; t2 v2;}){.v1 = v}).v2
 
 static char *pv_double_to_string(pv val) {
 	double num = pv_double_value(val);
@@ -98,26 +57,26 @@ void pv_number_install() {
 }
 
 pv pv_double(double num) {
-	pv val = {double_kind, 0, cast_double_to_pointer(num)};
+	pv val = {double_kind, 0, reinterpret_cast(double, struct pv_refcnt*, num)};
 	return val;
 }
 
 pv pv_int(int num) {
-	pv val = {int_kind, 0, cast_int_to_pointer(num)};
+	pv val = {int_kind, 0, reinterpret_cast(int, struct pv_refcnt*, num)};
 	return val;
 }
 
 double pv_double_value(pv val) {
 	// don't have to do a decref because number isn't allocated
 	assert(val.kind == double_kind);
-	double num = cast_pointer_to_double(val.data);
+	double num = reinterpret_cast(struct pv_refcnt*, double, val.data);
 	return num;
 }
 
 int pv_int_value(pv val) {
 	// don't have to do a decref because number isn't allocated
 	assert(val.kind == int_kind);
-	int num = cast_pointer_to_int(val.data);
+	int num = reinterpret_cast(struct pv_refcnt*, int, val.data);
 	return num;
 }
 
