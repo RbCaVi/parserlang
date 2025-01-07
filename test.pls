@@ -11,5 +11,8 @@ a = 5
 while a == 5 do {
 	a = a + 15
 }
+for x in [1, 2] do {
+	a = a + x
+}
 yield ([c, b, a]) # chess battle advanced
 return ([a, b, c]) # only one element arrays can be returned without parentheses - this is a limitation of the parser

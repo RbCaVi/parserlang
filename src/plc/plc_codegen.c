@@ -193,13 +193,28 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode_builder_add(c->code, SETN, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
 			break;
 		}
-		case STMT_WHILE: {
+		case STMT_FOR: {
+			plc_codegen_expr(c, s->fors.val);
+			pl_bytecode_builder_add(c->code, ITER, {});
 			int len1 = pl_bytecode_builder_len(c->code);
-			plc_codegen_expr(c, s->ifs.cond);
 			int len2 = pl_bytecode_builder_len(c->code);
 			int condlen = len2 - len1;
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
-			plc_codegen_stmt(c2, s->ifs.code);
+			c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->fors.var), pv_int(c2->stacksize + 1));
+			c2->stacksize += 2;
+			plc_codegen_stmt(c2, s->fors.code);
+			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + condlen + 8)});
+			pl_bytecode_builder_add(c->code, ITERATE, {(int)pl_bytecode_builder_len(c2->code)});
+			plc_codegen_context_add(c, c2);
+			break;
+		}
+		case STMT_WHILE: {
+			int len1 = pl_bytecode_builder_len(c->code);
+			plc_codegen_expr(c, s->whiles.cond);
+			int len2 = pl_bytecode_builder_len(c->code);
+			int condlen = len2 - len1;
+			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
+			plc_codegen_stmt(c2, s->whiles.code);
 			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + condlen + 8)});
 			pl_bytecode_builder_add(c->code, JUMPIFNOT, {(int)pl_bytecode_builder_len(c2->code)});
 			plc_codegen_context_add(c, c2);
