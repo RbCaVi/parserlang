@@ -12,6 +12,7 @@
 #include "pl_iter.h"
 
 #include <stdlib.h>
+#include <assert.h>
 //#include <stdio.h>
 
 static pl_opcode plp_get_opcode(const char *bytecode) { \
@@ -224,14 +225,14 @@ pv pl_next(pl_state *state) {
 				pv k = pl_stack_get(state->stack, -2);
 				pv v = pl_stack_get(state->stack, -1);
 				state->stack = pl_stack_popn(state->stack, 3);
-				state->stack = pl_stack_push(state->stack, pv_array_set(o, k, pv_int_value(v)));
+				state->stack = pl_stack_push(state->stack, pv_array_set(o, pv_int_value(k), v));
 				break;
 			}
 			opcase(GET) {
 				pv o = pl_stack_get(state->stack, -2);
 				pv k = pl_stack_get(state->stack, -1);
 				state->stack = pl_stack_popn(state->stack, 2);
-				state->stack = pl_stack_push(state->stack, pv_array_get(o, k));
+				state->stack = pl_stack_push(state->stack, pv_array_get(o, pv_int_value(k)));
 				break;
 			}
 			opcase(CALL) {
