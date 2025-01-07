@@ -92,7 +92,7 @@ def exprstmt(data):
 
 @transform(concatstrip(strs('for'),sym,strs('in'),expr,strs('do'),blockstmt))
 def forstmt(data):
-	_,var,__,it,(_,*stmts)=data
+	_,var,__,it,___,(_,*stmts)=data
 	return ['FOR',var,it,["BLOCK",*stmts]]
 
 @transform(concatstrip(strs('while'),expr,strs('do'),blockstmt))
