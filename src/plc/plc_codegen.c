@@ -258,6 +258,17 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 						}
 						break;
 					}
+					if (strncmp(e->e.children[0].s.name, "concat", e->e.children[0].s.len) == 0) {
+						if (e->e.arity - 1 > 0) {
+							putargs();
+							for (unsigned int i = 0; i < e->e.arity - 2; i++) {
+								pl_bytecode_builder_add(c->code, CONCAT, {});
+							}
+						} else {
+							pl_bytecode_builder_add(c->code, PUSHARRAY, {});
+						}
+						break;
+					}
 				} else {
 					pv_free(funcname);
 				}

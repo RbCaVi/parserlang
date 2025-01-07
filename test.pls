@@ -14,5 +14,6 @@ while a == 5 do {
 for x in [1, 2] do {
 	a = [a, x]
 }
-yield ([c, b, a]) # chess battle advanced
-return ([a, b, c]) # only one element arrays can be returned without parentheses - this is a limitation of the parser
+def d = concat(a, b)
+yield ([c, b, a, d]) # chess battle advanced
+return ([a, b, c, d]) # only one element arrays can be returned without parentheses - this is a limitation of the parser
