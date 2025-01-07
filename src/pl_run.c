@@ -1,9 +1,8 @@
-#include "pv/pv_number.h"
-#include "pv/pv_array.h"
 #include "pv/pv_install.h"
 
+#include "pv/pv_to_string.h"
+
 #include "pl/pl_dump.h"
-#include "pl/pl_stack.h"
 #include "pl/pl_bytecode.h"
 #include "pl/pl_exec.h"
 #include "pl/pl_func.h"
@@ -59,7 +58,10 @@ int main(int argc, char **argv) {
 
 	pv ret = pl_func_call(main, pl);
 	printf("return value:\n");
-	pl_dump_pv(ret);
+	pl_dump_pv(pv_copy(ret));
+	char *s = pv_to_string(ret);
+	printf("%s\n", s);
+	free(s);
 	printf("\n");
 
 	for (unsigned int i = 0; i < e.glen; i++) {
@@ -68,14 +70,12 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	pl_stack_unref(pl->stack);
-
 	for (unsigned int i = 0; i < e.glen; i++) {
 		pv_free(pl->globals[i]);
 	}
 	free(pl->globals);
 
-	free(pl);
+	pl_state_free(pl);
 
 	free(f.data);
 
