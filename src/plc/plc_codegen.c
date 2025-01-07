@@ -200,9 +200,10 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			int len2 = pl_bytecode_builder_len(c->code);
 			int condlen = len2 - len1;
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
-			c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->fors.var), pv_int(c2->stacksize + 1));
-			c2->stacksize += 2;
+			c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->fors.var), pv_int(c2->stacksize++));
+			c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->fors.var), pv_int(c2->stacksize++));
 			plc_codegen_stmt(c2, s->fors.code);
+			pl_bytecode_builder_add(c2->code, POP, {});
 			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + condlen + 8)});
 			pl_bytecode_builder_add(c->code, ITERATE, {(int)pl_bytecode_builder_len(c2->code)});
 			plc_codegen_context_add(c, c2);
