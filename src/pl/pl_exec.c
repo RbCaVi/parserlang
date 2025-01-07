@@ -358,7 +358,7 @@ pv pl_next(pl_state *state) {
 
 pl_state *pl_state_new() {
 	pl_state *state = malloc(sizeof(pl_state));
-	*state = (pl_state){NULL, NULL, NULL, NULL, pl_stack_new()};
+	*state = (pl_state){NULL, NULL, pl_stack_new()};
 	return state;
 }
 
