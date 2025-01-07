@@ -364,4 +364,5 @@ pl_state *pl_state_new() {
 
 void pl_state_free(pl_state *state) {
 	pl_stack_unref(state->stack);
+	free(state);
 }
