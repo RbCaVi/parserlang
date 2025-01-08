@@ -9,29 +9,8 @@
 pv_kind null_kind;
 pv_kind bool_kind;
 
-// this is a great idea - casting int to pointer is definitely worse
-
-static struct pv_refcnt *cast_int_to_pointer(int val) {
-	// illegal
-	// arrest this man
-	union {
-		struct pv_refcnt *ptr;
-		int val;
-	} u;
-	u.val = val;
-	return u.ptr;
-}
-
-static int cast_pointer_to_int(struct pv_refcnt *ptr) {
-	// illegal
-	// arrest this man
-	union {
-		struct pv_refcnt *ptr;
-		int val;
-	} u;
-	u.ptr = ptr;
-	return u.val;
-}
+// this is a great idea - (int){struct pv_refcnt*} is definitely worse
+#define reinterpret_cast(t1, t2, v) ((union {t1 v1; t2 v2;}){.v1 = v}).v2
 
 static char *pv_singleton_to_string(pv val) {
 	if (pv_get_kind(val) == null_kind) {
@@ -63,26 +42,26 @@ void pv_singletons_install() {
 }
 
 pv pv_null() {
-	pv val = {null_kind, 0, cast_int_to_pointer(0)};
+	pv val = {null_kind, 0, reinterpret_cast(int, struct pv_refcnt*, 0)};
 	return val;
 }
 
 pv pv_true() {
-	pv val = {bool_kind, 0, cast_int_to_pointer(1)};
+	pv val = {bool_kind, 0, reinterpret_cast(int, struct pv_refcnt*, 1)};
 	return val;
 }
 
 pv pv_false() {
-	pv val = {bool_kind, 0, cast_int_to_pointer(-1)};
+	pv val = {bool_kind, 0, reinterpret_cast(int, struct pv_refcnt*, -1)};
 	return val;
 }
 
 pv pv_bool(int b) {
-	pv val = {bool_kind, 0, cast_int_to_pointer(b ? 1 : -1)};
+	pv val = {bool_kind, 0, reinterpret_cast(int, struct pv_refcnt*, b ? 1 : -1)};
 	return val;
 }
 
 int pv_bool_value(pv val) {
 	assert(val.kind == bool_kind);
-	return (cast_pointer_to_int(val.data) > 0) ? 1 : 0;
+	return (reinterpret_cast(struct pv_refcnt*, int, val.data) > 0) ? 1 : 0;
 }
