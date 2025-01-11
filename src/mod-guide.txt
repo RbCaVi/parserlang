@@ -21,7 +21,7 @@ if you want to add a type of statement:
 if you want to add a new type of expression:
     in expr.py:
         idk man if it works it works
-    the rest of it is basically the same as for adding a statement from pl_parse.py onward
+    the rest of it is basically the same as for adding a statement from pl_parse.py onward but with expr instead of stmt
 if you want to add a new opcode:
     in pl_opcodes_data.h:
         add an OPCODE() macro (or JOPCODE() if it's a jump opcode)
