@@ -1,0 +1,59 @@
+if you want to add a type of statement:
+    in stmt.py:
+        add a new statement type and add it to stmt() (or somewhere else if it fits better)
+        this statement must have an type (usually all caps)
+        it will return a list or tuple with the type as the first element
+    in pl_parse.py:
+        add a type to types (this must match the type you gave your new statement in stmt.py)
+        add a case in dump()
+        it needs to have the lengths of all elements (except the last is not necessary)
+    in plc_parsetree.h:
+        add a type to stmt::stmt_type (i would like if you matched it to the type you added to stmt.py)
+        add a struct to the union (containing all the data you have in the statement)
+    in plc_parsetree.c:
+        add a new node_type (again matched to the statement type)
+        add a case in parse_stmt() (with the node_type)
+        add a case in print_stmt() (with the stmt_type)
+        and one in free_stmt() (also with the stmt_type)
+    and finally, in plc_codegen.c:
+        add a case in plc_codegen_stmt()
+    if you want to make a new way to write an existing type of statement (syntax sugar?), you can just modify stmt.py
+if you want to add a new type of expression:
+    in expr.py:
+        idk man if it works it works
+    the rest of it is basically the same as for adding a statement from pl_parse.py onward
+if you want to add a new opcode:
+    in pl_opcodes_data.h:
+        add an OPCODE() macro (or JOPCODE() if it's a jump opcode)
+    in pl_bytecode.c:
+        add a case to pl_bytecode_dump()
+    in pl_exec.c:
+        add a case to pl_next()
+if you want to add a new pv kind:
+    you can base it on pv_userdata if the data fits in one pointer worth of data
+    any more than that and you have to set it allocated
+    there should be a struct p#p_#_data with a pv_refcnt as the first element
+    you may only modify data if the pv has a refcount of 1
+    otherwise move (copy and decref) it first
+    add a header including:
+        #include "pv.h"
+        extern pv_kind #####_kind;
+        void p#_#####_install();
+        some kind of constructor
+        include guards
+    the .c file basically corresponds to the .h file
+        p#_#####_install() should:
+            register the kind - pv_register_kind(&#####_kind, "#####", #####_free)
+            maybe register aux functions too:
+                pv_register_to_string(#####_kind, pv_#####_to_string);
+                pv_register_equal_self(#####_kind, pv_#####_equal_self);
+if you want to add a new pv aux function:
+    you can base it on pv_hash
+    add a header including:
+        #include "pv.h"
+        typedef ### (*p#_####_func)(pv, other args?);
+        void pv_register_####(pv_kind, p#_####_func);
+        ### pv_###(pv);
+    the .c file has the corresponding functions
+    it also includes:
+        static p#_####_func p#_####_table[256];
