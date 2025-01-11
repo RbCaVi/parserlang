@@ -194,6 +194,13 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case STMT_FOR: {
+			// push iteratee
+			// iter
+			// start:
+			// iterate to end
+			// code
+			// jump to start
+			// end:
 			plc_codegen_expr(c, s->fors.val);
 			pl_bytecode_builder_add(c->code, ITER, {});
 			int len1 = pl_bytecode_builder_len(c->code);
@@ -210,6 +217,11 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case STMT_WHILE: {
+			// start:
+			// if not cond then jump to end
+			// code
+			// jump to start
+			// end:
 			int len1 = pl_bytecode_builder_len(c->code);
 			plc_codegen_expr(c, s->whiles.cond);
 			int len2 = pl_bytecode_builder_len(c->code);
