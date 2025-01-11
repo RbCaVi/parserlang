@@ -41,6 +41,7 @@ types = {typ:i for i,typ in enumerate([
 	'IF',
 	'DEF',
 	'RETURN',
+	'RETURNV',
 	'SIG',
 	'EXPR',
 	'NUM',
@@ -83,6 +84,8 @@ def dump(stmt, indent = 'a:'):
 		data += name.encode('utf-8')
 		data += dump(val)
 	elif typ == 'RETURN':
+		pass
+	elif typ == 'RETURNV':
 		_,val = stmt
 		data += dump(val)
 	elif typ == 'SIG':

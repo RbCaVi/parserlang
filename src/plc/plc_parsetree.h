@@ -36,6 +36,7 @@ struct stmt {
 		STMT_IF,
 		STMT_DEF,
 		STMT_RETURN,
+		STMT_RETURNV,
 		STMT_YIELD,
 		STMT_SET,
 		STMT_FOR,
@@ -61,8 +62,10 @@ struct stmt {
 			expr *val;
 		} def;
 		struct {
-			expr *val;
 		} ret;
+		struct {
+			expr *val;
+		} retv;
 		struct {
 			expr *val;
 		} yield;

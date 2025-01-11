@@ -175,7 +175,11 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			break;
 		}
 		case STMT_RETURN: {
-			plc_codegen_expr(c, s->ret.val);
+			pl_bytecode_builder_add(c->code, GRET, {});
+			break;
+		}
+		case STMT_RETURNV: {
+			plc_codegen_expr(c, s->retv.val);
 			pl_bytecode_builder_add(c->code, RET, {});
 			pl_bytecode_builder_add(c->code, GRET, {});
 			break;

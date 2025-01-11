@@ -86,7 +86,7 @@ def exprstmt(data):
 	if typ == '':
 		return ["EXPRSTMT",e]
 	if typ == 'return':
-		return ["RETURN",e]
+		return ["RETURNV",e]
 	if typ == 'yield':
 		return ["YIELD",e]
 
@@ -100,6 +100,10 @@ def whilestmt(data):
 	_,cond,__,(_,*stmts)=data
 	return ['WHILE',cond,["BLOCK",*stmts]]
 
-@transform(alternate(func,ifstmt,forstmt,whilestmt,declare,setstmt,setop,block,exprstmt))
+@transform(concatstrip(strs('return')))
+def returnstmt(data):
+	return ['RETURN']
+
+@transform(alternate(func,ifstmt,forstmt,whilestmt,declare,setstmt,setop,block,exprstmt,returnstmt))
 def stmt(data):
 	return data[1]

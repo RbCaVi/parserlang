@@ -22,6 +22,7 @@ typedef enum {
 	NODE_IF,
 	NODE_DEF,
 	NODE_RETURN,
+	NODE_RETURNV,
 	NODE_SIG,
 	NODE_EXPR,
 	NODE_NUM,
@@ -163,8 +164,12 @@ stmt parse_stmt(char *data) {
 	}
 	case NODE_RETURN: {
 		out.type = STMT_RETURN;
-		out.ret.val = malloc(sizeof(expr));
-		*out.ret.val = parse_expr(data);
+		break;
+	}
+	case NODE_RETURNV: {
+		out.type = STMT_RETURNV;
+		out.retv.val = malloc(sizeof(expr));
+		*out.retv.val = parse_expr(data);
 		break;
 	}
 	case NODE_YIELD: {
@@ -284,7 +289,11 @@ void print_stmt(stmt s, int indent) {
 	case STMT_RETURN:
 		print_indent(indent);
 		printf("STMT_RETURN\n");
-		print_expr(*s.ret.val, indent + 1);
+		break;
+	case STMT_RETURNV:
+		print_indent(indent);
+		printf("STMT_RETURNV\n");
+		print_expr(*s.retv.val, indent + 1);
 		break;
 	case STMT_YIELD:
 		print_indent(indent);
@@ -353,8 +362,10 @@ void free_stmt(stmt s) {
 		free(s.def.val);
 		break;
 	case STMT_RETURN:
-		free_expr(*s.ret.val);
-		free(s.ret.val);
+		break;
+	case STMT_RETURNV:
+		free_expr(*s.retv.val);
+		free(s.retv.val);
 		break;
 	case STMT_YIELD:
 		free_expr(*s.yield.val);
