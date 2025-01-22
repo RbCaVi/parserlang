@@ -10,6 +10,8 @@ typedef struct pl_state {
   //struct pl_state *parent; // the state that called this generator - may be NULL for top level
 	pv *globals;
 	pl_stack stack;
+  struct pl_state *saved;
+  pv iter;
 } pl_state;
 
 void pl_state_set_call(pl_state *state, int argc); // assuming f is already on the stack - ret is the return address

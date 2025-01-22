@@ -15,6 +15,23 @@
 #include <assert.h>
 //#include <stdio.h>
 
+pl_state *pl_state_new() {
+	pl_state *state = malloc(sizeof(pl_state));
+	*state = (pl_state){NULL, NULL, pl_stack_new(), NULL, pv_invalid()};
+	return state;
+}
+
+// no refcounting (nobody will do 300 savepoints in a row and then duplicate the iterator right?)
+pl_state *pl_state_dup(pl_state *state) {
+	pl_state *newstate = malloc(sizeof(pl_state));
+	pl_state *saved = NULL;
+	if (state->saved != NULL) {
+		saved = pl_state_dup(state->saved);
+	}
+	*newstate = (pl_state){state->code, state->globals, pl_stack_ref(state->stack), saved, pv_copy(state->iter)};
+	return state;
+}
+
 static pl_opcode plp_get_opcode(const char *bytecode) { \
 	return ((pl_opcode*)bytecode)[0]; \
 }
@@ -354,12 +371,6 @@ pv pl_next(pl_state *state) {
 		}
 		//pl_dump_stack(state->stack);
 	}
-}
-
-pl_state *pl_state_new() {
-	pl_state *state = malloc(sizeof(pl_state));
-	*state = (pl_state){NULL, NULL, pl_stack_new()};
-	return state;
 }
 
 void pl_state_free(pl_state *state) {
