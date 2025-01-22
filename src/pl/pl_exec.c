@@ -13,11 +13,18 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 //#include <stdio.h>
 
 pl_state *pl_state_new() {
 	pl_state *state = malloc(sizeof(pl_state));
 	*state = (pl_state){NULL, NULL, pl_stack_new(), NULL, pv_invalid()};
+	return state;
+}
+
+static pl_state *pl_state_save_chain(pl_state *parent, pv iter) {
+	pl_state *state = malloc(sizeof(pl_state));
+	*state = (pl_state){parent->code, parent->globals, pl_stack_ref(parent->stack), parent, iter};
 	return state;
 }
 
@@ -55,6 +62,26 @@ void pl_state_set_call(pl_state *state, int argc) {
 	pv f = pl_stack_get(state->stack, -(argc + 1));
 	state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code);
 	state->code = pl_func_get_bytecode(f).bytecode;
+}
+
+bool gret_impl(pl_state *state) {
+	while (true) {
+		if (state->saved == NULL) {
+			return false;
+		}
+		pv v = pl_iter_value(state->iter);
+		if (pv_get_kind(v) != 0) {
+			state->code = state->saved->code;
+			pl_stack_unref(state->stack);
+			state->stack = pl_stack_push(pl_stack_ref(state->saved->stack), v);
+			state->iter = pl_iter_next(state->iter);
+			return true;
+		}
+		pl_state *oldstate = state->saved;
+		*state = *(state->saved);
+		oldstate->saved = NULL;
+		pl_state_free(oldstate);
+	}
 }
 
 pv pl_next(pl_state *state) {
@@ -349,6 +376,18 @@ pv pl_next(pl_state *state) {
 				}
 				break;
 			}
+			opcase(EACH) {
+				// add savepoint, then iterate
+				pv i = pl_stack_top(state->stack);
+				state->stack = pl_stack_pop(state->stack);
+				state->code = bytecode;
+				state = pl_state_save_chain(state, i);
+				if (!gret_impl(state)) {
+					return pv_invalid();
+				}
+				bytecode = state->code;
+				break;
+			}
 			opcase(RET) {
 				if (pl_stack_retaddr(state->stack) == NULL) {
 					state->code = bytecode;
@@ -363,7 +402,10 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(GRET) {
-				return pv_invalid();
+				if (!gret_impl(state)) {
+					return pv_invalid();
+				}
+				bytecode = state->code;
 			}
 		}
 		if (!validinstruction) {

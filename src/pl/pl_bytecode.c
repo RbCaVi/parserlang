@@ -150,6 +150,7 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(ITERK)
 			nodataopcase(ITERV)
 			nodataopcase(ITERE)
+			nodataopcase(EACH)
 			nodataopcase(RET)
 			nodataopcase(GRET)
 			opcase(DUPN)

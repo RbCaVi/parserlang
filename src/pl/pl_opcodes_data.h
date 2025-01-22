@@ -97,6 +97,7 @@ OPCODE(ITERK, iterk, {}) // create a keys iterator
 OPCODE(ITERV, iterv, {}) // create a values iterator
 OPCODE(ITERE, itere, {}) // create a entries iterator
 JOPCODE(ITERATE, iterate, {int target;}) // pop an iterator, step it, and push the stepped iterator and result or jump to target (bytes relative to the next instruction)
+OPCODE(EACH, each, {}) // same as above, but creates a save point that is restored with each value of the iterator when a GRET is reached - when no more values, same as GRET
 
 OPCODE(RET, ret, {}) // return one value (ends a normal function)
 OPCODE(GRET, gret, {}) // return from a generator or return pv_invalid
