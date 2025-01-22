@@ -148,40 +148,40 @@ int main(int argc, char **argv) {
 		pl_bytecode_builder_add(b, MAKEARRAY, {2}); // a
 		pl_bytecode_builder_add(b, DUP, {}); // a a
 		pl_bytecode_builder_add(b, MAKEARRAY, {0}); // a a []
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [] a
 		pl_bytecode_builder_add(b, ITERK, {}); // a [] i
 		pl_bytecode_builder_add(b, ITERATE, {44}); // a [] i v
-		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
-		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
+		pl_bytecode_builder_add(b, SWAPN, {-2}); // a v i []
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a v [] i
+		pl_bytecode_builder_add(b, SWAPN, {-2}); // a i [] v
 		pl_bytecode_builder_add(b, APPEND, {}); // a i [v]
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [v] i
 		pl_bytecode_builder_add(b, JUMP, {-52});
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [] a
 		pl_bytecode_builder_add(b, DUP, {}); // a a
 		pl_bytecode_builder_add(b, MAKEARRAY, {0}); // a a []
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [] a
 		pl_bytecode_builder_add(b, ITERV, {}); // a [] i
 		pl_bytecode_builder_add(b, ITERATE, {44}); // a [] i v
-		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
-		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
+		pl_bytecode_builder_add(b, SWAPN, {-2}); // a v i []
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a v [] i
+		pl_bytecode_builder_add(b, SWAPN, {-2}); // a i [] v
 		pl_bytecode_builder_add(b, APPEND, {}); // a i [v]
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [v] i
 		pl_bytecode_builder_add(b, JUMP, {-52});
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [] a
 		pl_bytecode_builder_add(b, DUP, {}); // a a
 		pl_bytecode_builder_add(b, MAKEARRAY, {0}); // a a []
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [] a
 		pl_bytecode_builder_add(b, ITERE, {}); // a [] i
 		pl_bytecode_builder_add(b, ITERATE, {44}); // a [] i v
-		pl_bytecode_builder_add(b, SWAPN, {3}); // a v i []
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a v [] i
-		pl_bytecode_builder_add(b, SWAPN, {3}); // a i [] v
+		pl_bytecode_builder_add(b, SWAPN, {-2}); // a v i []
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a v [] i
+		pl_bytecode_builder_add(b, SWAPN, {-2}); // a i [] v
 		pl_bytecode_builder_add(b, APPEND, {}); // a i [v]
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [v] i
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [v] i
 		pl_bytecode_builder_add(b, JUMP, {-52});
-		pl_bytecode_builder_add(b, SWAPN, {2}); // a [] a
+		pl_bytecode_builder_add(b, SWAPN, {-1}); // a [] a
 		pl_bytecode_builder_add(b, POP, {});
 		pl_bytecode_builder_add(b, MAKEARRAY, {2});
 		pl_bytecode_builder_add(b, RET, {});
