@@ -191,6 +191,9 @@ static plp_iter_data *plp_iter_realloc(plp_iter_data *iin) {
 	memcpy(i, iin, sizeof(plp_iter_data));
 	i->refcnt = PV_REFCNT_INIT;
 	pv_copy(i->val);
+	if (i->iter_type == GEN && i->pl != NULL) {
+		i->pl = pl_state_dup(i->pl);
+	}
 	pvp_decref(&(iin->refcnt));
 	return i;
 }
