@@ -22,10 +22,11 @@ pl_state *pl_state_new() {
 	return state;
 }
 
-static pl_state *pl_state_save_chain(pl_state *parent, pv iter) {
-	pl_state *state = malloc(sizeof(pl_state));
-	*state = (pl_state){parent->code, parent->globals, pl_stack_ref(parent->stack), parent, iter};
-	return state;
+static void pl_state_save_chain(pl_state *state, pv iter) {
+	pl_state *newstate = malloc(sizeof(pl_state));
+	*newstate = (pl_state){state->code, state->globals, pl_stack_ref(state->stack), state->saved, state->iter};
+	state->saved = newstate;
+	state->iter = iter;
 }
 
 // no refcounting (nobody will do 300 savepoints in a row and then duplicate the iterator right?)
@@ -50,14 +51,6 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 #include "pl_opcodes_data.h"
 #undef OPCODE
 
-#define opcase(op) \
-case(OPCODE_ ## op):; \
-	/*printf("\n" #op "\n");/**/ \
-	validinstruction = 1; \
-	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
-	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
-	(void)op ## _data;
-
 void pl_state_set_call(pl_state *state, int argc) {
 	pv f = pl_stack_get(state->stack, -(argc + 1));
 	state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code);
@@ -69,26 +62,43 @@ bool gret_impl(pl_state *state) {
 		if (state->saved == NULL) {
 			return false;
 		}
+		//pl_dump_pv(pv_copy(state->iter));
 		pv v = pl_iter_value(pv_copy(state->iter));
 		if (pv_get_kind(v) != 0) {
 			state->code = state->saved->code;
+			//printf("stack: %p saved stack: %p\n", state->stack.cells, state->saved->stack.cells);
+			//printf("stack ref: %i saved stack ref: %i\n", *(uint32_t*)(state->stack.cells), *(uint32_t*)(state->saved->stack.cells));
 			pl_stack_unref(state->stack);
 			state->stack = pl_stack_push(pl_stack_ref(state->saved->stack), v);
+			//printf("stack: %p saved stack: %p\n", state->stack.cells, state->saved->stack.cells);
+			//printf("stack ref: %i saved stack ref: %i\n", *(uint32_t*)(state->stack.cells), *(uint32_t*)(state->saved->stack.cells));
 			state->iter = pl_iter_next(state->iter);
 			return true;
 		}
 		pl_state *oldstate = state->saved;
+		pl_state oldstate2 = *state;
 		*state = *(state->saved);
+		*oldstate = oldstate2;
 		oldstate->saved = NULL;
 		pl_state_free(oldstate);
 	}
 }
+
+#define opcase(op) \
+case(OPCODE_ ## op):; \
+	/*printf("\n" #op "\n");/**/ \
+	validinstruction = 1; \
+	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
+	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
+	(void)op ## _data;
 
 pv pl_next(pl_state *state) {
 	//printf("state: (code: %p stack data: %p)\n", state->code, state->stack.cells);
 	const char *bytecode = state->code;
 	while (1) {
 		int validinstruction = 0;
+		//pl_dump_stack(state->stack);
+		//printf("code pos = %p\n", bytecode);
 		switch (plp_get_opcode(bytecode)) {
 			opcase(DUP) {
 				state->stack = pl_stack_push(state->stack, pl_stack_top(state->stack));
@@ -382,7 +392,7 @@ pv pl_next(pl_state *state) {
 				pv i = pl_stack_top(state->stack);
 				state->stack = pl_stack_pop(state->stack);
 				state->code = bytecode;
-				state = pl_state_save_chain(state, i);
+				pl_state_save_chain(state, i);
 				if (!gret_impl(state)) {
 					return pv_invalid();
 				}
@@ -390,6 +400,7 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(RET) {
+				//printf("code pos in RET = %p\n", bytecode);
 				if (pl_stack_retaddr(state->stack) == NULL) {
 					state->code = bytecode;
 					pv ret = pl_stack_top(state->stack);
@@ -412,11 +423,14 @@ pv pl_next(pl_state *state) {
 		if (!validinstruction) {
 			abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
-		//pl_dump_stack(state->stack);
 	}
 }
 
 void pl_state_free(pl_state *state) {
 	pl_stack_unref(state->stack);
+	if (state->saved != NULL) {
+		pl_state_free(state->saved);
+	}
+	pv_free(state->iter);
 	free(state);
 }

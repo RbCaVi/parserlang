@@ -348,6 +348,43 @@ int main(int argc, char **argv) {
 		pv_free(it2);
 		pv_free(it3);
 	}
+	{
+		pl_bytecode_builder *b = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b, PUSHINT, {8});
+		pl_bytecode_builder_add(b, PUSHINT, {15});
+		pl_bytecode_builder_add(b, MAKEARRAY, {2});
+		pl_bytecode_builder_add(b, ITER, {});
+		pl_bytecode_builder_add(b, EACH, {});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode_builder_add(b, GRET, {});
+		pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+		printf("bytecode1\n");
+		pl_bytecode_dump(bytecode);
+
+		pv f = pl_func(bytecode);
+
+		pl_state *pl = pl_state_new();
+
+		pl->stack = pl_stack_push(pl->stack, f);
+		pl_state_set_call(pl, 0);
+
+		pv ii = pl_iter_gen(pl);
+
+		for (int i = 0; i < 5; i++) {
+			char *s = pv_to_string(pl_iter_value(pv_copy(ii)));
+			printf("iter %i: %s\n", i, s);
+			free(s);
+			ii = pl_iter_next(ii);
+		}
+
+		pv_free(ii);
+
+		pl_dump_stack(pl->stack);
+		pl_stack_unref(pl->stack);
+
+		free(pl);
+	}
 
 	return 0;
 }
