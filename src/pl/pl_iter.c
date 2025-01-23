@@ -8,6 +8,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+//#include <stdio.h>
 
 pv_kind iter_kind;
 
@@ -119,7 +120,7 @@ pv pl_iter_gen(pl_state *pl) {
 	i->iter_type = GEN;
 	i->pl = pl;
 	i->val = pv_invalid();
-	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
+	return pl_iter_next((pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)});
 }
 
 pv pl_iter_value(pv val) {
@@ -168,15 +169,7 @@ pv pl_iter_value(pv val) {
 		}
 		break;
 	case GEN:
-		if (i->pl != NULL) {
-			if (i->val.kind == 0) {
-				i->val = pl_next(i->pl);
-			}
-			if (i->val.kind == 0) {
-				i->pl = NULL;
-			}
-			out = i->val;
-		}
+		out = i->val;
 		break;
 	}
 	pv_free(val);
@@ -201,6 +194,7 @@ static plp_iter_data *plp_iter_realloc(plp_iter_data *iin) {
 pv pl_iter_next(pv val) {
 	assert(val.kind == iter_kind);
 	plp_iter_data *i = plp_iter_realloc(plp_iter_get_data(val));
+	//printf("i->pl =================== %p\n", i->pl);
 	switch (i->iter_type) {
 	case ARRAYK:
 	case ARRAYV:
@@ -216,7 +210,15 @@ pv pl_iter_next(pv val) {
 		i->oiter = pv_object_iter_next(pv_copy(i->val), i->oiter);
 		break;
 	case GEN:
-		i->val = pv_invalid();
+		//printf("next of %p from iter: %p\n", i->pl, i);
+		if (i->pl != NULL) {
+			//printf("(it worked!)\n");
+			//printf("i->val.kind = %i\n", i->val.kind);
+			i->val = pl_next(i->pl);
+			if (i->val.kind == 0) {
+				i->pl = NULL;
+			}
+		}
 		break;
 	}
 	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
