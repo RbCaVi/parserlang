@@ -7,7 +7,7 @@
 # compilecmd := gcc -MD -Wall -Wextra -Wpedantic -Wconversion -Werror=return-type -Werror=implicit-function-declaration -I . -c
 compilecmd := gcc \
 -Og -g -gdwarf-4 -ggdb \
--Wall -Wextra -Wpedantic -Wno-pedantic \
+-Wall -Wextra -Wpedantic -Wno-pedantic -Wno-comment \
 -Wconversion -Werror=return-type -Werror=implicit-function-declaration \
 -I pv -I pl -I plc -I . -c -MMD
 
