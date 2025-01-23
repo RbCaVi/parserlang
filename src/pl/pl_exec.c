@@ -36,7 +36,7 @@ pl_state *pl_state_dup(pl_state *state) {
 		saved = pl_state_dup(state->saved);
 	}
 	*newstate = (pl_state){state->code, state->globals, pl_stack_ref(state->stack), saved, pv_copy(state->iter)};
-	return state;
+	return newstate;
 }
 
 static pl_opcode plp_get_opcode(const char *bytecode) { \
@@ -52,7 +52,7 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 
 #define opcase(op) \
 case(OPCODE_ ## op):; \
-	/*printf("\n" #op "\n");*/ \
+	/*printf("\n" #op "\n");/**/ \
 	validinstruction = 1; \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
@@ -69,7 +69,7 @@ bool gret_impl(pl_state *state) {
 		if (state->saved == NULL) {
 			return false;
 		}
-		pv v = pl_iter_value(state->iter);
+		pv v = pl_iter_value(pv_copy(state->iter));
 		if (pv_get_kind(v) != 0) {
 			state->code = state->saved->code;
 			pl_stack_unref(state->stack);
@@ -85,6 +85,7 @@ bool gret_impl(pl_state *state) {
 }
 
 pv pl_next(pl_state *state) {
+	//printf("state: (code: %p stack data: %p)\n", state->code, state->stack.cells);
 	const char *bytecode = state->code;
 	while (1) {
 		int validinstruction = 0;
