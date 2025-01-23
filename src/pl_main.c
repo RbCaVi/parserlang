@@ -304,8 +304,14 @@ int main(int argc, char **argv) {
 	}
 	{
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
-		pl_bytecode_builder_add(b, PUSHDOUBLE, {2});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {5});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {4});
 		pl_bytecode_builder_add(b, PUSHDOUBLE, {3});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {2});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {1});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode_builder_add(b, GRET, {});
@@ -321,21 +327,26 @@ int main(int argc, char **argv) {
 		pl->stack = pl_stack_push(pl->stack, f);
 		pl_state_set_call(pl, 0);
 
-		pv ii = pl_iter_gen(pl);
+		pv it1 = pl_iter_gen(pl);
 
-		for (int i = 0; i < 5; i++) {
-			char *s = pv_to_string(pl_iter_value(pv_copy(ii)));
-			printf("iter %i: %s\n", i, s);
-			free(s);
-			ii = pl_iter_next(ii);
-		}
+#define ITERATE(it, message) { \
+	char *s = pv_to_string(pl_iter_value(pv_copy(it))); \
+	printf(message, s); \
+	free(s); \
+	it = pl_iter_next(it); \
+}
 
-		pv_free(ii);
+		ITERATE(it1, "it1 iteration 1: %s\n");
+		pv it2 = pv_copy(it1);
+		ITERATE(it1, "it1 iteration 2: %s\n");
+		ITERATE(it2, "it2 iteration 1: %s\n");
+		pv it3 = pv_copy(it2);
+		ITERATE(it3, "it3 iteration 1: %s\n");
+		ITERATE(it2, "it2 iteration 2: %s\n");
 
-		pl_dump_stack(pl->stack);
-		pl_stack_unref(pl->stack);
-
-		free(pl);
+		pv_free(it1);
+		pv_free(it2);
+		pv_free(it3);
 	}
 
 	return 0;
