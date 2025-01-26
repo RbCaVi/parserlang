@@ -101,12 +101,11 @@ int main(int argc, char **argv) {
 		pl_dump_pv(ret);
 
 		pl_dump_stack(pl->stack);
-		pl_stack_unref(pl->stack);
 
 		pv_free(pl->globals[0]);
 		free(pl->globals);
 
-		free(pl);
+		pl_state_free(pl);
 	}
 	{
 		pv a = PV_ARRAY(pv_int(1), pv_int(4), pv_int(2));
@@ -199,11 +198,10 @@ int main(int argc, char **argv) {
 		pl_dump_pv(ret);
 
 		pl_dump_stack(pl->stack);
-		pl_stack_unref(pl->stack);
 
 		free(pl->globals);
 
-		free(pl);
+		pl_state_free(pl);
 	}
 	{
 		pv f = pl_func_native(dump_pv);
@@ -261,11 +259,10 @@ int main(int argc, char **argv) {
 		pl_dump_pv(ret2);
 
 		pl_dump_stack(pl->stack);
-		pl_stack_unref(pl->stack);
 
 		free(pl->globals);
 
-		free(pl);
+		pl_state_free(pl);
 	}
 	{
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
@@ -296,11 +293,6 @@ int main(int argc, char **argv) {
 		}
 
 		pv_free(ii);
-
-		pl_dump_stack(pl->stack);
-		pl_stack_unref(pl->stack);
-
-		free(pl);
 	}
 	{
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
@@ -379,11 +371,6 @@ int main(int argc, char **argv) {
 		}
 
 		pv_free(ii);
-
-		pl_dump_stack(pl->stack);
-		pl_stack_unref(pl->stack);
-
-		free(pl);
 	}
 	{
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
@@ -422,11 +409,6 @@ int main(int argc, char **argv) {
 		}
 
 		pv_free(ii);
-
-		pl_dump_stack(pl->stack);
-		pl_stack_unref(pl->stack);
-
-		free(pl);
 	}
 
 	return 0;
