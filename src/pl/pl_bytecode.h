@@ -34,6 +34,8 @@ pl_bytecode pl_bytecode_from_builder(pl_bytecode_builder*);
 
 void pl_bytecode_dump(pl_bytecode);
 
+void pl_bytecode_incref(pl_bytecode);
+uint32_t pl_bytecode_getref(pl_bytecode);
 void pl_bytecode_free(pl_bytecode);
 
 #endif

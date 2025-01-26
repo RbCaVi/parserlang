@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 struct pl_bytecode_builder {
 	uint32_t end;
@@ -224,14 +225,35 @@ void pl_bytecode_dump(pl_bytecode b) {
 }
 
 pl_bytecode pl_bytecode_from_builder(pl_bytecode_builder *b) {
-	char *bytecode = malloc(b->end);
+	uint32_t *refcount = malloc(b->end + sizeof(uint32_t));
+	*refcount = 1;
+	char *bytecode = (char*)(refcount + 1);
 	memcpy(bytecode, b->bytecode, b->end);
 	uint32_t len = b->end;
+	free(b);
 	return (pl_bytecode){bytecode, len, 1};
 }
 
 void pl_bytecode_free(pl_bytecode b) {
 	if (b.freeable) {
-		free((char*)b.bytecode);
+		uint32_t *refcount = (uint32_t*)(b.bytecode) - 1;
+		if (--*refcount == 0) {
+			free(refcount);
+		}
 	}
+}
+
+void pl_bytecode_incref(pl_bytecode b) {
+	if (b.freeable) {
+		uint32_t *refcount = (uint32_t*)(b.bytecode) - 1;
+		(*refcount)++;
+	}
+}
+
+uint32_t pl_bytecode_getref(pl_bytecode b) {
+	if (b.freeable) {
+		uint32_t *refcount = (uint32_t*)(b.bytecode) - 1;
+		return *refcount;
+	}
+	return UINT_MAX;
 }
