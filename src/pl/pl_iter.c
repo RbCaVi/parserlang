@@ -169,7 +169,7 @@ pv pl_iter_value(pv val) {
 		}
 		break;
 	case GEN:
-		out = i->val;
+		out = pv_copy(i->val);
 		break;
 	}
 	pv_free(val);
@@ -214,8 +214,10 @@ pv pl_iter_next(pv val) {
 		if (i->pl != NULL) {
 			//printf("(it worked!)\n");
 			//printf("i->val.kind = %i\n", i->val.kind);
+			pv_free(i->val);
 			i->val = pl_next(i->pl);
 			if (i->val.kind == 0) {
+				pl_state_free(i->pl);
 				i->pl = NULL;
 			}
 		}
