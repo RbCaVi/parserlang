@@ -10,6 +10,7 @@
 struct pl_retinfo {
 	const char *ret;
 	int locals; // -1 means no return
+	pl_bytecode code;
 };
 
 enum pl_stack_cell_type {
@@ -60,11 +61,23 @@ static pl_stack duplicate_stack(pl_stack stack) {
 	// copy the cells
 	memcpy(newstack.cells,stack.cells,size);
 
+	//printf("stack dup size %i\n", size);
+
 	for (uint32_t i = 0; i < newstack.top; i++) {
-		if (stack_cell(stack,i).type == VAL) {
-			pv_copy(stack_cell(stack,stack.top - 1).value);
+		switch (stack_cell(stack,i).type) {
+		case RET:
+			//printf("stack ret %i\n", i);
+			//printf("bytecode dup refcount 1 = %i\n", pl_bytecode_getref(stack_cell(stack, i).ret.code));
+			pl_bytecode_incref(stack_cell(stack, i).ret.code);
+			//printf("bytecode dup refcount 2 %p = %i\n", stack_cell(stack, i).ret.code.bytecode, pl_bytecode_getref(stack_cell(stack, i).ret.code));
+			break;
+		case VAL:
+			pv_copy(stack_cell(stack, i).value);
+			break;
 		}
 	}
+	newstack.cells->refcount.refcount = 1;
+	//printf("================================================= %p duped to %i\n", newstack.cells, newstack.cells->refcount.refcount);
 
 	return newstack;
 }
@@ -86,7 +99,9 @@ pl_stack pl_stack_new() {
 	pl_stack out = {data, 0, 0};
 	stack_cell(out,0).type = RET;
 	stack_cell(out,0).ret.locals = -1;
-
+	stack_cell(out,0).ret.code = (pl_bytecode){NULL, 0, 0};
+	//printf("================================================= %p new to %i\n", out.cells, out.cells->refcount.refcount);
+	
 	return out;
 }
 
@@ -180,21 +195,27 @@ pl_stack pl_stack_pop_frame(pl_stack stack){
 	assert(stack_cell(stack,idx).type == RET);
 	stack.top = idx;
 	stack.locals = (uint32_t)stack_cell(stack,idx).ret.locals;
+	//printf("bytecode refcount a = %i\n", pl_bytecode_getref(stack_cell(stack,idx).ret.code));
+	pl_bytecode_free(stack_cell(stack,idx).ret.code);
+	//printf("bytecode refcount b %p = %i\n", stack_cell(stack,idx).ret.code.bytecode, pl_bytecode_getref(stack_cell(stack,idx).ret.code));
 
 	return stack;
 }
 
-pl_stack pl_stack_split_frame(pl_stack stack, int idx, const char *ret) {
+pl_stack pl_stack_split_frame(pl_stack stack, int idx, const char *ret, pl_bytecode fcode) {
 	// split makes a new stack always
 	stack = move_stack(stack);
 
 	uint32_t i = get_stack_idx(stack, idx);
 
 	assert(stack_cell(stack,i).type == VAL);
+	//printf("bytecode refcount 1 = %i\n", pl_bytecode_getref(fcode));
 	pv_free(stack_cell(stack,i).value); // delete the previous value
 	stack_cell(stack,i).type = RET;
 	stack_cell(stack,i).ret.locals = (int)stack.locals;
 	stack_cell(stack,i).ret.ret = ret;
+	//printf("bytecode refcount 2 %p = %i at %i\n", fcode.bytecode, pl_bytecode_getref(fcode), i);
+	stack_cell(stack,i).ret.code = fcode;
 
 	stack.locals = i;
 
@@ -202,16 +223,24 @@ pl_stack pl_stack_split_frame(pl_stack stack, int idx, const char *ret) {
 }
 
 pl_stack pl_stack_ref(pl_stack stack){
+	//printf("-------------------------------REF\n");
 	stack.cells->refcount.refcount++;
+	//printf("================================================= %p refed to %i\n", stack.cells, stack.cells->refcount.refcount);
 	return stack;
 }
 
 void pl_stack_unref(pl_stack stack){
 	stack.cells->refcount.refcount--;
+	//printf("================================================= %p unrefed to %i\n", stack.cells, stack.cells->refcount.refcount);
 	if (stack.cells->refcount.refcount == 0) {
+		//printf("-------------------------------UNREF\n");
 		for (uint32_t i = 0; i < stack.top; i++) {
 			switch (stack_cell(stack,i).type) {
 			case RET:
+				//printf("bytecode refcount free = %i at %i\n", pl_bytecode_getref(stack_cell(stack,i).ret.code));
+				//printf("bytecode refcount A %p = %i at %i\n", stack_cell(stack,i).ret.code.bytecode, pl_bytecode_getref(stack_cell(stack,i).ret.code), i);
+				pl_bytecode_free(stack_cell(stack,i).ret.code);
+				//printf("bytecode refcount B = %i at %i\n", pl_bytecode_getref(stack_cell(stack,i).ret.code), i);
 				break;
 			case VAL:
 				pv_free(stack_cell(stack,i).value);

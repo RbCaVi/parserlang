@@ -53,8 +53,9 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 
 void pl_state_set_call(pl_state *state, int argc) {
 	pv f = pl_stack_get(state->stack, -(argc + 1));
-	state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code);
-	state->code = pl_func_get_bytecode(f).bytecode;
+	pl_bytecode fcode = pl_func_get_bytecode(f);
+	state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code, fcode);
+	state->code = fcode.bytecode;
 }
 
 bool gret_impl(pl_state *state) {
@@ -66,11 +67,11 @@ bool gret_impl(pl_state *state) {
 		pv v = pl_iter_value(pv_copy(state->iter));
 		if (pv_get_kind(v) != 0) {
 			state->code = state->saved->code;
-			//printf("stack: %p saved stack: %p\n", state->stack.cells, state->saved->stack.cells);
+			//printf("stack: %p saved stack A: %p\n", state->stack.cells, state->saved->stack.cells);
 			//printf("stack ref: %i saved stack ref: %i\n", *(uint32_t*)(state->stack.cells), *(uint32_t*)(state->saved->stack.cells));
 			pl_stack_unref(state->stack);
 			state->stack = pl_stack_push(pl_stack_ref(state->saved->stack), v);
-			//printf("stack: %p saved stack: %p\n", state->stack.cells, state->saved->stack.cells);
+			//printf("stack: %p saved stack B: %p\n", state->stack.cells, state->saved->stack.cells);
 			//printf("stack ref: %i saved stack ref: %i\n", *(uint32_t*)(state->stack.cells), *(uint32_t*)(state->saved->stack.cells));
 			state->iter = pl_iter_next(state->iter);
 			return true;
@@ -407,6 +408,7 @@ pv pl_next(pl_state *state) {
 					state->stack = pl_stack_pop(state->stack);
 					return ret;
 				} else {
+					//printf("                                     RET from call (not iterator)\n");
 					pv val = pl_stack_top(state->stack);
 					bytecode = pl_stack_retaddr(state->stack);
 					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);

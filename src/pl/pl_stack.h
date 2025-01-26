@@ -3,6 +3,7 @@
 
 #include "pv/pv.h"
 #include "pl/pl_dump.h"
+#include "pl/pl_bytecode.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -33,7 +34,7 @@ pl_stack pl_stack_set(pl_stack,pv,int);
 pl_stack pl_stack_push(pl_stack,pv);
 
 //pl_stack pl_stack_push_frame(pl_stack);
-pl_stack pl_stack_split_frame(pl_stack, int, const char*); // used in call
+pl_stack pl_stack_split_frame(pl_stack, int, const char*, pl_bytecode); // used in call
 const char *pl_stack_retaddr(pl_stack stack);
 pl_stack pl_stack_pop_frame(pl_stack);
 
