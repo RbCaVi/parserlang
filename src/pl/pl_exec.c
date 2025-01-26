@@ -32,8 +32,8 @@ static void pl_state_save_chain(pl_state *state, pv iter) {
 // no refcounting (nobody will do 300 savepoints in a row and then duplicate the iterator right?)
 pl_state *pl_state_dup(pl_state *state) {
 	pl_state *newstate = malloc(sizeof(pl_state));
-	pl_state *saved = NULL;
-	if (state->saved != NULL) {
+	pl_state *saved = state->saved;
+	if (saved != NULL) {
 		saved = pl_state_dup(state->saved);
 	}
 	*newstate = (pl_state){state->code, state->globals, pl_stack_ref(state->stack), saved, pv_copy(state->iter)};
