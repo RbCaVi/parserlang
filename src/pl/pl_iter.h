@@ -19,4 +19,10 @@ pv pl_iter_gen(pl_state*); // takes a pl_state with the function set up by pl_st
 pv pl_iter_value(pv); // the current value of the iterator
 pv pl_iter_next(pv); // step the iterator
 
+#define pv_iter_foreach(it, x) \
+  for (pv x, pl_it__ = pv_copy(it); \
+    x = pl_iter_value(pv_copy(pl_it__)), x.kind != 0 ? 1 : (pv_free(pl_it__), 0); \
+    pl_it__ = pl_iter_next(pl_it__) \
+  )
+
 #endif
