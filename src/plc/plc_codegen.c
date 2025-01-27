@@ -29,8 +29,12 @@ static op ops[] = {
 #undef OP
 };
 
-pv plcp_sym_to_pv(plc_sym sym) {
+static pv plcp_sym_to_pv(plc_sym sym) {
 	return pv_string_from_data(sym.name, sym.len);
+}
+
+static int plcp_sym_cmp(plc_sym sym, const char *str) {
+	return strcmp(sym.name, str, sym.len);
 }
 
 struct plc_codegen_context {
@@ -257,14 +261,23 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 				if ((!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)))) {
 					// variables and functions can override builtins
 					pv_free(funcname);
+
 #define putargs() \
 					for (unsigned int i = 1; i < e->e.arity; i++) \
 						plc_codegen_expr(c, &(e->e.children[i]))
+
 #define putarg(i) \
 					plc_codegen_expr(c, &(e->e.children[i + 1]))
+
 					//printf("funcname: %.*s\n", e->e.children[0].s.len, e->e.children[0].s.name);
-					if (strncmp(e->e.children[0].s.name, "add", e->e.children[0].s.len) == 0) {
-						if (e->e.arity - 1 > 0) {
+
+#define ifnamed(name) \
+					if (plcp_sym_cmp(e->e.children[0].s, name) == 0)
+
+					int argcount = e->e.arity - 1
+
+					ifnamed("add") {
+						if (argcount > 0) {
 							putargs();
 							for (unsigned int i = 0; i < e->e.arity - 2; i++) {
 								pl_bytecode_builder_add(c->code, ADD, {});
@@ -274,8 +287,8 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 						}
 						break;
 					}
-					if (strncmp(e->e.children[0].s.name, "concat", e->e.children[0].s.len) == 0) {
-						if (e->e.arity - 1 > 0) {
+					ifnamed("concat") {
+						if (argcount > 0) {
 							putargs();
 							for (unsigned int i = 0; i < e->e.arity - 2; i++) {
 								pl_bytecode_builder_add(c->code, CONCAT, {});
