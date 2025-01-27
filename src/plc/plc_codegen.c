@@ -34,7 +34,7 @@ static pv plcp_sym_to_pv(plc_sym sym) {
 }
 
 static int plcp_sym_cmp(plc_sym sym, const char *str) {
-	return strcmp(sym.name, str, sym.len);
+	return strncmp(sym.name, str, sym.len);
 }
 
 struct plc_codegen_context {
@@ -211,15 +211,15 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			// end:
 			plc_codegen_expr(c, s->fors.val);
 			pl_bytecode_builder_add(c->code, ITER, {});
-			int len1 = pl_bytecode_builder_len(c->code);
-			int len2 = pl_bytecode_builder_len(c->code);
-			int condlen = len2 - len1;
+			uint32_t len1 = pl_bytecode_builder_len(c->code);
+			uint32_t len2 = pl_bytecode_builder_len(c->code);
+			uint32_t condlen = len2 - len1;
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->fors.var), pv_int(c2->stacksize++));
 			c2->vars = pv_object_set(c2->vars, plcp_sym_to_pv(s->fors.var), pv_int(c2->stacksize++));
 			plc_codegen_stmt(c2, s->fors.code);
 			pl_bytecode_builder_add(c2->code, POP, {});
-			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + condlen + 8)});
+			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + (int)condlen + 8)});
 			pl_bytecode_builder_add(c->code, ITERATE, {(int)pl_bytecode_builder_len(c2->code)});
 			plc_codegen_context_add(c, c2);
 			break;
@@ -230,13 +230,13 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			// code
 			// jump to start
 			// end:
-			int len1 = pl_bytecode_builder_len(c->code);
+			uint32_t len1 = pl_bytecode_builder_len(c->code);
 			plc_codegen_expr(c, s->whiles.cond);
-			int len2 = pl_bytecode_builder_len(c->code);
-			int condlen = len2 - len1;
+			uint32_t len2 = pl_bytecode_builder_len(c->code);
+			uint32_t condlen = len2 - len1;
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
 			plc_codegen_stmt(c2, s->whiles.code);
-			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + condlen + 8)});
+			pl_bytecode_builder_add(c2->code, JUMP, {-(8 + (int)pl_bytecode_builder_len(c2->code) + (int)condlen + 8)});
 			pl_bytecode_builder_add(c->code, JUMPIFNOT, {(int)pl_bytecode_builder_len(c2->code)});
 			plc_codegen_context_add(c, c2);
 			break;
@@ -274,7 +274,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 #define ifnamed(name) \
 					if (plcp_sym_cmp(e->e.children[0].s, name) == 0)
 
-					int argcount = e->e.arity - 1
+					uint32_t argcount = e->e.arity - 1;
 
 					ifnamed("add") {
 						if (argcount > 0) {
@@ -307,7 +307,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 					ifnamed("gcall") {
 						assert(argcount >= 1);
 						putargs();
-						pl_bytecode_builder_add(c->code, GCALL, {argcount - 1});
+						pl_bytecode_builder_add(c->code, CALLG, {argcount - 1});
 						break;
 					}
 				} else {
