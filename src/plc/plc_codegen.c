@@ -158,7 +158,6 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			pl_bytecode_builder_add(b, RET, {});
 			pl_bytecode_builder_add(b, GRET, {});
 			pl_bytecode code = pl_bytecode_from_builder(b);
-			pl_bytecode_builder_free(b);
 			plc_codegen_context_free(c2);
 			*c->globals = pv_array_set(*c->globals, pv_int_value(pv_object_get(pv_copy(c->globalmap), plcp_sym_to_pv(s->deffunc.name))), pl_func(code));
 			break;

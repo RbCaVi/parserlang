@@ -53,7 +53,6 @@ int main(int argc, char **argv) {
 	pl_bytecode_builder_add(b, RET, {});
 	pl_bytecode_builder_add(b, GRET, {});
 	pl_bytecode code = pl_bytecode_from_builder(b);
-	pl_bytecode_builder_free(b);
 
 	printf("top level bytecode:\n");
 	pl_bytecode_dump(code);
@@ -70,7 +69,9 @@ int main(int argc, char **argv) {
 	pv_array_foreach(globals, i, v) {
 		if (pv_get_kind(v) == func_kind) {
 			printf("function at %i bytecode:\n", i);
-			pl_bytecode_dump(pl_func_get_bytecode(pv_copy(v)));
+			pl_bytecode bytecode = pl_func_get_bytecode(pv_copy(v));
+			pl_bytecode_dump(bytecode);
+			pl_bytecode_free(bytecode);
 		}
 		exe.globals[i] = pv_copy(v);
 	}
@@ -83,8 +84,6 @@ int main(int argc, char **argv) {
 		pv_free(exe.globals[i]);
 	}
 	free(exe.globals);
-
-	pl_bytecode_free(code);
 
 	plc_codegen_context_free(c);
 

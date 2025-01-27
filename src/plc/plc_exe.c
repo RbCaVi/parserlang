@@ -97,8 +97,8 @@ static unsigned int addval(plcp_exe *data, pv val) {
 		f->type = 2;
 		f->len = b.length;
 		memcpy(f->data, b.bytecode, b.length);
-		//b.freeable = 1;
-		//pl_bytecode_free(b);
+		//printf("bytecode refcount = %i\n", pl_bytecode_getref(b));
+		pl_bytecode_free(b);
 		return i;
 	}
 	if (kind == array_kind) {
