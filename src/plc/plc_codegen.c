@@ -298,6 +298,18 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 						}
 						break;
 					}
+					ifnamed("each") {
+						assert(argcount == 1);
+						putarg(0);
+						pl_bytecode_builder_add(c->code, EACH, {});
+						break;
+					}
+					ifnamed("gcall") {
+						assert(argcount >= 1);
+						putargs();
+						pl_bytecode_builder_add(c->code, GCALL, {argcount - 1});
+						break;
+					}
 				} else {
 					pv_free(funcname);
 				}
