@@ -477,27 +477,6 @@ int main(int argc, char **argv) {
 		pl_state *pl = pl_state_new();
 		pl->globals = malloc(1 * sizeof(pv));
 
-		/* approximately
-		f2(b)
-			if b: goto l1
-			v1 = 8
-			v2 = 15
-			out = v1 + v2
-			v3 = true
-			if v3: goto l2
-			l1:
-			out = 31
-			l2:
-			return out
-
-		* simplifies to
-		f2(b)
-			if b:
-				return 31
-			else:
-				return 23
-		*/
-
 		pl_bytecode_builder *b2 = pl_bytecode_new_builder();
 		pl_bytecode_builder_add(b2, PUSHINT, {44});
 		pl_bytecode_builder_add(b2, RET, {});
