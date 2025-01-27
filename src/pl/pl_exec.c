@@ -396,6 +396,7 @@ pv pl_next(pl_state *state) {
 			}
 			opcase(ITERATE) {
 				pv i = pl_stack_top(state->stack);
+				state->stack = pl_stack_pop(state->stack);
 				pv v = pl_iter_value(pv_copy(i));
 				//printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
 				//pl_dump_pv(pv_copy(v));
@@ -403,13 +404,12 @@ pv pl_next(pl_state *state) {
 					//printf("refcount of iterator is ================= %i\n", pv_get_refcount(i));
 					pv_free(i);
 					pv_free(v);
-					state->stack = pl_stack_pop(state->stack);
 					//printf("before\n");
 					//pl_dump_stack(state->stack);
 					//printf("after\n");
 					bytecode += ITERATE_data.target;
 				} else {
-					state->stack = pl_stack_set(state->stack, pl_iter_next(i), -1);
+					state->stack = pl_stack_push(state->stack, pl_iter_next(i));
 					state->stack = pl_stack_push(state->stack, v);
 				}
 				break;
