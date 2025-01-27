@@ -83,8 +83,8 @@ pl_bytecode pl_func_get_bytecode(pv fun) {
 	pl_func_data *f = plp_func_get_data(fun);
 	assert(f->type == BYTECODE);
 	pl_bytecode bytecode = f->bytecode;
-	pv_free(fun);
 	pl_bytecode_incref(bytecode);
+	pv_free(fun);
 	return bytecode;
 }
 
