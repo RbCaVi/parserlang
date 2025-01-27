@@ -98,7 +98,7 @@ static pv plp_setup_iter(pv val, pv_iter_type type) {
 
 pv pl_iter(pv val) {
 	if (pv_get_kind(val) == iter_kind) {
-		return pv_copy(val);
+		return val;
 	} else if (pv_get_kind(val) == array_kind) {
 		return plp_setup_iter(val, VALUES);
 	} else {
