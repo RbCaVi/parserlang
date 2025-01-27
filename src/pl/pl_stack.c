@@ -233,6 +233,7 @@ void pl_stack_unref(pl_stack stack){
 	stack.cells->refcount.refcount--;
 	//printf("================================================= %p unrefed to %i\n", stack.cells, stack.cells->refcount.refcount);
 	if (stack.cells->refcount.refcount == 0) {
+		//printf("============================================================= real free\n");
 		//printf("-------------------------------UNREF\n");
 		for (uint32_t i = 0; i < stack.top; i++) {
 			switch (stack_cell(stack,i).type) {
@@ -243,6 +244,8 @@ void pl_stack_unref(pl_stack stack){
 				//printf("bytecode refcount B = %i at %i\n", pl_bytecode_getref(stack_cell(stack,i).ret.code), i);
 				break;
 			case VAL:
+				//printf("============================================================= pv refcount free = %i at %i\n", pv_get_refcount(stack_cell(stack,i).value), i);
+				//pl_dump_pv(pv_copy(stack_cell(stack,i).value));
 				pv_free(stack_cell(stack,i).value);
 				break;
 			}

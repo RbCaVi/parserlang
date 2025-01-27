@@ -305,7 +305,6 @@ pv pl_next(pl_state *state) {
 			}
 			opcase(CALLG) {
 				if (!pl_func_is_native(pl_stack_get(state->stack, -(CALLG_data.n + 1)))) {
-
 					pl_state *pl = pl_state_new();
 					pl->globals = state->globals;
 					for (int i = -(CALLG_data.n + 1); i < 0; i++) {
@@ -313,6 +312,7 @@ pv pl_next(pl_state *state) {
 					}
 					state->stack = pl_stack_popn(state->stack, (uint32_t)(CALLG_data.n + 1));
 					pl_state_set_call(pl, 0);
+					//pl_dump_stack(pl->stack);
 					pv it = pl_iter_gen(pl);
 					state->stack = pl_stack_push(state->stack, it);
 				} else {
@@ -397,10 +397,16 @@ pv pl_next(pl_state *state) {
 			opcase(ITERATE) {
 				pv i = pl_stack_top(state->stack);
 				pv v = pl_iter_value(pv_copy(i));
+				//printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+				//pl_dump_pv(pv_copy(v));
 				if (pv_get_kind(v) == 0) {
+					//printf("refcount of iterator is ================= %i\n", pv_get_refcount(i));
 					pv_free(i);
 					pv_free(v);
 					state->stack = pl_stack_pop(state->stack);
+					//printf("before\n");
+					//pl_dump_stack(state->stack);
+					//printf("after\n");
 					bytecode += ITERATE_data.target;
 				} else {
 					state->stack = pl_stack_set(state->stack, pl_iter_next(i), -1);
@@ -424,8 +430,11 @@ pv pl_next(pl_state *state) {
 				//printf("code pos in RET = %p\n", bytecode);
 				if (pl_stack_retaddr(state->stack) == NULL) {
 					state->code = bytecode;
+					//printf("RETURNING!!!!!!\n");
+					//pl_dump_stack(state->stack);
 					pv ret = pl_stack_top(state->stack);
 					state->stack = pl_stack_pop(state->stack);
+					//pl_dump_pv(pv_copy(ret));
 					return ret;
 				} else {
 					//printf("                                     RET from call (not iterator)\n");
@@ -436,6 +445,7 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(GRET) {
+				//printf("grert\n");
 				if (!gret_impl(state)) {
 					return pv_invalid();
 				}
