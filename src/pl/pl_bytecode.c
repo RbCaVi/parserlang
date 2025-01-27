@@ -208,6 +208,9 @@ void pl_bytecode_dump(pl_bytecode b) {
 			opcase(CALL)
 				printf(" %i\n", CALL_data.n);
 				break;
+			opcase(CALLG)
+				printf(" %i\n", CALLG_data.n);
+				break;
 			opcase(JUMP)
 				printf(" %i\n", plp_bytecode_instructions_between(bytecode, bytecode + JUMP_data.target));
 				break;

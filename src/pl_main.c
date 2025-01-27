@@ -453,5 +453,74 @@ int main(int argc, char **argv) {
 		//printf("bytecode refcount at end = %i\n", pl_bytecode_getref(bytecode));
 	}
 
+	{
+		// call f2 twice with both inputs and make an array (should return [23, 31])
+		pl_bytecode_builder *b = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
+		pl_bytecode_builder_add(b, CALLG, {0});
+		pl_bytecode_builder_add(b, ITERATE, {0});
+		pl_bytecode_builder_add(b, SWAPN, {1});
+		pl_bytecode_builder_add(b, ITERATE, {0});
+		pl_bytecode_builder_add(b, SWAPN, {2});
+		pl_bytecode_builder_add(b, SWAPN, {1});
+		pl_bytecode_builder_add(b, SWAPN, {2});
+		pl_bytecode_builder_add(b, MAKEARRAY, {2});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode_builder_add(b, GRET, {});
+		pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+		printf("bytecode1\n");
+		pl_bytecode_dump(bytecode);
+
+		pv f = pl_func(bytecode);
+
+		pl_state *pl = pl_state_new();
+		pl->globals = malloc(1 * sizeof(pv));
+
+		/* approximately
+		f2(b)
+			if b: goto l1
+			v1 = 8
+			v2 = 15
+			out = v1 + v2
+			v3 = true
+			if v3: goto l2
+			l1:
+			out = 31
+			l2:
+			return out
+
+		* simplifies to
+		f2(b)
+			if b:
+				return 31
+			else:
+				return 23
+		*/
+
+		pl_bytecode_builder *b2 = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b2, PUSHINT, {44});
+		pl_bytecode_builder_add(b2, RET, {});
+		pl_bytecode_builder_add(b2, PUSHINT, {17});
+		pl_bytecode_builder_add(b2, RET, {});
+		pl_bytecode_builder_add(b2, GRET, {});
+		pl_bytecode bytecode2 = pl_bytecode_from_builder(b2);
+
+		printf("bytecode2\n");
+		pl_bytecode_dump(bytecode2);
+
+		pl->globals[0] = pl_func(bytecode2);
+
+		pv ret = pl_func_call(f, pl);
+		pl_dump_pv(ret);
+
+		pl_dump_stack(pl->stack);
+
+		pv_free(pl->globals[0]);
+		free(pl->globals);
+
+		pl_state_free(pl);
+	}
+
 	return 0;
 }
