@@ -307,6 +307,7 @@ pv pl_next(pl_state *state) {
 				if (!pl_func_is_native(pl_stack_get(state->stack, -(CALLG_data.n + 1)))) {
 
 					pl_state *pl = pl_state_new();
+					pl->globals = state->globals;
 					for (int i = -(CALLG_data.n + 1); i < 0; i++) {
 						pl->stack = pl_stack_push(pl->stack, pl_stack_get(state->stack, i));
 					}
