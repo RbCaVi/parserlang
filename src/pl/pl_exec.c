@@ -311,8 +311,8 @@ pv pl_next(pl_state *state) {
 						pl->stack = pl_stack_push(pl->stack, pl_stack_get(state->stack, i));
 					}
 					state->stack = pl_stack_popn(state->stack, (uint32_t)(CALLG_data.n + 1));
-					pl_state_set_call(pl, 0);
 					//pl_dump_stack(pl->stack);
+					pl_state_set_call(pl, CALLG_data.n);
 					pv it = pl_iter_gen(pl);
 					state->stack = pl_stack_push(state->stack, it);
 				} else {
