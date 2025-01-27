@@ -154,8 +154,8 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 			}
 			pl_bytecode_builder *b = plc_codegen_stmt(c2, s->deffunc.code);
 			b = pl_bytecode_dup_builder(b); // the original is freed by plc_codegen_context_free(c2)
-			pl_bytecode_builder_add(b, PUSHNULL, {});
-			pl_bytecode_builder_add(b, RET, {});
+			//pl_bytecode_builder_add(b, PUSHNULL, {});
+			//pl_bytecode_builder_add(b, RET, {});
 			pl_bytecode_builder_add(b, GRET, {});
 			pl_bytecode code = pl_bytecode_from_builder(b);
 			plc_codegen_context_free(c2);
