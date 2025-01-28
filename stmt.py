@@ -1,4 +1,4 @@
-from parser import parser
+from parserc import parser
 from parsers import parserify,concat,alternate,strs,strip,transform,optional,errornone,errorafter,star,noneerror
 from expr import evaluate,EXPR,ops,getSym,SYM
 

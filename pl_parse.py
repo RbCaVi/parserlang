@@ -21,7 +21,7 @@ with open(filein) as f:
 
 from stmt import stmts
 from parsers import concat, transform
-from parser import parser
+from parserc import parser
 from expr import treeexpr
 
 @parser

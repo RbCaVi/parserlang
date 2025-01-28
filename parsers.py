@@ -1,4 +1,4 @@
-from parser import parser
+from parserc import parser
 
 def strs(*ss):
 	@parser
