@@ -436,20 +436,19 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(RET) {
+				pv ret = pl_stack_top(state->stack);
 				//printf("code pos in RET = %p\n", bytecode);
 				if (pl_stack_retaddr(state->stack) == NULL) {
 					state->code = bytecode;
 					//printf("RETURNING!!!!!!\n");
 					//pl_dump_stack(state->stack);
-					pv ret = pl_stack_top(state->stack);
 					state->stack = pl_stack_pop(state->stack);
 					//pl_dump_pv(pv_copy(ret));
 					return ret;
 				} else {
 					//printf("                                     RET from call (not iterator)\n");
-					pv val = pl_stack_top(state->stack);
 					bytecode = pl_stack_retaddr(state->stack);
-					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);
+					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
 				}
 				break;
 			}
