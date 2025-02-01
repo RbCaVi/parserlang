@@ -64,6 +64,15 @@ bool gret_impl(pl_state *state) {
 			return false;
 		}
 		//pl_dump_pv(pv_copy(state->iter));
+		if (pv_get_kind(state->iter) == 0) {
+			pl_state *oldstate = state->saved;
+			pl_state oldstate2 = *state;
+			*state = *(state->saved);
+			*oldstate = oldstate2;
+			oldstate->saved = NULL;
+			pl_state_free(oldstate);
+			return true;
+		}
 		pv v = pl_iter_value(pv_copy(state->iter));
 		if (pv_get_kind(v) != 0) {
 			state->code = state->saved->code;
@@ -441,6 +450,20 @@ pv pl_next(pl_state *state) {
 					pv val = pl_stack_top(state->stack);
 					bytecode = pl_stack_retaddr(state->stack);
 					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), val);
+				}
+				break;
+			}
+			opcase(RETS) {
+				pv ret = pl_stack_top(state->stack);
+				state->stack = pl_stack_pop(state->stack);
+				if (pl_stack_retaddr(state->stack) == NULL) {
+					state->code = bytecode;
+					return ret;
+				} else {
+					state->code = bytecode;
+					pl_state_save_chain(state, pv_invalid());
+					bytecode = pl_stack_retaddr(state->stack);
+					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
 				}
 				break;
 			}

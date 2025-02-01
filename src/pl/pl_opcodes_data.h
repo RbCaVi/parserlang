@@ -101,6 +101,7 @@ JOPCODE(ITERATE, iterate, {int target;}) // pop an iterator, step it, and push t
 OPCODE(EACH, each, {}) // same as above, but creates a save point that is restored with each value of the iterator when a GRET is reached - when no more values, same as GRET
 
 OPCODE(RET, ret, {}) // return one value (ends a normal function)
+OPCODE(RETS, rets, {}) // return one value and add a save point here (should be like each(gcall(f, *args)))
 OPCODE(GRET, gret, {}) // return from a generator or return pv_invalid
 
 #ifdef _NO_JOPCODE

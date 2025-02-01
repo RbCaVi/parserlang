@@ -153,6 +153,7 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(ITERE)
 			nodataopcase(EACH)
 			nodataopcase(RET)
+			nodataopcase(RETS)
 			nodataopcase(GRET)
 			opcase(DUPN)
 				printf(" %i\n", DUPN_data.n);
