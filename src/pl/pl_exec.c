@@ -237,50 +237,6 @@ pv pl_next(pl_state *state) {
 				state->stack = pl_stack_push(state->stack, pv_array_concat(a1, a2));
 				break;
 			}
-			opcase(SETI) {
-				pv a = pl_stack_get(state->stack, -2);
-				pv v = pl_stack_get(state->stack, -1);
-				state->stack = pl_stack_popn(state->stack, 2);
-				state->stack = pl_stack_push(state->stack, pv_array_set(a, SETI_data.i, v));
-				break;
-			}
-			opcase(GETI) {
-				pv a = pl_stack_top(state->stack);
-				state->stack = pl_stack_set(state->stack, pv_array_get(a, GETI_data.i), -1);
-				break;
-			}
-			opcase(SLICE) {
-				abort(); // not implemented :(
-				break;
-			}
-			opcase(LEFT) {
-				abort(); // not implemented :(
-				break;
-			}
-			opcase(MID) {
-				abort(); // not implemented :(
-				break;
-			}
-			opcase(RIGHT) {
-				abort(); // not implemented :(
-				break;
-			}
-			opcase(LEFTI) {
-				abort(); // not implemented :(
-				break;
-			}
-			opcase(MIDI) {
-				abort(); // not implemented :(
-				break;
-			}
-			opcase(RIGHTI) {
-				abort(); // not implemented :(
-				break;
-			}
-			opcase(SLICEII) {
-				abort(); // not implemented :(
-				break;
-			}
 			opcase(LEN) {
 				abort(); // not implemented :(
 				break;

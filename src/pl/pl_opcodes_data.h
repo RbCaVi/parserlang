@@ -60,16 +60,6 @@ OPCODE(HASO, haso, {}) // pop a key and object and push key in object
 // string / array
 OPCODE(APPEND, append, {}) // pop v and x and push x.append(v)
 OPCODE(CONCAT, concat, {}) // pop x1 and x2 and push concat(x1, x2)
-OPCODE(SETI, seti, {int i;}) // pop v and x and push x[i] = v
-OPCODE(GETI, geti, {int i;}) // pop x and push x[i]
-OPCODE(SLICE, slice, {}) // pop idx1, idx2, and x and push x[idx1:idx2]
-OPCODE(LEFT, left, {}) // pop idx and x and push x[:idx]
-OPCODE(MID, mid, {}) // pop idx and x and push x[idx:]
-OPCODE(RIGHT, right, {}) // pop idx and x and push x[-idx:]
-OPCODE(LEFTI, lefti, {int i;}) // pop x and push x[:i]
-OPCODE(MIDI, midi, {int i;}) // pop x and push x[i:]
-OPCODE(RIGHTI, righti, {int i;}) // pop x and push x[-i:]
-OPCODE(SLICEII, sliceii, {int i1;int i2;}) // pop x and push x[i1:i2]
 
 // string / array / object
 OPCODE(LEN, len, {}) // pop x and push len(x)
