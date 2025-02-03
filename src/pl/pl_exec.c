@@ -282,9 +282,6 @@ pv pl_next(pl_state *state) {
 					state->stack = pl_stack_push(state->stack, it);
 				} else {
 					abort(); // i don't have native generators yet?
-					pv f = pl_stack_get(state->stack, -(CALLG_data.n + 1));
-					pv ret = pl_func_call(f, state);
-					state->stack = pl_stack_push(pl_stack_popn(state->stack, (uint32_t)CALLG_data.n + 1), ret);
 				}
 				break;
 			}
