@@ -101,7 +101,7 @@ Floatnumber = group(Pointfloat, Expfloat)
 Number = group(Floatnumber, Intnumber)
 # end from cpython Tokenize.py
 
-stringregex = r'"([^"\\]|\\([n\\"]|x[0-9a-fA-F]{2}))"'
+stringregex = r'"([^"\\]|\\([n\\"]|x[0-9a-fA-F]{2}))*"'
 
 import re
 
