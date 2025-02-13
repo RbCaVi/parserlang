@@ -101,7 +101,7 @@ Floatnumber = group(Pointfloat, Expfloat)
 Number = group(Floatnumber, Intnumber)
 # end from cpython Tokenize.py
 
-stringregex = r'"([^"\\x]|\\([n\\]|x[0-9a-fA-F]{2}))"'
+stringregex = r'"([^"\\]|\\([n\\"]|x[0-9a-fA-F]{2}))"'
 
 import re
 
@@ -123,7 +123,22 @@ def getStr(s):
   # not a variable
   m=re.match(stringregex,s)
   if m:
-    return s[:m.end()],s[m.end():]
+    instr = s[:m.end()][1:-1]
+    outstr = ''
+    while len(instr) > 0:
+      c = instr[0]
+      instr = instr[1:]
+      if c != "\\":
+        outstr += c
+      else:
+        c2 = instr[0]
+        instr = instr[1:]
+        if c2 == 'x':
+          outstr += chr(int(instr[:2], 16))
+          instr = instr[2:]
+        else:
+          outstr += {"\\": "\\", '"': '"', 'n': '\n'}[c2]
+    return outstr,s[m.end():]
   return None,s
 
 def getSym(s):
