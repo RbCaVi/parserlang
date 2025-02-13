@@ -306,7 +306,7 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 					ifnamed("gcall") {
 						assert(argcount >= 1);
 						putargs();
-						pl_bytecode_builder_add(c->code, CALLG, {argcount - 1});
+						pl_bytecode_builder_add(c->code, CALLG, {(int)argcount - 1});
 						break;
 					}
 				} else {
@@ -337,8 +337,17 @@ case OP_ ## op: \
 			}
 			break;
 		}
-		case EXPR_NUM: {
-			pl_bytecode_builder_add(c->code, PUSHINT, {e->n.value});
+		case EXPR_INT: {
+			pl_bytecode_builder_add(c->code, PUSHINT, {e->i.value});
+			break;
+		}
+		case EXPR_FLOAT: {
+			pl_bytecode_builder_add(c->code, PUSHDOUBLE, {e->f.value});
+			break;
+		}
+		case EXPR_STR: {
+			pl_bytecode_builder_add(c->code, PUSHGLOBAL, {(int)pv_array_length(pv_copy(*c->globals))});
+			*c->globals = pv_array_append(*c->globals, plcp_sym_to_pv(e->s));
 			break;
 		}
 		case EXPR_SYM: {

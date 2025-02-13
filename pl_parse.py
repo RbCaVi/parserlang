@@ -44,7 +44,9 @@ types = {typ:i for i,typ in enumerate([
 	'RETURNV',
 	'SIG',
 	'EXPR',
-	'NUM',
+	'INT',
+	'FLOAT',
+	'STR',
 	'SYM',
 	'YIELD',
 	'SETSTMT',
@@ -110,9 +112,16 @@ def dump(stmt, indent = 'a:'):
 			data += struct.pack('<I', l)
 		for e in es:
 			data += e
-	elif typ == 'NUM':
+	elif typ == 'INT':
 		num = stmt[1]
 		data += struct.pack('<I', num)
+	elif typ == 'FLOAT':
+		num = stmt[1]
+		data += struct.pack('<F', num)
+	elif typ == 'STR':
+		string = stmt[1]
+		data += struct.pack('<I', len(string))
+		data += string.encode('utf-8')
 	elif typ == 'SYM':
 		sym = stmt[1]
 		data += struct.pack('<I', len(sym))

@@ -11,7 +11,9 @@ typedef struct {
 struct expr {
 	enum expr_type {
 		EXPR_OP,
-		EXPR_NUM,
+		EXPR_INT,
+		EXPR_FLOAT,
+		EXPR_STR,
 		EXPR_SYM,
 	} type;
 	union {
@@ -22,8 +24,11 @@ struct expr {
 		} e;
 		struct {
 			int value;
-		} n;
-		plc_sym s;
+		} i;
+		struct {
+			float value;
+		} f;
+		plc_sym s; // i'm reusing this for both sym and str
 	};
 };
 

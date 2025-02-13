@@ -25,7 +25,9 @@ typedef enum {
 	NODE_RETURNV,
 	NODE_SIG,
 	NODE_EXPR,
-	NODE_NUM,
+	NODE_INT,
+	NODE_FLOAT,
+	NODE_STR,
 	NODE_SYM,
 	NODE_YIELD,
 	NODE_SETSTMT,
@@ -62,9 +64,20 @@ static expr parse_expr(char *data) {
 			data += len;
 		}
 		break;
-	case NODE_NUM:
-		out.type = EXPR_NUM;
-		out.n.value = *(int*)data;
+	case NODE_INT:
+		out.type = EXPR_INT;
+		out.i.value = *(int*)data;
+		break;
+	case NODE_FLOAT:
+		out.type = EXPR_FLOAT;
+		out.f.value = *(float*)data;
+		break;
+	case NODE_STR:
+		out.type = EXPR_STR;
+		unsigned int slen = *(unsigned int*)data;
+		out.s.len = slen;
+		data += sizeof(unsigned int);
+		out.s.name = data;
 		break;
 	case NODE_SYM:
 		out.type = EXPR_SYM;
@@ -244,9 +257,17 @@ static void print_expr(expr e, int indent) {
 			print_expr(e.e.children[i], indent + 1);
 		}
 		break;
-	case EXPR_NUM:
+	case EXPR_INT:
 		print_indent(indent);
-		printf("EXPR_NUM %i\n", e.n.value);
+		printf("EXPR_INT %i\n", e.i.value);
+		break;
+	case EXPR_FLOAT:
+		print_indent(indent);
+		printf("EXPR_FLOAT %f\n", e.f.value);
+		break;
+	case EXPR_STR:
+		print_indent(indent);
+		printf("EXPR_STR %.*s\n", e.s.len, e.s.name);
 		break;
 	case EXPR_SYM:
 		print_indent(indent);
@@ -331,7 +352,11 @@ static void free_expr(expr e) {
 		}
 		free(e.e.children);
 		break;
-	case EXPR_NUM:
+	case EXPR_INT:
+		break;
+	case EXPR_FLOAT:
+		break;
+	case EXPR_STR:
 		break;
 	case EXPR_SYM:
 		break;

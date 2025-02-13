@@ -66,7 +66,9 @@ opkeywords={
 # please know what you are doing
 
 # token types
-NUM='NUM'   # number
+INT='INT'   # literal
+FLOAT='FLOAT'   # literal
+STR='STR'   # literal
 LPAR='LPAR' # left paren
 RPAR='RPAR' # right paren
 OP='OP'     # binary operator
@@ -99,17 +101,29 @@ Floatnumber = group(Pointfloat, Expfloat)
 Number = group(Floatnumber, Intnumber)
 # end from cpython Tokenize.py
 
+stringregex = r'"([^"\\x]|\\([n\\]|x[0-9a-fA-F]{2}))"'
+
 import re
 
-def getNum(s):
-  # an actual number
+def getInt(s):
+  # not a variable
+  m=re.match(Intnumber,s)
+  if m:
+    return int(s[:m.end()]),s[m.end():]
+  return None,s
+
+def getFloat(s):
   # not a variable
   m=re.match(Floatnumber,s)
   if m:
     return float(s[:m.end()]),s[m.end():]
-  m=re.match(Intnumber,s)
+  return None,s
+
+def getStr(s):
+  # not a variable
+  m=re.match(stringregex,s)
   if m:
-    return int(s[:m.end()]),s[m.end():]
+    return s[:m.end()],s[m.end():]
   return None,s
 
 def getSym(s):
@@ -141,7 +155,7 @@ def getToken(s,lastType,comma):
     if sym is not None:
       return [SYM,sym],snew
     raise Exception(f'no token: {s} after {lastType}')
-  if lastType in [NUM,SYM,RPAR,RBR]:
+  if lastType in [INT,FLOAT,STR,SYM,RPAR,RBR]:
     for op in ops:
       if ss.startswith(op):
         return [OP,op],ss[len(op):]
@@ -173,9 +187,15 @@ def getToken(s,lastType,comma):
     for uop in uops:
       if ss.startswith(uop):
         return [UOP,uop],ss[len(uop):]
-    num,snew=getNum(ss)
-    if num is not None:
-      return [NUM,num],snew
+    intlit,snew=getInt(ss)
+    if intlit is not None:
+      return [INT,intlit],snew
+    floatlit,snew=getFloat(ss)
+    if floatlit is not None:
+      return [FLOAT,floatlit],snew
+    strlit,snew=getStr(ss)
+    if strlit is not None:
+      return [STR,strlit],snew
     for kw in keywords:
       if ss.startswith(kw):
         return [KW,kw],ss[len(kw):]
@@ -211,9 +231,9 @@ def addToken(token,lastType,values,ops,parens,s):
   if token[0]==OPKW:
     value,s=opkeywords[token[1]](s)
     values[-1]=value[:2]+[values[-1]]+value[2:]
-  if token[0] in [NUM,SYM]: # number or symbol token
+  if token[0] in [INT,FLOAT,STR,SYM]: # literal or symbol token
     values.append(token)
-  if token[0] in [NUM,SYM,EXPR]: # number, symbol, or expression
+  if token[0] in [INT,FLOAT,STR,SYM,EXPR]: # literal, symbol, or expression
     while len(ops)>0 and ops[-1][0]==UOP: # apply all unary operators on the stack
       op=ops[-1]
       ops=ops[:-1]
@@ -324,7 +344,7 @@ def evaluate(expr):
 
 def stringifyexpr(e):
   # convert an expr from evaluate to a string, so evaluate on that string will probably give back the same expr
-  if e[0] in [SYM,NUM]:
+  if e[0] in [SYM,INT,FLOAT,STR]:
     return str(e[1])
   if e[1]=='(':
     return f'{e[2]}({",".join(map(stringifyexpr,e[3:]))})'
