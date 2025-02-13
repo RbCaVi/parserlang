@@ -1,6 +1,7 @@
 #include "plc_exe.h"
 
 #include "pv_array.h"
+#include "pv_string.h"
 #include "pv_number.h"
 #include "pl_func.h"
 #include "pl_bytecode.h"
@@ -68,6 +69,12 @@ typedef struct {
 	char data[];
 } func_data;
 
+typedef struct {
+	int type;
+	unsigned int len;
+	char data[];
+} string_data;
+
 #define addentry(type, name, extrasize) \
 	realloc_if_needed((void**)(&(data->vals)), &data->valsallocsize, sizeof(int) * (data->vlen + 1)); \
 	unsigned int i = data->vlen; \
@@ -115,6 +122,17 @@ static unsigned int addval(plcp_exe *data, pv val) {
 		a->len = len;
 		memcpy(a->elements, valis, sizeof(int) * len);
 		free(valis);
+		return i;
+	}
+	if (kind == string_kind) {
+		unsigned int len = pv_string_length(pv_copy(val));
+		char *sdata = pv_string_value(val);
+		pv_free(val);
+		addentry(string_data, s, len);
+		s->type = 3;
+		s->len = len;
+		memcpy(s->data, sdata, len);
+		free(sdata);
 		return i;
 	}
 	abort(); // death
@@ -184,6 +202,11 @@ static pv getvar(unsigned int i, char *data, unsigned int *vars, pv *vals) {
 			unsigned int flen = *((unsigned int *)(data + pos + sizeof(unsigned int)));
 			char *bytecode = data + pos + sizeof(unsigned int) + sizeof(unsigned int);
 			val = pl_func((pl_bytecode){bytecode, flen, 0});
+			break;
+		case 3: // stype = 2
+			unsigned int len = *((unsigned int *)(data + pos + sizeof(unsigned int)));
+			char *sdata = data + pos + sizeof(unsigned int) + sizeof(unsigned int);
+			val = pv_string_from_data(sdata, len);
 			break;
 		default:
 			abort(); // death
