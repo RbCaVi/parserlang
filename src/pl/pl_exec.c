@@ -10,6 +10,7 @@
 #include "pl_opcodes.h"
 #include "pl_func.h"
 #include "pl_iter.h"
+#include "pl_builtins.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -183,6 +184,10 @@ pv pl_next(pl_state *state) {
 			}
 			opcase(PUSHGLOBAL) {
 				state->stack = pl_stack_push(state->stack, pv_copy(state->globals[PUSHGLOBAL_data.i]));
+				break;
+			}
+			opcase(PUSHBUILTIN) {
+				state->stack = pl_stack_push(state->stack, pl_func_native(pl_builtins[PUSHBUILTIN_data.i].f));
 				break;
 			}
 			opcase(MAKEARRAY) {

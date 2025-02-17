@@ -1,5 +1,7 @@
 #include "pl_bytecode.h"
 
+#include "pl_builtins.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -177,6 +179,9 @@ void pl_bytecode_dump(pl_bytecode b) {
 				break;
 			opcase(PUSHGLOBAL)
 				printf(" %i\n", PUSHGLOBAL_data.i);
+				break;
+			opcase(PUSHBUILTIN)
+				printf(" %s\n", pl_builtins[PUSHBUILTIN_data.i].name);
 				break;
 			opcase(MAKEARRAY)
 				printf(" %i\n", MAKEARRAY_data.n);
