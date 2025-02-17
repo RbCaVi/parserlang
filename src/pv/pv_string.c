@@ -21,35 +21,35 @@ typedef struct {
   uint32_t length_hashed;
   uint32_t alloc_length;
   char data[];
-} pv_string_data;
+} pvp_string_data;
 
-static pv_string_data *pvp_string_get_data(pv val) {
-	pv_string_data *s = (pv_string_data*)val.data;
+static pvp_string_data *pvp_string_get_data(pv val) {
+	pvp_string_data *s = (pvp_string_data*)val.data;
 	return s;
 }
 
-static uint32_t pvp_string_length(pv_string_data *s) {
+static uint32_t pvp_string_length(pvp_string_data *s) {
 	return s->length_hashed >> 1;
 }
 
 static void pv_string_free(pv val) {
 	// if you uncomment this, comment out the free()
-	//pv_string_data *s = pvp_string_get_data(val);
+	//pvp_string_data *s = pvp_string_get_data(val);
 	//memset(s->data, 'A', pvp_string_length(s));
 	free(pvp_string_get_data(val));
 }
 
-static int pvp_string_hashed(pv_string_data *s) {
+static int pvp_string_hashed(pvp_string_data *s) {
 	return s->length_hashed & 1;
 }
 
-static void pvp_string_sethash(pv_string_data *s, uint32_t hash) {
+static void pvp_string_sethash(pvp_string_data *s, uint32_t hash) {
 	s->length_hashed |= 1; // set the hashed bit
 	s->hash = hash;
 }
 
 static char *pv_string_to_string(pv val) {
-	pv_string_data *s = pvp_string_get_data(val);
+	pvp_string_data *s = pvp_string_get_data(val);
 	uint32_t len = pvp_string_length(s);
 	char *str = pv_alloc(len + 3);
 	str[0] = '"';
@@ -61,7 +61,7 @@ static char *pv_string_to_string(pv val) {
 }
 
 static uint32_t pv_string_hash(pv val) {
-	pv_string_data *s = pvp_string_get_data(val);
+	pvp_string_data *s = pvp_string_get_data(val);
 	if (pvp_string_hashed(s)) {
   	pv_free(val);
 		return s->hash;
@@ -74,8 +74,8 @@ static uint32_t pv_string_hash(pv val) {
 }
 
 int pv_string_equal_self(pv val1, pv val2) {
-	pv_string_data *s1 = pvp_string_get_data(val1);
-	pv_string_data *s2 = pvp_string_get_data(val2);
+	pvp_string_data *s1 = pvp_string_get_data(val1);
+	pvp_string_data *s2 = pvp_string_get_data(val2);
 	uint32_t len1 = pvp_string_length(s1);
 	uint32_t len2 = pvp_string_length(s2);
 	int out;
@@ -101,8 +101,8 @@ void pv_string_install() {
 	pv_register_equal_self(string_kind, pv_string_equal_self);
 }
 
-static pv_string_data *pv_string_alloc(size_t size) {
-	pv_string_data *s = pv_alloc(sizeof(pv_string_data) + size + 1);
+static pvp_string_data *pv_string_alloc(size_t size) {
+	pvp_string_data *s = pv_alloc(sizeof(pvp_string_data) + size + 1);
 	s->refcnt = PV_REFCNT_INIT;
   s->alloc_length = (uint32_t)size;
   return s;
@@ -113,7 +113,7 @@ pv pv_string(const char *str) {
 }
 
 pv pv_string_from_data(const char *data, uint32_t len) {
-	pv_string_data *s = pv_string_alloc(len * 2);
+	pvp_string_data *s = pv_string_alloc(len * 2);
   memcpy(s->data, data, len);
   s->data[len] = '\0';
   s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string and cause overflow
@@ -123,7 +123,7 @@ pv pv_string_from_data(const char *data, uint32_t len) {
 
 char *pv_string_value(pv val) {
 	assert(val.kind == string_kind);
-	pv_string_data *s = pvp_string_get_data(val);
+	pvp_string_data *s = pvp_string_get_data(val);
 	uint32_t l = pvp_string_length(s);
 	char *str = malloc(l + 1);
 	memcpy(str, s->data, l);
@@ -134,8 +134,7 @@ char *pv_string_value(pv val) {
 
 const char *pv_string_data(pv val) {
 	assert(val.kind == string_kind);
-	pv_string_data *s = pvp_string_get_data(val);
-	uint32_t l = pvp_string_length(s);
+	pvp_string_data *s = pvp_string_get_data(val);
 	const char *data = s->data;
 	pv_free(val);
 	return data;
@@ -143,21 +142,23 @@ const char *pv_string_data(pv val) {
 
 uint32_t pv_string_length(pv val) {
 	assert(val.kind == string_kind);
-	return pvp_string_length(pvp_string_get_data(val));
+	uint32_t out = pvp_string_length(pvp_string_get_data(val));
+	pv_free(val);
+	return out;
 }
 
 //uint32_t pv_string_hash(pv val) {
 //	assert(val.kind == string_kind);
-//	pv_string_data *s = pvp_string_get_data(val);
+//	pvp_string_data *s = pvp_string_get_data(val);
 //	// uhhhh i have to implement this at some point
 //}
 
 pv pv_string_concat(pv val1, pv val2) {
 	assert(val1.kind == string_kind);
 	assert(val2.kind == string_kind);
-	pv_string_data *s1 = pvp_string_get_data(val1);
-	pv_string_data *s2 = pvp_string_get_data(val2);
-	pv_string_data *s;
+	pvp_string_data *s1 = pvp_string_get_data(val1);
+	pvp_string_data *s2 = pvp_string_get_data(val2);
+	pvp_string_data *s;
 	pv val;
 	uint32_t l1 = pvp_string_length(s1);
 	uint32_t l2 = pvp_string_length(s2);
