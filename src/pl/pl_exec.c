@@ -266,11 +266,14 @@ pv pl_next(pl_state *state) {
 				state->code = bytecode;
 				pl_state_set_call(state, CALL_data.n);
 				bytecode = state->code;
-				if (pl_func_is_native(f)) {
+				if (pl_func_is_native(pv_copy(f))) {
 					pv ret = pl_func_call(f, state);
 					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
+				} else {
+					// if f is not native (is pl bytecode), then pl_state_set_call() jumps to it
+					// i need to deal with the refcount
+					pv_free(f);
 				}
-				// if f is not native (is pl bytecode), then pl_state_set_call() jumps to it
 				break;
 			}
 			opcase(CALLG) {
