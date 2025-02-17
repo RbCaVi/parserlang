@@ -1,1 +1,1 @@
-return len([1, 2, 3])
+return ([len([1, 2, 3]), strmid("abcdefg", 2)])
