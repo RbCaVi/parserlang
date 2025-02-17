@@ -546,9 +546,9 @@ int main(int argc, char **argv) {
 	}
 	{
 		pl_bytecode_builder *b = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
 		pl_bytecode_builder_add(b, PUSHDOUBLE, {8});
 		pl_bytecode_builder_add(b, PUSHDOUBLE, {15});
-		pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
 		pl_bytecode_builder_add(b, CALL, {2});
 		pl_bytecode_builder_add(b, RET, {});
 		pl_bytecode bytecode = pl_bytecode_from_builder(b);
@@ -559,7 +559,7 @@ int main(int argc, char **argv) {
 		pv f = pl_func(bytecode);
 
 		pl_state *pl = pl_state_new();
-		pl->globals = malloc(0 * sizeof(pv));
+		pl->globals = malloc(1 * sizeof(pv));
 
 		pl->globals[0] = pl_func_native(add);
 
