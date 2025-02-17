@@ -132,6 +132,15 @@ char *pv_string_value(pv val) {
 	return str;
 }
 
+const char *pv_string_data(pv val) {
+	assert(val.kind == string_kind);
+	pv_string_data *s = pvp_string_get_data(val);
+	uint32_t l = pvp_string_length(s);
+	const char *data = s->data;
+	pv_free(val);
+	return data;
+}
+
 uint32_t pv_string_length(pv val) {
 	assert(val.kind == string_kind);
 	return pvp_string_length(pvp_string_get_data(val));
