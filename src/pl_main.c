@@ -25,6 +25,14 @@ pv dump_pv(pl_state *pl) {
 	return val;
 }
 
+pv add(pl_state *pl) {
+	pv v1 = pl_stack_get(pl->stack, 1);
+	pv v2 = pl_stack_get(pl->stack, 2);
+	double n1 = pv_double_value(v1);
+	double n2 = pv_double_value(v2);
+	return pv_double(n1 + n2);
+}
+
 int main(int argc, char **argv) {
 	(void)argc, (void)argv;
 	pv_install();
@@ -535,6 +543,35 @@ int main(int argc, char **argv) {
 		//pl_dump_stack(pl->stack);
 
 		//printf("bytecode refcount at end = %i\n", pl_bytecode_getref(bytecode));
+	}
+	{
+		pl_bytecode_builder *b = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {8});
+		pl_bytecode_builder_add(b, PUSHDOUBLE, {15});
+		pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
+		pl_bytecode_builder_add(b, CALL, {2});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+		printf("bytecode1\n");
+		pl_bytecode_dump(bytecode);
+
+		pv f = pl_func(bytecode);
+
+		pl_state *pl = pl_state_new();
+		pl->globals = malloc(0 * sizeof(pv));
+
+		pl->globals[0] = pl_func_native(add);
+
+		pv ret = pl_func_call(f, pl);
+		pl_dump_pv(ret);
+
+		pl_dump_stack(pl->stack);
+
+		pv_free(pl->globals[0]);
+		free(pl->globals);
+
+		pl_state_free(pl);
 	}
 
 	return 0;
