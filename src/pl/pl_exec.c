@@ -53,9 +53,13 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 
 void pl_state_set_call(pl_state *state, int argc) {
 	pv f = pl_stack_get(state->stack, -(argc + 1));
-	pl_bytecode fcode = pl_func_get_bytecode(f);
-	state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code, fcode);
-	state->code = fcode.bytecode;
+	if (!pl_func_is_native(f)) {
+		pl_bytecode fcode = pl_func_get_bytecode(f);
+		state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code, fcode);
+		state->code = fcode.bytecode;
+	} else {
+		state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code, (pl_bytecode){NULL, 0, 0});
+	}
 }
 
 bool gret_impl(pl_state *state) {
@@ -257,14 +261,13 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(CALL) {
-				if (!pl_func_is_native(pl_stack_get(state->stack, -(CALL_data.n + 1)))) {
-					state->code = bytecode;
-					pl_state_set_call(state, CALL_data.n);
-					bytecode = state->code;
-				} else {
-					pv f = pl_stack_get(state->stack, -(CALL_data.n + 1));
+				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1)); // the extra copy doesn't matter here because there's a reference to this function in globals anyway
+				state->code = bytecode;
+				pl_state_set_call(state, CALL_data.n);
+				bytecode = state->code;
+				if (pl_func_is_native(f)) { // if it's not native, then it's handled in pl_state_set_call()
 					pv ret = pl_func_call(f, state);
-					state->stack = pl_stack_push(pl_stack_popn(state->stack, (uint32_t)CALL_data.n + 1), ret);
+					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
 				}
 				break;
 			}
