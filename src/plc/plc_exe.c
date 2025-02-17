@@ -126,13 +126,12 @@ static unsigned int addval(plcp_exe *data, pv val) {
 	}
 	if (kind == string_kind) {
 		unsigned int len = pv_string_length(pv_copy(val));
-		char *sdata = pv_string_value(val);
-		pv_free(val);
 		addentry(string_data, s, len);
 		s->type = 3;
 		s->len = len;
+		const char *sdata = pv_string_data(pv_copy(val));
 		memcpy(s->data, sdata, len);
-		free(sdata);
+		pv_free(val);
 		return i;
 	}
 	abort(); // death
