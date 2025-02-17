@@ -266,10 +266,11 @@ pv pl_next(pl_state *state) {
 				state->code = bytecode;
 				pl_state_set_call(state, CALL_data.n);
 				bytecode = state->code;
-				if (pl_func_is_native(f)) { // if it's not native, then it's handled in pl_state_set_call()
+				if (pl_func_is_native(f)) {
 					pv ret = pl_func_call(f, state);
 					state->stack = pl_stack_push(pl_stack_pop_frame(state->stack), ret);
 				}
+				// if f is not native (is pl bytecode), then pl_state_set_call() jumps to it
 				break;
 			}
 			opcase(CALLG) {
@@ -285,7 +286,10 @@ pv pl_next(pl_state *state) {
 					pv it = pl_iter_gen(pl);
 					state->stack = pl_stack_push(state->stack, it);
 				} else {
-					abort(); // i don't have native generators yet?
+					// i don't have native generators yet
+					// i could do something like lua with callk or something
+					// or store the function on the stack?
+					abort();
 				}
 				break;
 			}
