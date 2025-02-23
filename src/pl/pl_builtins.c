@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 pl_builtin pl_builtins[] = {
-#define BUILTIN(pl_name, c_name) {c_name, #pl_name},
+#define BUILTIN(name) {pl_builtin_ ## name, #name},
 #include "pl_builtins_data.h"
 #undef BUILTIN
 };
