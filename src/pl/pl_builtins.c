@@ -17,6 +17,8 @@ pv pl_builtin_len(pl_state *pl) {
 	pv_kind kind = pv_get_kind(val);
 	if (kind == array_kind) {
 		return pv_int(pv_array_length(val));
+	} else if (kind == string_kind) {
+		return pv_int(pv_string_length(val));
 	} else {
 		return pv_invalid();
 	}
