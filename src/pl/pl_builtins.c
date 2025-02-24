@@ -28,15 +28,58 @@ pv pl_builtin_strmid(pl_state *pl) {
 	if (pv_get_kind(str) == string_kind && pv_get_kind(idx) == int_kind ) {
 		int i = pv_int_value(idx);
 		if (i >= 0) {
-			//printf("str refcount a: %i\n", pv_get_refcount(str));
 			pv out = pv_string_from_data(pv_string_data(pv_copy(str)) + i, pv_string_length(pv_copy(str)) - i);
-			//printf("str refcount b: %i\n", pv_get_refcount(str));
 			pv_free(str);
-			//printf("str refcount c: %i\n", pv_get_refcount(str));
 			return out;
 		} else {
 			pv_free(str);
 		}
+	}
+	return pv_invalid();
+}
+
+pv pl_builtin_strleft(pl_state *pl) {
+	pv str = pl_stack_get(pl->stack, 1);
+	pv idx = pl_stack_get(pl->stack, 2);
+	if (pv_get_kind(str) == string_kind && pv_get_kind(idx) == int_kind ) {
+		int i = pv_int_value(idx);
+		if (i >= 0) {
+			pv out = pv_string_from_data(pv_string_data(pv_copy(str)), i);
+			pv_free(str);
+			return out;
+		} else {
+			pv_free(str);
+		}
+	}
+	return pv_invalid();
+}
+
+pv pl_builtin_ord(pl_state *pl) {
+	pv str = pl_stack_get(pl->stack, 1);
+	if (pv_get_kind(str) == string_kind) {
+		pv out = pv_int(pv_string_data(pv_copy(str))[0]);
+		pv_free(str);
+		return out;
+	}
+	return pv_invalid();
+}
+
+pv pl_builtin_chr(pl_state *pl) {
+	pv num = pl_stack_get(pl->stack, 1);
+	if (pv_get_kind(num) == int_kind) {
+		char data = (char)pv_int_value(num);
+		pv out = pv_string_from_data(&data, 1);
+		return out;
+	}
+	return pv_invalid();
+}
+
+pv pl_builtin_strcat(pl_state *pl) {
+	pv s1 = pl_stack_get(pl->stack, 1);
+	pv s2 = pl_stack_get(pl->stack, 2);
+	pl->stack = pl_stack_popto(pl->stack, 0);
+	if (pv_get_kind(s1) == string_kind && pv_get_kind(s1) == string_kind) {
+		return pv_string_concat(s1, s2);
 	}
 	return pv_invalid();
 }
