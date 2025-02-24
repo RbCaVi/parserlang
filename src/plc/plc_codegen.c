@@ -347,6 +347,9 @@ case OP_ ## op: \
 			case OP_EQUAL:
 				pl_bytecode_builder_add(c->code, EQUAL, {});
 				break;
+			case OP_IDX:
+				pl_bytecode_builder_add(c->code, GET, {});
+				break;
 			}
 			break;
 		}
