@@ -22,10 +22,11 @@ typedef enum {
 typedef struct {
 	opcode op;
 	unsigned int arity;
+	char *name;
 } op;
 
 static op ops[] = {
-#define OP(upper_name, lower_name, op, arity) {OP_ ## upper_name, arity},
+#define OP(upper_name, lower_name, op, arity) {OP_ ## upper_name, arity, #op},
 #include "plc_op_ids.h"
 #undef OP
 };
@@ -252,6 +253,7 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 	switch (e->type) {
 		case EXPR_OP: {
+			//printf("%s %i %i\n", ops[e->e.id].name, ops[e->e.id].arity, e->e.arity);
 			assert(ops[e->e.id].arity == 0 || ops[e->e.id].arity == e->e.arity);
 			if ((opcode)e->e.id == OP_CALL && e->e.arity >= 1 && e->e.children[0].type == EXPR_SYM) {
 				// builtins
