@@ -84,7 +84,7 @@ int pv_string_equal_self(pv val1, pv val2) {
 		out = 1;
 	} else if (len1 != len2) {
 		out = 0;
-	} else if (s1->hash != s2->hash) {
+	} else if (pvp_string_hashed(s1) && pvp_string_hashed(s2) && s1->hash != s2->hash) {
 		out = 0;
 	} else {
 		out = memcmp(s1->data, s2->data, len1) == 0;
