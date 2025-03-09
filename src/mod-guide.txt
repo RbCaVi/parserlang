@@ -46,28 +46,30 @@ if you want to add a new opcode:
 if you want to add a new pv kind:
     you can base it on pv_userdata if the data fits in one pointer worth of data
     any more than that and you have to set it allocated
-    there should be a struct p#p_#_data with a pv_refcnt as the first element
-    you may only modify data if the pv has a refcount of 1
-    otherwise move (copy and decref) it first
+    if it's allocated:
+        there should be a struct pXp_<kind>_data with a pv_refcnt as the first element
+        you may only modify data if the pv has a refcount of 1
+        otherwise move (copy and decref) it first
     add a header including:
         #include "pv.h"
-        extern pv_kind #####_kind;
-        void p#_#####_install();
+        extern pv_kind <kind>_kind;
+        void pX_<kind>_install();
         some kind of constructor
         include guards
     the .c file basically corresponds to the .h file
-        p#_#####_install() should:
-            register the kind - pv_register_kind(&#####_kind, "#####", #####_free)
+        pX_<kind>_install() should:
+            register the kind - pv_register_kind(&<kind>_kind, "<kind name>", <kind>_free);
             maybe register aux functions too:
-                pv_register_to_string(#####_kind, pv_#####_to_string);
-                pv_register_equal_self(#####_kind, pv_#####_equal_self);
+                pv_register_to_string(<kind>_kind, pv_<kind>_to_string);
+                pv_register_equal_self(<kind>_kind, pv_<kind>_equal_self);
+                etc
 if you want to add a new pv aux function:
     you can base it on pv_hash
     add a header including:
         #include "pv.h"
-        typedef ### (*p#_####_func)(pv, other args?);
-        void pv_register_####(pv_kind, p#_####_func);
-        ### pv_###(pv);
+        typedef <return type> (*pX_<func>_func)(pv, other args?);
+        void pv_register_<func>(pv_kind, pX_<func>_func);
+        <return type> pX_<func>(pv);
     the .c file has the corresponding functions
     it also includes:
-        static p#_####_func p#_####_table[256];
+        static pX_<func>_func pX_<func>_table[256];
