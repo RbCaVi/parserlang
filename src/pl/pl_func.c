@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <string.h>
 
 pv_kind func_kind;
 
@@ -69,7 +70,6 @@ pv pl_func_call(pv fun, pl_state *pl) {
 	switch (f->type) {
 	case BYTECODE:
 		pl->stack = pl_stack_push(pl->stack, pv_copy(fun));
-		pl->stack = pl_func_push_closed_vars(pv_copy(fun), pl->stack);
 		const char *saved_return = pl->code;
 		pl->code = NULL;
 		pl_state_set_call(pl, 0);
@@ -150,4 +150,28 @@ pl_stack pl_func_push_closed_vars(pv fun, pl_stack stack) {
 	}
 	pv_free(fun);
 	return stack;
+}
+
+static pl_func_data *plp_func_move(pl_func_data *fin) {
+	pl_func_data *f;
+	if (pvp_refcnt_unshared(&(fin->refcnt))) {
+		// only one copy
+		// don't have to do anything
+		f = fin;
+	} else {
+		// there is more then one copy of this pv, so i have to copy it
+		f = pv_alloc(sizeof(pl_func_data));
+		memcpy(f, fin, sizeof(pl_func_data));
+		pvp_decref(&(fin->refcnt));
+		f->refcnt = PV_REFCNT_INIT;
+	}
+  return f;
+}
+
+pv pl_func_add_closure_var(pv fun, pv val) {
+	assert(fun.kind == func_kind);
+	pl_func_data *f = plp_func_get_data(fun);
+	f = plp_func_move(f);
+	f->closedvars = pv_array_append(f->closedvars, val);
+	return (pv){func_kind, PV_FLAG_ALLOCATED, &(f->refcnt)};
 }

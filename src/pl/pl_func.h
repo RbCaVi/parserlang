@@ -30,6 +30,6 @@ pl_bytecode pl_func_get_bytecode(pv);
 pl_func_native_data pl_func_get_native(pv);
 
 pl_stack pl_func_push_closed_vars(pv, pl_stack);
-pv pl_func_add_closure_vars(pv, pv);
+pv pl_func_add_closure_var(pv, pv);
 
 #endif
