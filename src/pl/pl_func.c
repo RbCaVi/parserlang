@@ -162,6 +162,7 @@ static pl_func_data *plp_func_move(pl_func_data *fin) {
 		// there is more then one copy of this pv, so i have to copy it
 		f = pv_alloc(sizeof(pl_func_data));
 		memcpy(f, fin, sizeof(pl_func_data));
+		pv_copy(f->closedvars);
 		pvp_decref(&(fin->refcnt));
 		f->refcnt = PV_REFCNT_INIT;
 	}
