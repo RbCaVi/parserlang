@@ -573,6 +573,66 @@ int main(int argc, char **argv) {
 
 		pl_state_free(pl);
 	}
+	{
+		pl_bytecode_builder *b = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b, PUSHINT, {17});
+		pl_bytecode_builder_add(b, MAKEARRAY, {2});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode_builder_add(b, GRET, {});
+		pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+		printf("bytecode1\n");
+		pl_bytecode_dump(bytecode);
+
+		pv f = pl_func_add_closure_var(pl_func(bytecode), pv_int(3));
+
+		pl_state *pl = pl_state_new();
+
+		pv ret = pl_func_call(f, pl);
+		pl_dump_pv(ret);
+
+		pl_dump_stack(pl->stack);
+
+		pl_state_free(pl);
+	}
+	{
+		pl_bytecode_builder *b = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b, PUSHGLOBAL, {0});
+		pl_bytecode_builder_add(b, PUSHINT, {17});
+		pl_bytecode_builder_add(b, CALL, {1});
+		pl_bytecode_builder_add(b, RET, {});
+		pl_bytecode_builder_add(b, GRET, {});
+		pl_bytecode bytecode = pl_bytecode_from_builder(b);
+
+		printf("bytecode1\n");
+		pl_bytecode_dump(bytecode);
+
+		pv f = pl_func(bytecode);
+
+		pl_state *pl = pl_state_new();
+		pl->globals = malloc(1 * sizeof(pv));
+
+		pl_bytecode_builder *b2 = pl_bytecode_new_builder();
+		pl_bytecode_builder_add(b2, MAKEARRAY, {2});
+		pl_bytecode_builder_add(b2, RET, {});
+		pl_bytecode_builder_add(b2, GRET, {});
+		pl_bytecode bytecode2 = pl_bytecode_from_builder(b2);
+
+		printf("bytecode2\n");
+		pl_bytecode_dump(bytecode2);
+
+		pl->globals[0] = pl_func_add_closure_var(pl_func(bytecode2), pv_int(3));
+
+		pv ret = pl_func_call(f, pl);
+		pl_dump_pv(ret);
+
+		pl_dump_stack(pl->stack);
+
+		pv_free(pl->globals[0]);
+		free(pl->globals);
+
+		pl_state_free(pl);
+	}
 
 	return 0;
 }
