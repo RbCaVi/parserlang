@@ -77,6 +77,7 @@ pv/pv_userdata.o: pv/pv_userdata.h \
 	pv/pv_to_string.h pv/pv_equal.h \
 	pv/pv.h
 pl/pl_func.o: pl/pl_func.h \
+	pv/pv_array.h \
 	pl/pl_exec.h pl/pl_stack.h pl/pl_dump.h \
 	pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h \
 	pv/pv.h pv/pv_private.h

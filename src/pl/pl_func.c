@@ -1,6 +1,7 @@
 #include "pl_func.h"
 
 #include "pv_private.h"
+#include "pv_array.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -24,6 +25,7 @@ typedef struct {
 				pl_func_type func;
 			};
 		};
+		pv closedvars;
 } pl_func_data;
 
 static pl_func_data *plp_func_get_data(pv val) {
@@ -43,6 +45,7 @@ static void pl_func_free(pv val) {
 		}
 		break;
 	}
+	pv_free(f->closedvars);
 	free(f);
 }
 
@@ -55,6 +58,7 @@ pv pl_func(pl_bytecode bytecode) {
 	f->refcnt = PV_REFCNT_INIT;
 	f->type = BYTECODE;
 	f->bytecode = bytecode;
+	f->closedvars = pv_array();
 	return (pv){func_kind, PV_FLAG_ALLOCATED, &(f->refcnt)};
 }
 
@@ -65,6 +69,7 @@ pv pl_func_call(pv fun, pl_state *pl) {
 	switch (f->type) {
 	case BYTECODE:
 		pl->stack = pl_stack_push(pl->stack, pv_copy(fun));
+		pl->stack = pl_func_push_closed_vars(pv_copy(fun), pl->stack);
 		const char *saved_return = pl->code;
 		pl->code = NULL;
 		pl_state_set_call(pl, 0);
@@ -96,6 +101,7 @@ static pv plp_func_native(pl_func_type func, void *library, char *filename, char
 	f->func = func;
 	f->file = filename;
 	f->name = funcname;
+	f->closedvars = pv_array();
 	return (pv){func_kind, PV_FLAG_ALLOCATED, &(f->refcnt)};
 }
 
@@ -134,4 +140,14 @@ pl_func_native_data pl_func_get_native(pv fun) {
 	f->library = NULL;
 	pv_free(fun);
 	return data;
+}
+
+pl_stack pl_func_push_closed_vars(pv fun, pl_stack stack) {
+	assert(fun.kind == func_kind);
+	pl_func_data *f = plp_func_get_data(fun);
+	pv_array_foreach(f->closedvars, i, v) {
+		stack = pl_stack_push(stack, v);
+	}
+	pv_free(fun);
+	return stack;
 }
