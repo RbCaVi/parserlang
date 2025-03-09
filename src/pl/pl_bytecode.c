@@ -137,6 +137,7 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(LEN)
 			nodataopcase(SET)
 			nodataopcase(GET)
+			nodataopcase(BIND)
 #define UOP(upper_name, lower_name, expr) \
 			nodataopcase(upper_name)
 #define BOP(upper_name, lower_name, expr, isdefault) \

@@ -68,8 +68,10 @@ OPCODE(LEN, len, {}) // pop x and push len(x)
 OPCODE(SET, set, {}) // pop v, idx, and x and push x[idx] = v
 OPCODE(GET, get, {}) // pop idx and x and push x[idx]
 
+// function
 OPCODE(CALL, call, {int n;}) // call n + 1 below with n arguments above it and push the return value
 OPCODE(CALLG, callg, {int n;}) // call n + 1 below with n arguments above it and push a generator
+OPCODE(BIND, bind, {}) // pop f and v and add v to f's closure arguments
 
 #define UOP(upper_name, lower_name, expr) \
 OPCODE(upper_name, lower_name, {})

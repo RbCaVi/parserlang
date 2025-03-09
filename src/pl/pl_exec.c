@@ -301,6 +301,13 @@ pv pl_next(pl_state *state) {
 				}
 				break;
 			}
+			opcase(BIND) {
+				pv f = pl_stack_get(state->stack, -2);
+				pv v = pl_stack_get(state->stack, -1);
+				state->stack = pl_stack_popn(state->stack, 2);
+				state->stack = pl_stack_push(state->stack, pl_func_add_closure_var(f, v));
+				break;
+			}
 #define UOP(upper_name, lower_name, expr) \
 			opcase(upper_name) { \
 				pv v1 = pl_stack_get(state->stack, -1); \
