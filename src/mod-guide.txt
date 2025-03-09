@@ -22,6 +22,20 @@ if you want to add a new type of expression:
     in expr.py:
         idk man if it works it works
     the rest of it is basically the same as for adding a statement from pl_parse.py onward but with expr instead of stmt
+if you want to add a new binary operator:
+    in expr.py:
+        add a new operator to ops and precedences
+    in plc_op_ids.h (if it's not a numeric operator otherwise add it to pv_number_ops_data.h):
+        add an operator
+    in plc_codegen.c:
+        add a case to EXPR_OP
+if you want to add a new unary operator:
+    in expr.py:
+        add a new operator to uops (prefix) or pops (postfix)
+    in plc_op_ids.h (if it's not a numeric operator otherwise add it to pv_number_ops_data.h):
+        add an operator
+    in plc_codegen.c:
+        add a case to EXPR_OP
 if you want to add a new opcode:
     in pl_opcodes_data.h:
         add an OPCODE() macro (or JOPCODE() if it's a jump opcode)
