@@ -312,8 +312,14 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 						pl_bytecode_builder_add(c->code, CALLG, {(int)argcount - 1});
 						break;
 					}
+					ifnamed("bind") {
+						assert(argcount == 2);
+						putargs();
+						pl_bytecode_builder_add(c->code, BIND, {});
+						break;
+					}
 #define BUILTIN(name) \
-					printf("checking %s\n", #name); \
+					/* printf("checking %s\n", #name); */ \
 					ifnamed(#name) { \
 						pl_bytecode_builder_add(c->code, PUSHBUILTIN, {pl_builtin_ ## name ## _id}); \
 						putargs(); \
