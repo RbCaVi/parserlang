@@ -61,7 +61,7 @@ void pl_state_set_call(pl_state *state, int argc) {
 	} else {
 		state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code, (pl_bytecode){NULL, 0, 0});
 	}
-	state->stack = pl_func_push_closed_vars(pv_copy(f), state->stack);
+	state->stack = pl_func_push_closed_vars(f, state->stack);
 }
 
 bool gret_impl(pl_state *state) {
