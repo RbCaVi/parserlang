@@ -55,13 +55,13 @@ static pl_ ## op ## _data plp_get_ ## op ## _data(const char *bytecode) { \
 void pl_state_set_call(pl_state *state, int argc) {
 	pv f = pl_stack_get(state->stack, -(argc + 1));
 	if (!pl_func_is_native(pv_copy(f))) {
-		pl_bytecode fcode = pl_func_get_bytecode(f);
+		pl_bytecode fcode = pl_func_get_bytecode(pv_copy(f));
 		state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code, fcode);
 		state->code = fcode.bytecode;
 	} else {
-		pv_free(f);
 		state->stack = pl_stack_split_frame(state->stack, -(argc + 1), state->code, (pl_bytecode){NULL, 0, 0});
 	}
+	state->stack = pl_func_push_closed_vars(pv_copy(f), state->stack);
 }
 
 bool gret_impl(pl_state *state) {
@@ -267,7 +267,7 @@ pv pl_next(pl_state *state) {
 				break;
 			}
 			opcase(CALL) {
-				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1)); // the extra copy doesn't matter here because there's a reference to this function in globals anyway
+				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1)); // the extra copy doesn't matter here because there's (probably) a reference to this function in globals anyway
 				state->code = bytecode;
 				pl_state_set_call(state, CALL_data.n);
 				bytecode = state->code;
