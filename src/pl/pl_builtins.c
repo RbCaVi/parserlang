@@ -3,8 +3,10 @@
 #include "pv_number.h"
 #include "pv_string.h"
 #include "pv_array.h"
+#include "pv_to_string.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 pl_builtin pl_builtins[] = {
 #define BUILTIN(name) {pl_builtin_ ## name, #name},
@@ -83,5 +85,13 @@ pv pl_builtin_strcat(pl_state *pl) {
 	if (pv_get_kind(s1) == string_kind && pv_get_kind(s1) == string_kind) {
 		return pv_string_concat(s1, s2);
 	}
+	return pv_invalid();
+}
+
+pv pl_builtin_print(pl_state *pl) {
+	pv v = pl_stack_get(pl->stack, 1);
+	char *s = pv_to_string(v);
+	printf("%s\n", s);
+	free(s);
 	return pv_invalid();
 }
