@@ -379,8 +379,11 @@ case OP_ ## op: \
 			//pl_dump_pv(pv_copy(var));
 			if (pv_object_has(pv_copy(c->vars), pv_copy(var))) {
 				pl_bytecode_builder_add(c->code, DUPN, {pv_int_value(pv_object_get(pv_copy(c->vars), var))});
-			} else {
+			} else if (pv_object_has(pv_copy(c->globalmap), pv_copy(var))) {
 				pl_bytecode_builder_add(c->code, PUSHGLOBAL, {pv_int_value(pv_object_get(pv_copy(c->globalmap), var))});
+			} else {
+				pl_dump_pv(pv_copy(var));
+				abort();
 			}
 			break;
 		}
