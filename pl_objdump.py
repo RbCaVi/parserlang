@@ -17,6 +17,7 @@ v,hdata = unpackstart(f'<{vlen}I', hdata)
 ntype = 0
 atype = 1
 ftype = 2
+stype = 3
 
 def getvar(i):
 	vdata = data[v[i]:]
@@ -29,8 +30,11 @@ def getvar(i):
 		a,_ = unpackstart(f'<{alen}I', vdata)
 		return [getvar(i) for i in a]
 	elif typ == ftype:
-		(flen,),_ = unpackstart('<I', vdata)
+		(flen,),vdata = unpackstart('<I', vdata)
 		return vdata[:flen]
+	elif typ == stype:
+		(slen,),vdata = unpackstart('<I', vdata)
+		return vdata[:slen].decode('utf-8')
 	else:
 		return None
 
