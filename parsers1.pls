@@ -7,17 +7,19 @@ fn parsestr(str) {
 	return bind(parsestr, str)
 }
 
-fn concat(parsers) {
-	fn concat(s, parsers) {
+fn concatp(parsers) {
+	fn concatp(s, parsers) {
 		def l = []
+		def x = print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 		for parser in parsers do {
+			def x = print(parser)
 			def x = parser(s)
 			l = concat(l, [x[0]])
 			s = x[1]
 		}
 		return l
 	}
-	return bind(concat, parsers)
+	return bind(concatp, parsers)
 }
 
 fn alternate(parsers) {
@@ -34,5 +36,11 @@ fn alternate(parsers) {
 def b = print(16)
 
 for a in gcall(alternate([parsestr("j"), parsestr("jj")]), "jj") do {
+	def b = print(a)
+}
+
+def p = alternate([parsestr("j"), parsestr("jj")])
+
+for a in gcall(concatp([p, p]), "jj") do {
 	def b = print(a)
 }
