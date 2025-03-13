@@ -97,6 +97,7 @@ pv pl_builtin_strcat(pl_state *pl) {
 
 pv pl_builtin_print(pl_state *pl) {
 	pv v = pl_stack_get(pl->stack, 1);
+	printf("%i ", pv_get_refcount(v));
 	char *s = pv_to_string(v);
 	printf("%s\n", s);
 	free(s);
