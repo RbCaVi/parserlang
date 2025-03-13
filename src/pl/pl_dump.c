@@ -92,10 +92,10 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   	printf("%i\n",pv_int_value(val));
   } else if (kind == string_kind) {
   	char *s = pv_string_value(val);
-  	printf("\"%s\"\n",s);
+  	printf("%i \"%s\"\n",pv_get_refcount(val),s);
   	free(s);
   } else if (kind == array_kind) {
-  	printf("[]\n");
+  	printf("%i []\n",pv_get_refcount(val));
 		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
 		parts.data->parts[idx].type = IDX;
 		pv_array_foreach(val, i, v) {
@@ -104,7 +104,7 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   	}
   	pv_free(val); // the foreach doesn't free (i need to fix this)
   } else if (kind == object_kind) {
-  	printf("{}\n");
+  	printf("%i {}\n",pv_get_refcount(val));
 		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
 		parts.data->parts[idx].type = STR;
 		parts.data->parts[idx].str = NULL;
@@ -115,7 +115,7 @@ void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   	}
 		pv_free(val); // the foreach doesn't free (i need to fix this)
 	} else {
-  	printf("idk it has kind %i (%s)\n", kind, pv_kind_name(kind));
+  	printf("%i idk it has kind %i (%s) (%p)\n", pv_get_refcount(val), kind, pv_kind_name(kind), val.data);
   	pv_free(val);
 	}
   pl_dump_free_prefix(parts);
