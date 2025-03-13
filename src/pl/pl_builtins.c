@@ -22,6 +22,7 @@ pv pl_builtin_len(pl_state *pl) {
 	} else if (kind == string_kind) {
 		return pv_int(pv_string_length(val));
 	} else {
+		pv_free(val);
 		return pv_invalid();
 	}
 }
@@ -35,10 +36,10 @@ pv pl_builtin_strmid(pl_state *pl) {
 			pv out = pv_string_from_data(pv_string_data(pv_copy(str)) + i, pv_string_length(pv_copy(str)) - i);
 			pv_free(str);
 			return out;
-		} else {
-			pv_free(str);
 		}
 	}
+	pv_free(str);
+	pv_free(idx);
 	return pv_invalid();
 }
 
@@ -55,6 +56,8 @@ pv pl_builtin_strleft(pl_state *pl) {
 			pv_free(str);
 		}
 	}
+	pv_free(str);
+	pv_free(idx);
 	return pv_invalid();
 }
 
@@ -65,6 +68,7 @@ pv pl_builtin_ord(pl_state *pl) {
 		pv_free(str);
 		return out;
 	}
+	pv_free(str);
 	return pv_invalid();
 }
 
@@ -75,6 +79,7 @@ pv pl_builtin_chr(pl_state *pl) {
 		pv out = pv_string_from_data(&data, 1);
 		return out;
 	}
+	pv_free(num);
 	return pv_invalid();
 }
 
@@ -85,6 +90,8 @@ pv pl_builtin_strcat(pl_state *pl) {
 	if (pv_get_kind(s1) == string_kind && pv_get_kind(s1) == string_kind) {
 		return pv_string_concat(s1, s2);
 	}
+	pv_free(s1);
+	pv_free(s2);
 	return pv_invalid();
 }
 
