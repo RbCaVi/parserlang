@@ -1,7 +1,6 @@
 fn f1() {
-	for x in [3] do {
-		yield 3
-	}
+	def l = []
+	yield 3
 }
 
 fn f2() {
