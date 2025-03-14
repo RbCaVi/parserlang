@@ -22,6 +22,14 @@ if ((top) >= (size)) { \
   (array) = checked_realloc((array),(initial) + (size) * sizeof(typeof(*(data)))); \
 }
 
+// same but doesn't save the old top
+#define inc_size3(array,top,initial,size,newsize,data) \
+(top)++; \
+if ((top) >= (size)) { \
+  (size) = (newsize); \
+  (array) = checked_realloc((array),(initial) + (size) * sizeof(typeof(*(data)))); \
+}
+
 void *checked_malloc(size_t);
 void *checked_realloc(void*, size_t);
 

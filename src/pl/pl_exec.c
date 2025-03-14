@@ -11,6 +11,7 @@
 #include "pl_func.h"
 #include "pl_iter.h"
 #include "pl_builtins.h"
+#include "pl_dump_state.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -102,7 +103,7 @@ bool gret_impl(pl_state *state) {
 
 #define opcase(op) \
 case(OPCODE_ ## op):; \
-	/*printf("\n" #op "\n");/**/ \
+	printf("\n" #op "\n");/**/ \
 	validinstruction = 1; \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
@@ -450,6 +451,8 @@ pv pl_next(pl_state *state) {
 		}
 		//printf("code pos = %p\n", bytecode);
 		//pl_dump_stack(state->stack);
+		state->code = bytecode;
+		pl_dump_state(state);
 		if (!validinstruction) {
 			abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
@@ -463,4 +466,44 @@ void pl_state_free(pl_state *state) {
 	}
 	pv_free(state->iter);
 	free(state);
+}
+
+// typedef struct pl_state {
+//   const char *code;
+//   //struct pl_state *save; // the last save point - may be NULL - linked list
+//   //struct pl_state *parent; // the state that called this generator - may be NULL for top level
+// 	pv *globals;
+// 	pl_stack stack;
+//   struct pl_state *saved;
+//   pv iter;
+// } pl_state;
+
+static void pl_dump_one_state_prefixed(pl_state *state, pl_dump_prefix parts) {
+	parts.count -= 1;
+	print_prefixed(parts, "state");
+	parts.count += 1;
+	//pl_dump_prefix_set_key(parts, idx, "code"); // the code pointer isn't actually very useful (it's currently only set near function calls)
+	//print_prefixed(parts, "%p", state->code);
+	pl_dump_prefix_set_key(parts, parts.count - 1, "globals");
+	pl_dump_pv_prefixed(pv_copy(*state->globals), parts);
+	pl_dump_prefix_set_key(parts, parts.count - 1, "stack");
+	pl_dump_stack_prefixed(state->stack, parts); // for some reason pl_dump_stack_prefixed() doesn't free the stack
+	if (pv_get_kind(state->iter) != 0) {
+		pl_dump_prefix_set_key(parts, parts.count - 1, "iterator");
+		pl_dump_pv_prefixed(pv_copy(state->iter), parts);
+	}
+}
+
+void pl_dump_state_prefixed(pl_state *state, pl_dump_prefix parts) {
+	parts = pl_dump_dup_prefix(parts);
+	pl_dump_prefix_extend(parts);
+	pl_dump_one_state_prefixed(state, parts);
+	pl_dump_prefix_set_key(parts, parts.count - 1, "saves");
+	pl_dump_prefix_extend(parts);
+	pl_dump_prefix_extend(parts);
+	for (uint32_t i = 1; state != NULL; i++, state = state->saved) {
+		pl_dump_prefix_set_idx(parts, parts.count - 2, i);
+		pl_dump_one_state_prefixed(state, parts);
+	}
+	pl_dump_free_prefix(parts);
 }
