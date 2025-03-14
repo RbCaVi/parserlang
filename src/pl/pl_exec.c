@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 pl_state *pl_state_new() {
 	pl_state *state = malloc(sizeof(pl_state));
@@ -102,7 +102,7 @@ bool gret_impl(pl_state *state) {
 
 #define opcase(op) \
 case(OPCODE_ ## op):; \
-	printf("\n" #op "\n");/**/ \
+	/*printf("\n" #op "\n");/**/ \
 	validinstruction = 1; \
 	pl_ ## op ## _data op ## _data = plp_get_ ## op ## _data(bytecode); \
 	bytecode += sizeof(pl_opcode) + sizeof(pl_ ## op ## _data); \
@@ -448,8 +448,8 @@ pv pl_next(pl_state *state) {
 				bytecode = state->code;
 			}
 		}
-		printf("code pos = %p\n", bytecode);
-		pl_dump_stack(state->stack);
+		//printf("code pos = %p\n", bytecode);
+		//pl_dump_stack(state->stack);
 		if (!validinstruction) {
 			abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
