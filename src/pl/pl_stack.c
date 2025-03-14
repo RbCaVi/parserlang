@@ -186,6 +186,9 @@ const char *pl_stack_retaddr(pl_stack stack){
 }
 
 pl_stack pl_stack_pop_frame(pl_stack stack){
+	// pop_frame makes a new stack always
+	stack = move_stack(stack);
+
 	uint32_t idx = stack.top - 1;
 	while (stack_cell(stack,idx).type != RET) {
 		pv_free(stack_cell(stack,idx).value);
