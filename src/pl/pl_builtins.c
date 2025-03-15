@@ -46,9 +46,11 @@ pv pl_builtin_strmid(pl_state *pl) {
 pv pl_builtin_strleft(pl_state *pl) {
 	pv str = pl_stack_get(pl->stack, 1);
 	pv idx = pl_stack_get(pl->stack, 2);
-	if (pv_get_kind(str) == string_kind && pv_get_kind(idx) == int_kind ) {
+	if (pv_get_kind(str) == string_kind && pv_get_kind(idx) == int_kind) {
 		int i = pv_int_value(idx);
-		if (i >= 0) {
+		if (i >= pv_string_length(pv_copy(str))) {
+			return str;
+		} else if (i >= 0) {
 			pv out = pv_string_from_data(pv_string_data(pv_copy(str)), i);
 			pv_free(str);
 			return out;
