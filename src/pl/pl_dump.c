@@ -73,49 +73,42 @@ pl_dump_prefix pl_dump_dup_prefix(pl_dump_prefix p) {
 
 void pl_dump_pv_prefixed(pv val, pl_dump_prefix parts) {
   parts = pl_dump_dup_prefix(parts);
-	print_prefix(parts);
-	size_t idx;
 	pv_kind kind = pv_get_kind(val);
 	if (kind == 0) {
-  	printf("ERROR OBJECT\n");
+		print_prefixed(parts, "ERROR OBJECT");
   } else if (kind == null_kind) {
-  	printf("NULL\n");
+  	print_prefixed(parts, "NULL");
   } else if (kind == bool_kind) {
-  	if (pv_bool_value(val)) {
-  		printf("TRUE\n");
-  	} else {
-	  	printf("FALSE\n");
-  	}
+  	print_prefixed(parts, pv_bool_value(val)?"TRUE":"FALSE");
   } else if (kind == double_kind) {
-  	printf("%f\n",pv_double_value(val));
+  	print_prefixed(parts, "%f", pv_double_value(val));
   } else if (kind == int_kind) {
-  	printf("%i\n",pv_int_value(val));
+  	print_prefixed(parts, "%i", pv_int_value(val));
   } else if (kind == string_kind) {
   	char *s = pv_string_value(val);
-  	printf("%i \"%s\"\n",pv_get_refcount(val),s);
+  	print_prefixed(parts, "%i \"%s\"", pv_get_refcount(val), s);
   	free(s);
   } else if (kind == array_kind) {
-  	printf("%i []\n",pv_get_refcount(val));
-		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
-		parts.data->parts[idx].type = IDX;
+  	print_prefixed(parts, "%i []", pv_get_refcount(val));
+		pl_dump_prefix_extend(parts);
+		pl_dump_prefix_set_idx(parts, parts.count - 1, 0); // initialize the part (otherwise conditional move depends on uninitialized value (in pl_dump_free_prefix(parts)))
 		pv_array_foreach(val, i, v) {
-			parts.data->parts[idx].idx = i;
+			pl_dump_prefix_set_idx(parts, parts.count - 1, i);
 			pl_dump_pv_prefixed(v, parts);
   	}
   	pv_free(val); // the foreach doesn't free (i need to fix this)
   } else if (kind == object_kind) {
-  	printf("%i {}\n",pv_get_refcount(val));
-		inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
-		parts.data->parts[idx].type = STR;
-		parts.data->parts[idx].str = NULL;
+  	print_prefixed(parts, "%i {}", pv_get_refcount(val));
+		pl_dump_prefix_extend(parts);
+		pl_dump_prefix_set_str(parts, parts.count - 1, NULL); // initialize the part (otherwise conditional move depends on uninitialized value (in pl_dump_free_prefix(parts)))
 		pv_object_foreach(val, k, v) {
-  		free(parts.data->parts[idx].str);
-			parts.data->parts[idx].str = pv_string_value(k);
+  		free(pl_dump_prefix_at(parts, parts.count - 1).str);
+			pl_dump_prefix_set_str(parts, parts.count - 1, pv_string_value(k));
 			pl_dump_pv_prefixed(v, parts);
   	}
 		pv_free(val); // the foreach doesn't free (i need to fix this)
 	} else {
-  	printf("%i idk it has kind %i (%s) (%p)\n", pv_get_refcount(val), kind, pv_kind_name(kind), val.data);
+		print_prefixed(parts, "%i idk it has kind %i (%s) (%p)", pv_get_refcount(val), kind, pv_kind_name(kind), val.data);
   	pv_free(val);
 	}
   pl_dump_free_prefix(parts);

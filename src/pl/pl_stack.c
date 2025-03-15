@@ -264,28 +264,22 @@ void pl_dump_stack_prefixed(pl_stack stack, pl_dump_prefix parts) {
 	uint32_t vidx = 0;
 	uint32_t idx;
 	parts = pl_dump_dup_prefix(parts);
-	inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
-	parts.data->parts[idx].type = IDX;
-	parts.data->parts[idx].idx = frame;
-	inc_size2(idx,parts.data,parts.count,sizeof(size_t),parts.data->size,(uint32_t)((float)parts.data->size * 1.5f), parts.data->parts);
+	pl_dump_prefix_extend(parts);
+	pl_dump_prefix_extend(parts);
 	for (uint32_t i = 0; i < stack.top; i++) {
-		parts.data->parts[idx-1].idx = i;
+		pl_dump_prefix_set_idx(parts, parts.count - 2, frame);
 		switch (stack_cell(stack,i).type) {
 		case RET:
 			frame++;
 			vidx = 0;
 			parts.count -= 1;
-			print_prefix(parts); // frame.0: frame
-			printf("frame %u\n",frame);
+			print_prefixed(parts, "frame %u", frame);
 			parts.count += 1;
-			parts.data->parts[idx].type = KEY;
-			parts.data->parts[idx].str = "locals";
-			print_prefix(parts); // frame.0.locals: frame
-			printf("%i\n",stack_cell(stack,i).ret.locals);
+			pl_dump_prefix_set_key(parts, parts.count - 1, "locals");
+			print_prefixed(parts, "%i", stack_cell(stack,i).ret.locals);
 			break;
 		case VAL:
-			parts.data->parts[idx].type = IDX;
-			parts.data->parts[idx].idx = vidx;
+			pl_dump_prefix_set_idx(parts, parts.count - 1, vidx);
 			vidx++;
 			pl_dump_pv_prefixed(pv_copy(stack_cell(stack,i).value), parts); // frame.0.4: []
 			break;
