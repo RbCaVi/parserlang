@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
+char *strdup (const char *);
+
 void print_prefix(pl_dump_prefix parts) {
 	printf(".");
 	for (size_t i = 0; i < parts.count; i++) {

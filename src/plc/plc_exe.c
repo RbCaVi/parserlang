@@ -185,10 +185,10 @@ static pv getvar(unsigned int i, char *data, unsigned int *vars, pv *vals) {
 		unsigned int type =*((unsigned int *)(data + pos));
 		//printf("type %i at %i / %i\n", type, i, pos);
 		switch (type) {
-		case 0: // ntype = 0
+		case 0:; // ntype = 0
 			val = pv_double(*((double *)(data + pos + sizeof(unsigned int))));
 			break;
-		case 1: // atype = 1
+		case 1:; // atype = 1
 			unsigned int alen = *((unsigned int *)(data + pos + sizeof(unsigned int)));
 			unsigned int *varis = (unsigned int *)(data + pos + sizeof(unsigned int) + sizeof(unsigned int));
 			pv a = pv_array();
@@ -197,12 +197,12 @@ static pv getvar(unsigned int i, char *data, unsigned int *vars, pv *vals) {
 			}
 			val = a;
 			break;
-		case 2: // ftype = 2
+		case 2:; // ftype = 2
 			unsigned int flen = *((unsigned int *)(data + pos + sizeof(unsigned int)));
 			char *bytecode = data + pos + sizeof(unsigned int) + sizeof(unsigned int);
 			val = pl_func((pl_bytecode){bytecode, flen, 0});
 			break;
-		case 3: // stype = 2
+		case 3:; // stype = 2
 			unsigned int len = *((unsigned int *)(data + pos + sizeof(unsigned int)));
 			char *sdata = data + pos + sizeof(unsigned int) + sizeof(unsigned int);
 			val = pv_string_from_data(sdata, len);

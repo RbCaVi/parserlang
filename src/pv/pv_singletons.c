@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include <string.h>
 
+char *strdup (const char *);
+
 pv_kind null_kind;
 pv_kind bool_kind;
 

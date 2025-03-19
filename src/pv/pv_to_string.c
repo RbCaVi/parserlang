@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+char *strdup (const char *);
+
 static pv_to_string_func pv_to_string_table[256];
 
 void pv_register_to_string(pv_kind kind, pv_to_string_func f) {
