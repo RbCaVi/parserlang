@@ -46,8 +46,8 @@ static int pv_int_equal_self(pv val1, pv val2) {
 
 void pv_number_install() {
 	// be nice if there was a static assert but
-	assert(sizeof(double) <= sizeof(struct pv_refcnt*));
-	assert(sizeof(int) <= sizeof(struct pv_refcnt*));
+	//assert(sizeof(double) <= sizeof(struct pv_refcnt*));
+	//assert(sizeof(int) <= sizeof(struct pv_refcnt*));
 	pv_register_kind(&double_kind, "double", NULL);
 	pv_register_to_string(double_kind, pv_double_to_string);
 	pv_register_equal_self(double_kind, pv_double_equal_self);

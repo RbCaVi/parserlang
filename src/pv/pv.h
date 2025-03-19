@@ -25,7 +25,11 @@ struct pv_refcnt;
 typedef struct {
   pv_kind kind;
   unsigned char flags;
-  struct pv_refcnt* data; // may be kind specific data instead of a pointer if flags does not contain PV_FLAG_ALLOCATED
+  union {
+    struct pv_refcnt* data; // may be kind specific data instead of a pointer if flags does not contain PV_FLAG_ALLOCATED
+    double _aaaaaa_;
+    int _aaaaaaaaa_;
+  };
 } pv;
 
 typedef void (*pv_free_func)(pv);
