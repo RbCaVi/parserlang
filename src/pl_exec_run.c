@@ -39,6 +39,7 @@ EMSCRIPTEN_KEEPALIVE void run(char *data) {
 
 	printf("top level bytecode:\n");
 	pl_bytecode_dump(code);
+	printf("\n");
 
 	pv main = pl_func(code);
 
@@ -49,26 +50,26 @@ EMSCRIPTEN_KEEPALIVE void run(char *data) {
 
 	pv_array_foreach(globals, i, v) {
 		if (pv_get_kind(v) == func_kind) {
-			printf("function at %i bytecode:\n", i);
+			printf("global %i function bytecode:\n", i);
 			pl_bytecode bytecode = pl_func_get_bytecode(pv_copy(v));
 			pl_bytecode_dump(bytecode);
 			pl_bytecode_free(bytecode);
+		} else {
+			printf("global %i:\n", i);
+			pl_dump_pv(v);
+			printf("\n");
 		}
 	}
 
+	printf("program output:\n");
 	pv ret = pl_func_call(main, pl);
-	printf("return value:\n");
+
+	printf("\nreturn value:\n");
 	pl_dump_pv(pv_copy(ret));
 	char *s = pv_to_string(ret);
 	printf("%s\n", s);
 	free(s);
 	printf("\n");
-
-	for (unsigned int i = 0; i < glen; i++) {
-		printf("global %i:\n", i);
-		pl_dump_pv(pv_copy(pl->globals[i]));
-		printf("\n");
-	}
 
 	pv_free(globals);
 
