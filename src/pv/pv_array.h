@@ -20,6 +20,8 @@ pv pv_array_append(pv, pv);
 pv pv_array_concat(pv, pv);
 //pv pv_array_elements(int, ...); // count + elements (be careful?)
 
+pv *pv_array_data(pv); // get the data from an array (still decrefs it so you have to copy it first)
+
 #define pv_array_foreach(a, i, x) \
   for (uint32_t pv_len__ = pv_array_length(pv_copy(a)), i = 0, pv_j__ = 1; \
        pv_j__; pv_j__ = 0)                                           \

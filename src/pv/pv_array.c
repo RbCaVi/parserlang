@@ -217,3 +217,11 @@ pv pv_array_concat(pv val1, pv val2) {
   pv_free(val2);
 	return val;
 }
+
+pv *pv_array_data(pv val) {
+	assert(val.kind == array_kind);
+	pvp_array_data *a = pvp_array_get_data(val);
+	pv *data = a->elements;
+	pv_free(val);
+	return data;
+}
