@@ -3,10 +3,7 @@ class ParserResult:
 		self.results=gen
 	def __iter__(self):
 		for x in self.results:
-			if isinstance(x,ParserResult):
-				yield from x
-			else:
-				yield x
+			yield x
 
 def parser(f):
 	def f2(s,*args,**kwargs):

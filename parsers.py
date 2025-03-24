@@ -74,7 +74,10 @@ def transform(p):
 def parserify(f):
 	@parser
 	def parserified(s):
-		yield f(s)
+		try:
+			yield f(s)
+		except:
+			pass
 	return parserified
 
 def optional(p,default=None):
@@ -112,9 +115,6 @@ def atomic(p): # return 0 or 1 results
 def noneerror(p):
 	@parser
 	def noneerror(s):
-		try:
-			for x in p(s):
-				yield x
-		except:
-			pass
+		for x in p(s):
+			yield x
 	return noneerror

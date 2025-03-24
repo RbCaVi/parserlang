@@ -1,5 +1,5 @@
 from parserc import parser
-from parsers import parserify,concat,alternate,strs,strip,transform,optional,errornone,errorafter,star,noneerror
+from parsers import parserify,concat,alternate,strs,strip,transform,optional,star
 from expr import evaluate,EXPR,ops,getSym,SYM
 
 expr=parserify(evaluate)
@@ -10,7 +10,7 @@ def concatstrip(*ps):
 def stmtwrap(s): # "backreference"
 	return stmt(s)
 
-@transform(star(noneerror(stmtwrap)))
+@transform(star(stmtwrap))
 def stmts(data):
 	return ["BLOCK",*data]
 
@@ -43,7 +43,7 @@ def setstmt(data):
 
 SIG='SIG'
 
-@transform(concatstrip(strs('def'),errorafter(sym),strs('='),expr))
+@transform(concatstrip(strs('def'),sym,strs('='),expr))
 def declare(data):
 	_,var,__,e=data
 	return ['DEF',var,e]
@@ -80,7 +80,7 @@ def one(p):
 		yield next(iter(p(s)))
 	return one
 
-@transform(concatstrip(one(alternate(strs('return'),strs('yield'),strs(''))),expr))
+@transform(concatstrip((alternate(strs('return'),strs('yield'),strs(''))),expr))
 def exprstmt(data):
 	(_,typ),e=data
 	if typ == '':

@@ -329,7 +329,7 @@ def evaluate(expr):
 
   # basic shunting yard parser
   lastType=OP # a valid expression can always come after an operator
-  while moreTokens(s): # parse all the tokens
+  while True: # parse all the tokens
     try:
       token,s=getToken(s,lastType,len(parens) and parens[-1][0] in [CALL,LBR])
     except Exception as e:
