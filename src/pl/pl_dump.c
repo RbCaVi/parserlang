@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifndef strdup
 char *strdup (const char *);
+#endif
 
 void print_prefix(pl_dump_prefix parts) {
 	printf(".");

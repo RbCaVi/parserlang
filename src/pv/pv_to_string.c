@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#ifndef strdup
 char *strdup (const char *);
+#endif
 
 static pv_to_string_func pv_to_string_table[256];
 
