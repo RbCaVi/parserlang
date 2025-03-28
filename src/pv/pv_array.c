@@ -137,19 +137,14 @@ static pvp_array_data *pvp_array_realloc(pvp_array_data *ain, size_t size) {
 }
 
 pv pv_array(void) {
-	// slightly simpler than pv_string
-	pvp_array_data *a = pvp_array_alloc(16);
-  a->length = 0;
-  pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
-  return val;
+  return pv_array_sized(16);
 }
 
 pv pv_array_sized(uint32_t size) {
 	// slightly simpler than pv_string
 	pvp_array_data *a = pvp_array_alloc(size);
   a->length = 0;
-  pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
-  return val;
+  return (pv){array_kind, PV_FLAG_ALLOCATED, {&(a->refcnt)}};
 }
 
 uint32_t pv_array_length(pv val) {
@@ -186,8 +181,7 @@ pv pv_array_set(pv val, int i, pv cell) {
 	pvp_array_data *newa = pvp_array_realloc(a, a->alloc_length);
 	pv_free(newa->elements[i]);
 	newa->elements[i] = cell;
-  pv newval = {array_kind, PV_FLAG_ALLOCATED, &(newa->refcnt)};
-	return newval;
+	return (pv){array_kind, PV_FLAG_ALLOCATED, {&(newa->refcnt)}};
 }
 
 pv pv_array_append(pv val, pv cell) {
@@ -197,8 +191,7 @@ pv pv_array_append(pv val, pv cell) {
 	pvp_array_data *newa = pvp_array_realloc(a, max(a->alloc_length, l + 1));
 	newa->length = l + 1;
 	newa->elements[l] = cell;
-  pv newval = {array_kind, PV_FLAG_ALLOCATED, &(newa->refcnt)};
-	return newval;
+	return (pv){array_kind, PV_FLAG_ALLOCATED, {&(newa->refcnt)}};
 }
 
 pv pv_array_concat(pv val1, pv val2) {
@@ -213,9 +206,8 @@ pv pv_array_concat(pv val1, pv val2) {
 	for (uint32_t i = 0; i < l2; i++) {
 		a->elements[l1 + i] = pv_copy(a2->elements[i]);
 	}
-  pv val = {array_kind, PV_FLAG_ALLOCATED, &(a->refcnt)};
   pv_free(val2);
-	return val;
+	return (pv){array_kind, PV_FLAG_ALLOCATED, {&(a->refcnt)}};
 }
 
 pv *pv_array_data(pv val) {

@@ -117,8 +117,7 @@ pv pv_string_from_data(const char *data, uint32_t len) {
   memcpy(s->data, data, len);
   s->data[len] = '\0';
   s->length_hashed = len << 1; // just assume that nobody will use a 2 gb string and cause overflow
-  pv val = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
-	return val;
+	return (pv){string_kind, PV_FLAG_ALLOCATED, {&(s->refcnt)}};
 }
 
 char *pv_string_value(pv val) {
@@ -173,8 +172,7 @@ pv pv_string_concat(pv val1, pv val2) {
 		memcpy(s->data, s1->data, l1);
 		memcpy(s->data + l1, s2->data, l2);
 		s->data[l1 + l2] = '\0';
-	  pv tval = {string_kind, PV_FLAG_ALLOCATED, &(s->refcnt)};
-	  val = tval;
+	  val = (pv){string_kind, PV_FLAG_ALLOCATED, {&(s->refcnt)}};
 		pv_free(val1); // consumed by the algorithm
 	}
 	s->length_hashed = (l1 + l2) << 1;

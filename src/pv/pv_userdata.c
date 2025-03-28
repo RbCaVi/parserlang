@@ -30,13 +30,11 @@ void pv_userdata_install() {
 }
 
 pv pv_userdata(void *ptr) {
-	pv val = {userdata_kind, 0, ptr};
-	return val;
+	return (pv){userdata_kind, 0, {ptr}};
 }
 
 void *pv_userdata_ptr(pv val) {
 	// don't have to do a decref because userdata isn't allocated
 	assert(val.kind == userdata_kind);
-	void *ptr = val.data;
-	return ptr;
+	return val.data;
 }

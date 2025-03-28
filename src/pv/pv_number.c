@@ -57,13 +57,11 @@ void pv_number_install() {
 }
 
 pv pv_double(double num) {
-	pv val = {double_kind, 0, reinterpret_cast(double, struct pv_refcnt*, num)};
-	return val;
+	return (pv){double_kind, 0, {reinterpret_cast(double, struct pv_refcnt*, num)}};
 }
 
 pv pv_int(int num) {
-	pv val = {int_kind, 0, reinterpret_cast(int, struct pv_refcnt*, num)};
-	return val;
+	return (pv){int_kind, 0, {reinterpret_cast(int, struct pv_refcnt*, num)}};
 }
 
 double pv_double_value(pv val) {

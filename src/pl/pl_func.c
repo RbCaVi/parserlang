@@ -60,7 +60,7 @@ pv pl_func(pl_bytecode bytecode) {
 	f->type = BYTECODE;
 	f->bytecode = bytecode;
 	f->closedvars = pv_array();
-	return (pv){func_kind, PV_FLAG_ALLOCATED, &(f->refcnt)};
+	return (pv){func_kind, PV_FLAG_ALLOCATED, {&(f->refcnt)}};
 }
 
 pv pl_func_call(pv fun, pl_state *pl) {
@@ -102,7 +102,7 @@ static pv plp_func_native(pl_func_type func, void *library, char *filename, char
 	f->file = filename;
 	f->name = funcname;
 	f->closedvars = pv_array();
-	return (pv){func_kind, PV_FLAG_ALLOCATED, &(f->refcnt)};
+	return (pv){func_kind, PV_FLAG_ALLOCATED, {&(f->refcnt)}};
 }
 
 pv pl_func_from_symbol(char *filename, char *funcname) {
@@ -174,5 +174,5 @@ pv pl_func_add_closure_var(pv fun, pv val) {
 	pl_func_data *f = plp_func_get_data(fun);
 	f = plp_func_move(f);
 	f->closedvars = pv_array_append(f->closedvars, val);
-	return (pv){func_kind, PV_FLAG_ALLOCATED, &(f->refcnt)};
+	return (pv){func_kind, PV_FLAG_ALLOCATED, {&(f->refcnt)}};
 }

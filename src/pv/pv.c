@@ -74,6 +74,5 @@ int pv_get_refcount(pv val) {
 }
 
 pv pv_invalid(void) {
-  pv val = {0, 0, NULL}; // invalid kind is always 0
-  return val;
+  return (pv){0, 0, {NULL}}; // invalid kind is always 0
 }

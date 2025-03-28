@@ -251,8 +251,7 @@ void pv_object_install() {
 
 pv pv_object(void) {
 	pvp_object_data *o = pvp_object_alloc(8);
-  pv val = {object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)};
-  return val;
+  return (pv){object_kind, PV_FLAG_ALLOCATED, {&(o->refcnt)}};
 }
 
 struct object_slot *pvp_object_get_slot(pvp_object_data *o, uint32_t hash, pv key) {
@@ -350,8 +349,7 @@ pv pv_object_set(pv obj, pv key, pv value) {
 	//printf("post set\n");
 	//pvp_object_dump_internal(o);
 
-  pv val = {object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)};
-  return val;
+  return (pv){object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)};
 }
 
 pv pv_object_delete(pv obj, pv key) {
@@ -388,10 +386,8 @@ pv pv_object_delete(pv obj, pv key) {
 	o->elements[o->last_free].next = sloti;
 	o->last_free = (uint32_t)sloti; // it it's negative, that's a problem too
 	o->length--;
-
-	pv newobj = {object_kind, PV_FLAG_ALLOCATED, &(o->refcnt)};
 	
-	return newobj;
+	return (pv){object_kind, PV_FLAG_ALLOCATED, {&(o->refcnt)}};
 }
 
 uint32_t pv_object_length(pv obj) {

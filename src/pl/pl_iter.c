@@ -93,7 +93,7 @@ static pv plp_setup_iter(pv val, pv_iter_type type) {
 		}
 		i->oiter = pv_object_iter(pv_copy(val));
 	}
-	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
+	return (pv){iter_kind, PV_FLAG_ALLOCATED, {&(i->refcnt)}};
 }
 
 pv pl_iter(pv val) {
@@ -123,7 +123,7 @@ pv pl_iter_gen(pl_state *pl) {
 	i->iter_type = GEN;
 	i->pl = pl;
 	i->val = pv_invalid();
-	return pl_iter_next((pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)});
+	return pl_iter_next((pv){iter_kind, PV_FLAG_ALLOCATED, {&(i->refcnt)}});
 }
 
 pv pl_iter_value(pv val) {
@@ -226,5 +226,5 @@ pv pl_iter_next(pv val) {
 		}
 		break;
 	}
-	return (pv){iter_kind, PV_FLAG_ALLOCATED, &(i->refcnt)};
+	return (pv){iter_kind, PV_FLAG_ALLOCATED, {&(i->refcnt)}};
 }

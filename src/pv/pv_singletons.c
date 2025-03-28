@@ -46,23 +46,19 @@ void pv_singletons_install() {
 }
 
 pv pv_null() {
-	pv val = {null_kind, 0, reinterpret_cast(int, struct pv_refcnt*, 0)};
-	return val;
+	return (pv){null_kind, 0, {reinterpret_cast(int, struct pv_refcnt*, 0)}};
 }
 
 pv pv_true() {
-	pv val = {bool_kind, 0, reinterpret_cast(int, struct pv_refcnt*, 1)};
-	return val;
+	return (pv){bool_kind, 0, {reinterpret_cast(int, struct pv_refcnt*, 1)}};
 }
 
 pv pv_false() {
-	pv val = {bool_kind, 0, reinterpret_cast(int, struct pv_refcnt*, -1)};
-	return val;
+	return (pv){bool_kind, 0, {reinterpret_cast(int, struct pv_refcnt*, -1)}};
 }
 
 pv pv_bool(int b) {
-	pv val = {bool_kind, 0, reinterpret_cast(int, struct pv_refcnt*, b ? 1 : -1)};
-	return val;
+	return (pv){bool_kind, 0, {reinterpret_cast(int, struct pv_refcnt*, b ? 1 : -1)}};
 }
 
 int pv_bool_value(pv val) {
