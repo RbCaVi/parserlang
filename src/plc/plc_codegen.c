@@ -133,6 +133,7 @@ void plc_codegen_stmt_collect_deffunc(plc_codegen_context *c, stmt *s) {
 
 pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 	//printf("s->type: %i\n", s->type);
+	//printf("entering plc_codegen_stmt\n");
 	switch (s->type) {
 		case STMT_BLOCK: {
 			plc_codegen_context *c2 = plc_codegen_context_chain_scope(c);
@@ -247,6 +248,9 @@ pl_bytecode_builder *plc_codegen_stmt(plc_codegen_context *c, stmt *s) {
 	//pl_bytecode code = pl_bytecode_from_builder(c->code);
 	//pl_bytecode_dump(code);
 	//pl_bytecode_free(code);
+	//printf("plc_codegen_stmt dump\n");
+	//plp_bytecode_builder_dump(c->code);
+	//printf("exiting plc_codegen_stmt\n");
 	return c->code;
 }
 
@@ -360,6 +364,7 @@ case OP_ ## op: \
 			break;
 		}
 		case EXPR_INT: {
+			//printf("int value: %d %16x\n", e->i.value, e->i.value);
 			pl_bytecode_builder_add(c->code, PUSHINT, {e->i.value});
 			break;
 		}

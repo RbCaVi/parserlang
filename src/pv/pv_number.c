@@ -109,13 +109,16 @@ pv pv_number_ ## lower_name(pv v) { \
 #define BOP(upper_name, lower_name, op, isdefault) \
 isdefault( \
 pv pv_number_ ## lower_name(pv v1, pv v2) { \
+	/* printf(#upper_name " " #lower_name " " #op "\n"); /**/ \
 	if (pv_get_kind(v1) == double_kind || pv_get_kind(v2) == double_kind) { \
 		double n1 = pv_number_value(v1); \
 		double n2 = pv_number_value(v2); \
+		/* printf("%f %f\n", n1, n2); /**/ \
 		return pv_double(n1 op n2); \
 	} else { \
 		int n1 = pv_int_value(v1); \
 		int n2 = pv_int_value(v2); \
+		/* printf("%d %d\n", n1, n2); /**/ \
 		return pv_int(n1 op n2); \
 	} \
 } \

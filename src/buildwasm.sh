@@ -6,7 +6,7 @@ rm -f pl/*.o
 rm -f plc/*.o
 rm -f pv/*.o
 
-FLAGS="-std=c2x -Wno-pointer-sign -I pv -I pl -I plc -I ."
+FLAGS="-g -profiling -std=c2x -Wno-pointer-sign -I pv -I pl -I plc -I ."
 
 emcc $FLAGS -c pv/pv.c -o pv/pv.o
 emcc $FLAGS -c pv/pv_private.c -o pv/pv_private.o
@@ -39,7 +39,7 @@ emcc $FLAGS -c plc/plc_codegen.c -o plc/plc_codegen.o
 
 emcc $FLAGS -c pl_exec_run.c -o pl_exec_run.o
 
-emcc -sENVIRONMENT=web \
+emcc -g -profiling -sENVIRONMENT=web \
 	pl_exec_run.o \
 	pl/pl_builtins.o \
 	plc/plc_parsetree.o \

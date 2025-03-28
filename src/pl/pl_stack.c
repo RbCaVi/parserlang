@@ -152,6 +152,8 @@ pl_stack pl_stack_push(pl_stack stack,pv val) {
 	// push makes a new stack always
 	stack = move_stack(stack);
 
+	//printf("stack pointer: %p\n", stack.cells);
+
 	inc_size2(idx,stack.cells,stack.top,sizeof(struct pl_stack_cells_refcnt),stack.cells->refcount.size,(uint32_t)((float)stack.cells->refcount.size * 1.5f), stack.cells->cells);
 	// initialize the new cell
 	stack_cell(stack,idx).type = VAL;

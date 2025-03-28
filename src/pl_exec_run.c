@@ -22,20 +22,26 @@ EMSCRIPTEN_KEEPALIVE void run(char *data) {
 
 	stmt st = parse_stmt(data);
 
+	//print_stmt(st, 0);
+
 	plc_codegen_context *c = plc_codegen_context_new();
 
 	pl_bytecode_builder *b = plc_codegen_stmt(c, &st);
+
+	//printf("llll bytecode:\n");
+	//plp_bytecode_builder_dump(b);
+	//printf("aaa bytecode:\n");
+
+	// in case control flow reaches the end, return null
+	b = pl_bytecode_dup_builder(b); // the original is freed by plc_codegen_context_free(c)
+	pl_bytecode_builder_add(b, GRET, {});
+	pl_bytecode code = pl_bytecode_from_builder(b);
 
 	free_stmt(st);
 
 	pv globals = plc_codegen_context_get_globals(c);
 
 	plc_codegen_context_free(c);
-
-	// in case control flow reaches the end, return null
-	b = pl_bytecode_dup_builder(b); // the original is freed by plc_codegen_context_free(c)
-	pl_bytecode_builder_add(b, GRET, {});
-	pl_bytecode code = pl_bytecode_from_builder(b);
 
 	printf("top level bytecode:\n");
 	pl_bytecode_dump(code);

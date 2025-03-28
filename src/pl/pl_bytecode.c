@@ -37,13 +37,19 @@ pl_bytecode_builder *pl_bytecode_extend(pl_bytecode_builder *b, uint32_t size) {
 	return b;
 }
 
+// void plp_bytecode_builder_dump(pl_bytecode_builder *b) {
+// 	pl_bytecode_dump((pl_bytecode){b->bytecode, b->end, 1});
+// }
+
 #define OPCODE(op, op_lower, __data) \
 pl_bytecode_builder *pl_bytecode_builder_add_ ## op(pl_bytecode_builder *b, pl_ ## op ## _data data) { \
+	/* printf("a " #op "\n"); plp_bytecode_builder_dump(b); /**/ \
 	uint32_t offset = b->end; \
 	b = pl_bytecode_extend(b, sizeof(pl_opcode) + sizeof(pl_ ## op ## _data)); \
 	char *pos = b->bytecode + offset; \
 	((pl_opcode*)pos)[0] = OPCODE_ ## op; \
 	((pl_ ## op ## _data*)(((pl_opcode*)pos) + 1))[0] = data; \
+	/* printf("b\n"); plp_bytecode_builder_dump(b); /**/ \
 	return b; \
 }
 #include "pl_opcodes_data.h"
@@ -91,6 +97,8 @@ case OPCODE_ ## op: \
 	break;
 #include "pl_opcodes_data.h"
 #undef OPCODE
+		default:
+			b1 += sizeof(pl_opcode); // same alignment right?
 		}
 		i++;
 	}
