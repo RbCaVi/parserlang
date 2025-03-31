@@ -88,7 +88,7 @@ pv pl_builtin_chr(pl_state *pl) {
 pv pl_builtin_strcat(pl_state *pl) {
 	pv s1 = pl_stack_get(pl->stack, 1);
 	pv s2 = pl_stack_get(pl->stack, 2);
-	pl->stack = pl_stack_popto(pl->stack, 0);
+	pl->stack = pl_stack_popto(pl->stack, 1);
 	if (pv_get_kind(s1) == string_kind && pv_get_kind(s1) == string_kind) {
 		return pv_string_concat(s1, s2);
 	}
