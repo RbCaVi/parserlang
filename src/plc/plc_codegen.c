@@ -264,9 +264,12 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 				pv funcname = plcp_sym_to_pv(e->e.children[0].s);
 				//pl_dump_pv(pv_copy(funcname));
 				//printf("in vars: %i, in globals: %i, check builtin?: %i\n", pv_object_has(pv_copy(c->vars), pv_copy(funcname)), pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)), (!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname))));
-				if ((!pv_object_has(pv_copy(c->vars), pv_copy(funcname))) || (!pv_object_has(pv_copy(c->globalmap), pv_copy(funcname)))) {
+				if (pv_object_has(pv_copy(c->vars), pv_copy(funcname))) {
+					// the function is a local variable
+				} else if (pv_object_has(pv_copy(c->globalmap), pv_copy(funcname))) {
+					// the function is a function (directly from fn keyword)
+				} else {
 					// variables and functions can override builtins
-					pv_free(funcname);
 
 #define putargs() \
 					for (unsigned int i = 1; i < e->e.arity; i++) \
@@ -332,9 +335,8 @@ pl_bytecode_builder *plc_codegen_expr(plc_codegen_context *c, expr *e) {
 					}
 #include "pl_builtins_data.h"
 #undef BUILTIN
-				} else {
-					pv_free(funcname);
 				}
+				pv_free(funcname);
 			}
 			for (unsigned int i = 0; i < e->e.arity; i++) {
 				plc_codegen_expr(c, &(e->e.children[i]));
