@@ -36,7 +36,9 @@ static pv plcp_sym_to_pv(plc_sym sym) {
 }
 
 static int plcp_sym_cmp(plc_sym sym, const char *str) {
-	return strncmp(sym.name, str, sym.len);
+	int c1 = strncmp(sym.name, str, sym.len);
+	if (c1 != 0) return c1;
+	return sym.len - strlen(str);
 }
 
 struct plc_codegen_context {
