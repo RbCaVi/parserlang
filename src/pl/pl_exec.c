@@ -246,10 +246,6 @@ pv pl_next(pl_state *state) {
 				state->stack = pl_stack_push(state->stack, pv_array_concat(a1, a2));
 				break;
 			}
-			opcase(LEN) {
-				abort(); // not implemented :(
-				break;
-			}
 			opcase(SET) {
 				pv o = pl_stack_get(state->stack, -3);
 				pv k = pl_stack_get(state->stack, -2);

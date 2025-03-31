@@ -142,7 +142,6 @@ void pl_bytecode_dump(pl_bytecode b) {
 			nodataopcase(HASO)
 			nodataopcase(APPEND)
 			nodataopcase(CONCAT)
-			nodataopcase(LEN)
 			nodataopcase(SET)
 			nodataopcase(GET)
 			nodataopcase(BIND)

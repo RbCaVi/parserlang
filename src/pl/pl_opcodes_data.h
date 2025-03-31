@@ -64,7 +64,6 @@ OPCODE(APPEND, append, {}) // pop v and x and push x.append(v)
 OPCODE(CONCAT, concat, {}) // pop x1 and x2 and push concat(x1, x2)
 
 // string / array / object
-OPCODE(LEN, len, {}) // pop x and push len(x)
 OPCODE(SET, set, {}) // pop v, idx, and x and push x[idx] = v
 OPCODE(GET, get, {}) // pop idx and x and push x[idx]
 
