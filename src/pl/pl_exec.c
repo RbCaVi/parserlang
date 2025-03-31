@@ -263,6 +263,7 @@ pv pl_next(pl_state *state) {
 			}
 			opcase(CALL) {
 				pv f = pl_stack_get(state->stack, -(CALL_data.n + 1)); // the extra copy doesn't matter here because there's (probably) a reference to this function in globals anyway
+				//pl_dump_pv(pv_copy(f));
 				state->code = bytecode;
 				pl_state_set_call(state, CALL_data.n);
 				bytecode = state->code;
@@ -448,6 +449,7 @@ pv pl_next(pl_state *state) {
 		//state->code = bytecode;
 		//pl_dump_state(state);
 		if (!validinstruction) {
+			printf("skill issue\n");
 			abort(); // how (i think you did something wrong - probably a bad jump offset)
 		}
 	}
