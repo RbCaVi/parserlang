@@ -175,7 +175,4 @@ test-valgrind-plc_dumpval: dump.plc
 clean:
 	rm -f pv_main pl_main pl_run plc_dumptree plc_dumpval plc_compile pt_dump.so
 	rm -f pv.so pl.so
-	rm -f *.o
-	rm -f *.d
-	rm -f pl/*.o
-	rm -f pv/*.o
+	rm -f **/*.{o,d}
