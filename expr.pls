@@ -1,38 +1,38 @@
 # this is NOT pls code (yet)
 
-ops=['+','-','*','/','^','==','!=','<','>','<=','>=']
+ops=["+","-","*","/","^","==","!=","<",">","<=",">="]
 
-uops=['-']
+uops=["-"]
 
 precedences={
-  '+':2,
-  '-':2,
-  '*':3,
-  '/':3,
-  '^':4,
-  '==':1,
-  '!=':1,
-  '<':1,
-  '>':1,
-  '<=':1,
-  '>=':1,
+  "+":2,
+  "-":2,
+  "*":3,
+  "/":3,
+  "^":4,
+  "==":1,
+  "!=":1,
+  "<":1,
+  ">":1,
+  "<=":1,
+  ">=":1,
 }
 
 // token types
-INT='INT'   // literal
-STR='STR'   // literal
-LPAR='LPAR' // left paren
-RPAR='RPAR' // right paren
-OP='OP'     // binary operator
-UOP='UOP'   // unary operator
-SYM='SYM'   // symbol (variable or function)
-EXPR='EXPR' // expression (output of evaluate)
-CALL='CALL' // left paren after function name
-IDX='IDX'
-COMMA='COMMA'
-LBR='LBR'
-RBR='RBR'
-DOT='DOT'
+INT="INT"   // literal
+STR="STR"   // literal
+LPAR="LPAR" // left paren
+RPAR="RPAR" // right paren
+OP="OP"     // binary operator
+UOP="UOP"   // unary operator
+SYM="SYM"   // symbol (variable or function)
+EXPR="EXPR" // expression (output of evaluate)
+CALL="CALL" // left paren after function name
+IDX="IDX"
+COMMA="COMMA"
+LBR="LBR"
+RBR="RBR"
+DOT="DOT"
 
 numregex = /[0-9]+/y
 
@@ -54,18 +54,18 @@ getStr = function(s) {
   var m = stringregex.exec(s);
   if (m != null) {
     let instr = [...m[1]]
-    let outstr = ''
+    let outstr = ""
     while (instr.length > 0) {
       const c = instr.shift()
       if (c != "\\") {
         outstr += c;
       } else {
         const c = instr.shift();
-        if (c == 'x') {
+        if (c == "x") {
           outstr += String.fromCharCode(parseInt(instr[0] + instr[1], 16));
           instr = instr.slice(0, 2)
         } else {
-          outstr += {"\\": "\\", '"': '"', 'n': '\n'}[c];
+          outstr += {"\\": "\\", "\"": "\"", "n": "\n"}[c];
         }
       }
     }
@@ -97,36 +97,36 @@ getToken = function(s, lastType, comma) {
         return [[OP, op], ss.slice(op.length)];
       }
     }
-    if (comma && ss.startsWith(',')) {
-      return [[COMMA, ','], ss.slice(1)];
+    if (comma && ss.startsWith(",")) {
+      return [[COMMA, ","], ss.slice(1)];
     }
-    if (ss.startsWith(')')) {
+    if (ss.startsWith(")")) {
       return [[RPAR], ss.slice(1)];
     }
-    if (ss.startsWith(']')) {
+    if (ss.startsWith("]")) {
       return [[RBR], ss.slice(1)];
     }
-    if (ss.startsWith('(')) {
+    if (ss.startsWith("(")) {
       return [[CALL], ss.slice(1)];
     }
-    if (ss.startsWith('[')) {
+    if (ss.startsWith("[")) {
       return [[IDX], ss.slice(1)];
     }
-    if (ss.startsWith('.')) {
+    if (ss.startsWith(".")) {
       return [[DOT], ss.slice(1)];
     }
     return [null, ss];
   } else if ([LPAR, CALL, IDX, OP, UOP, LBR, COMMA].includes(lastType)) {
-    if (ss.startsWith('(')) {
+    if (ss.startsWith("(")) {
       return [[LPAR],ss.slice(1)];
     }
-    if (ss.startsWith('[')) {
+    if (ss.startsWith("[")) {
       return [[LBR],ss.slice(1)];
     }
-    if ([CALL,COMMA].includes(lastType) && ss.startsWith(')')) {
+    if ([CALL,COMMA].includes(lastType) && ss.startsWith(")")) {
       return [[RPAR],ss.slice(1)];
     }
-    if ([LBR,COMMA].includes(lastType) && ss.startsWith(']')) {
+    if ([LBR,COMMA].includes(lastType) && ss.startsWith("]")) {
       return [[RBR],ss.slice(1)];
     }
     for (const uop of uops) {
@@ -192,13 +192,13 @@ addToken = function(token, lastType, values, ops, parens) {
         values[values.length - 1] = val;
       }
       ops.push(par);
-      values[values.length - 1] = [EXPR, '(', values.at(-1)];
+      values[values.length - 1] = [EXPR, "(", values.at(-1)];
     }
     if (token[0] == IDX) {
-      values[values.length - 1] = [EXPR, '[', values.at(-1)];
+      values[values.length - 1] = [EXPR, "[", values.at(-1)];
     }
     if (token[0] == LBR) {
-      values.push([EXPR, '[]']);
+      values.push([EXPR, "[]"]);
     }
   }
   if (token[0] == UOP) { // unary operator
@@ -208,7 +208,7 @@ addToken = function(token, lastType, values, ops, parens) {
     while (!([LPAR,CALL,IDX,LBR].includes(ops.at(-1)[0]))) { // finish the parenthesized expression
       op = ops.pop();
       if (op[0] == DOT) {
-        op = [OP, '.'];
+        op = [OP, "."];
       }
       v2 = values.pop();
       v1 = values.pop();
@@ -228,7 +228,7 @@ addToken = function(token, lastType, values, ops, parens) {
       // apply all operators to the left with a lower precedence
       op = ops.pop();
       if (op[0] == DOT) {
-        op = [OP, '.'];
+        op = [OP, "."];
       }
       v2 = values.pop();
       v1 = values.pop();
@@ -244,7 +244,7 @@ addToken = function(token, lastType, values, ops, parens) {
       // apply all operators to the left with a lower precedence
       op = ops.pop();
       if (op[0] == DOT) {
-        op = [OP, '.'];
+        op = [OP, "."];
       }
       v2 = values.pop();
       v1 = values.pop();
@@ -280,7 +280,7 @@ evaluate = function(expr) {
     } else if ([OP,DOT].includes(ops.at(-1)[0])) {
       op = ops.pop();
       if (op[0] == DOT) {
-        op = [OP, '.'];
+        op = [OP, "."];
       }
       v2 = values.pop();
       v1 = values.pop();
