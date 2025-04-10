@@ -138,17 +138,17 @@ plc_compile.o:
 
 pt_dump.o: pv/pv_to_string.h pl/pl_dump.h pv/pv.h pl/pl_stack.h pl/pl_exec.h pl/pl_bytecode.h pl/pl_opcodes.h pl/pl_opcodes_data.h pv/pv_number_ops_data.h
 
-pv_main: | -l\:pv.so pv.so
+pv_main: | -l\:pv.so
 
-pl_main: pl/pl_builtins.o | -l\:pv.so pv.so -l\:pl.so pl.so pt_dump.so
+pl_main: | -l\:pv.so -l\:pl.so pt_dump.so
 
-pl_run: pl/pl_builtins.o plc/plc_exe.o | -l\:pv.so pv.so -l\:pl.so pl.so
+pl_run: plc/plc_exe.o | -l\:pv.so -l\:pl.so
 
 plc_dumptree: plc/plc_parsetree.o
 
-plc_dumpval: pl/pl_builtins.o plc/plc_exe.o | -l\:pv.so -l\:pl.so
+plc_dumpval: plc/plc_exe.o | -l\:pv.so -l\:pl.so
 
-plc_compile: pl/pl_builtins.o plc/plc_parsetree.o plc/plc_codegen.o plc/plc_exe.o | -l\:pv.so -l\:pl.so
+plc_compile: plc/plc_parsetree.o plc/plc_codegen.o plc/plc_exe.o | -l\:pv.so -l\:pl.so
 
 pv.so: pv/pv.o pv/pv_private.o pv/pv_install.o \
 	pv/pv_singletons.o pv/pv_number.o \
@@ -158,6 +158,7 @@ pv.so: pv/pv.o pv/pv_private.o pv/pv_install.o \
 pl.so: pl/pl_bytecode.o pl/pl_stack.o pl/pl_exec.o \
 	pl/pl_iter.o pl/pl_func.o \
 	pl/util_pl.o pl/pl_dump.o \
+	pl/pl_builtins.o \
 	| -l\:pv.so
 
 pt_dump.so: pt_dump.o | -l\:pl.so pl.so
