@@ -105,3 +105,7 @@ pv pl_builtin_print(pl_state *pl) {
 	free(s);
 	return pv_invalid();
 }
+
+pv pl_builtin_object(pl_state *pl) {
+	return pv_object();
+}
