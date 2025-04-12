@@ -11,9 +11,6 @@ compilecmd := gcc \
 -Wconversion -Werror=return-type -Werror=implicit-function-declaration \
 -I pv -I pl -I plc -I . -c -MMD
 
-colon := :
-$(colon) := :
-
 %.o: %.c
 	$(compilecmd) -fPIC $< -o $@
 
