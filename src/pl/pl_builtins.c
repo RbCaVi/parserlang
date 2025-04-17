@@ -3,6 +3,7 @@
 #include "pv_number.h"
 #include "pv_string.h"
 #include "pv_array.h"
+#include "pv_object.h"
 #include "pv_to_string.h"
 
 #include <stdio.h>
