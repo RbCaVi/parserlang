@@ -37,15 +37,46 @@ numregex = /[0-9]+/y
 
 stringregex = /"(([^"\\]|\\([n\\"]|x[0-9a-fA-F]{2}))*)"/y;
 
-getInt = function(s) {
-  # not a variable
-  var m;
-  numregex.lastIndex = 0;
-  if ((m = numregex.exec(s)) != null) {
-    return [+m[0],s.slice(m[0].length)];
+fn getDigit(s) {
+  if ord(s) >= ord("0") then if ord(s) <= ord("9") then {
+	return [ord(s) - ord("0"), strmid(s, 1)]
   }
-  return [null, s]
 }
+
+fn repeat(p) {
+  fn addnull(s, p) {
+    for x in gcall(p, s) do {
+	  def v = x[0]
+	  def s = x[1]
+	  yield [[true, v], s]
+	}
+	return [[false, null], s]
+  }
+  fn repeat(s, addnull) {
+    def l = []
+    while true do {
+      def x = addnull(s)
+	  def v = x[0]
+	  s = x[1]
+      l = concat(l, [v[1]])
+	  yield ([l, s])
+	  if v[0] then {} else return
+      s = x[1]
+    }
+  }
+  return bind(repeat, bind(addnull, p))
+}
+
+fn atomic(p) {
+  fn atomic(s, p) {
+    for x in gcall(p, s) {
+	  return x
+	}
+  }
+  return bind(atomic, p)
+}
+
+def getInt = atomic(repeat(getDigit))
 
 getStr = function(s) {
   # not a variable
