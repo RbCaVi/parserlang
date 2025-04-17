@@ -4,19 +4,18 @@ ops=["+","-","*","/","^","==","!=","<",">","<=",">="]
 
 uops=["-"]
 
-precedences={
-  "+":2,
-  "-":2,
-  "*":3,
-  "/":3,
-  "^":4,
-  "==":1,
-  "!=":1,
-  "<":1,
-  ">":1,
-  "<=":1,
-  ">=":1,
-}
+precedences=object
+precedences = objset(precedences, "+", 2)
+precedences = objset(precedences, "-", 2)
+precedences = objset(precedences, "*", 3)
+precedences = objset(precedences, "/", 3)
+precedences = objset(precedences, "^", 4)
+precedences = objset(precedences, "==", 1)
+precedences = objset(precedences, "!=", 1)
+precedences = objset(precedences, "<", 1)
+precedences = objset(precedences, ">", 1)
+precedences = objset(precedences, "<=", 1)
+precedences = objset(precedences, ">=", 1)
 
 # token types
 INT="INT"   # literal
