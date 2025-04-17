@@ -110,3 +110,10 @@ pv pl_builtin_print(pl_state *pl) {
 pv pl_builtin_object(pl_state *pl) {
 	return pv_object();
 }
+
+pv pl_builtin_objset(pl_state *pl) {
+	pv o = pl_stack_get(pl->stack, 1);
+	pv k = pl_stack_get(pl->stack, 2);
+	pv v = pl_stack_get(pl->stack, 3);
+	return pv_object_set(o, k, v);
+}
