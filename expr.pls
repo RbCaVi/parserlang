@@ -18,16 +18,16 @@ precedences={
   ">=":1,
 }
 
-// token types
-INT="INT"   // literal
-STR="STR"   // literal
-LPAR="LPAR" // left paren
-RPAR="RPAR" // right paren
-OP="OP"     // binary operator
-UOP="UOP"   // unary operator
-SYM="SYM"   // symbol (variable or function)
-EXPR="EXPR" // expression (output of evaluate)
-CALL="CALL" // left paren after function name
+# token types
+INT="INT"   # literal
+STR="STR"   # literal
+LPAR="LPAR" # left paren
+RPAR="RPAR" # right paren
+OP="OP"     # binary operator
+UOP="UOP"   # unary operator
+SYM="SYM"   # symbol (variable or function)
+EXPR="EXPR" # expression (output of evaluate)
+CALL="CALL" # left paren after function name
 IDX="IDX"
 COMMA="COMMA"
 LBR="LBR"
@@ -39,7 +39,7 @@ numregex = /[0-9]+/y
 stringregex = /"(([^"\\]|\\([n\\"]|x[0-9a-fA-F]{2}))*)"/y;
 
 getInt = function(s) {
-  // not a variable
+  # not a variable
   var m;
   numregex.lastIndex = 0;
   if ((m = numregex.exec(s)) != null) {
@@ -49,7 +49,7 @@ getInt = function(s) {
 }
 
 getStr = function(s) {
-  // not a variable
+  # not a variable
   stringregex.lastIndex = 0;
   var m = stringregex.exec(s);
   if (m != null) {
@@ -75,7 +75,7 @@ getStr = function(s) {
 }
 
 getSym = function(s) {
-  // not a variable
+  # not a variable
   var m;
   if ((m = /[_a-zA-Z][_a-zA-Z0-9]*/y.exec(s)) != null) {
     return [m[0],s.slice(m[0].length)];
@@ -158,7 +158,7 @@ getToken = function(s, lastType, comma) {
 }
 
 precedence = function(token) {
-  // get the precedence of a binary operator
+  # get the precedence of a binary operator
   return precedences[token[1]];
 }
 
@@ -171,20 +171,20 @@ applyuop = function(op, v) {
 }
 
 addToken = function(token, lastType, values, ops, parens) {
-  if ([INT,STR,SYM].includes(token[0])) { // literal or symbol token
+  if ([INT,STR,SYM].includes(token[0])) { # literal or symbol token
     values.push(token);
   }
-  if ([INT,STR,SYM,EXPR].includes(token[0])) { // literal, symbol, or expression
-    while (ops.length > 0 && ops.at(-1)[0] == UOP) { // apply all unary operators on the stack
+  if ([INT,STR,SYM,EXPR].includes(token[0])) { # literal, symbol, or expression
+    while (ops.length > 0 && ops.at(-1)[0] == UOP) { # apply all unary operators on the stack
       op = ops.pop();
       values[values.length - 1] = applyuop(op, values.at(-1));
     }
   }
-  if ([LPAR,CALL,IDX,LBR].includes(token[0])) { // left paren
+  if ([LPAR,CALL,IDX,LBR].includes(token[0])) { # left paren
     ops.push(token);
     parens.push(token);
     if (token[0] == CALL) {
-      // unapply all unary operators
+      # unapply all unary operators
       par = ops.pop();
       while (values.at(-1).length == 3) {
         const [, op, val] = values.at(-1);
@@ -201,11 +201,11 @@ addToken = function(token, lastType, values, ops, parens) {
       values.push([EXPR, "[]"]);
     }
   }
-  if (token[0] == UOP) { // unary operator
+  if (token[0] == UOP) { # unary operator
     ops.push(token);
   }
-  if ([RPAR,RBR].includes(token[0])) { // right paren
-    while (!([LPAR,CALL,IDX,LBR].includes(ops.at(-1)[0]))) { // finish the parenthesized expression
+  if ([RPAR,RBR].includes(token[0])) { # right paren
+    while (!([LPAR,CALL,IDX,LBR].includes(ops.at(-1)[0]))) { # finish the parenthesized expression
       op = ops.pop();
       if (op[0] == DOT) {
         op = [OP, "."];
@@ -225,7 +225,7 @@ addToken = function(token, lastType, values, ops, parens) {
   }
   if (token[0] == OP) {
     while (ops.length > 0 && (ops.at(-1)[0] == DOT || (!([LPAR,CALL,IDX].includes(ops.at(-1)[0])) && precedence(ops.at(-1)) >= precedence(token)))) {
-      // apply all operators to the left with a lower precedence
+      # apply all operators to the left with a lower precedence
       op = ops.pop();
       if (op[0] == DOT) {
         op = [OP, "."];
@@ -234,14 +234,14 @@ addToken = function(token, lastType, values, ops, parens) {
       v1 = values.pop();
       values.push(apply(op, v1, v2));
     }
-    ops.push(token) // push this operator
+    ops.push(token) # push this operator
   }
   if (token[0] == DOT) {
-    ops.push(token) // push this operator
+    ops.push(token) # push this operator
   }
   if (token[0] == COMMA) {
     while (!([CALL,IDX,LBR].includes(ops.at(-1)[0]))) {
-      // apply all operators to the left with a lower precedence
+      # apply all operators to the left with a lower precedence
       op = ops.pop();
       if (op[0] == DOT) {
         op = [OP, "."];
@@ -263,17 +263,17 @@ evaluate = function(expr) {
 
   s = expr
 
-  // basic shunting yard parser
-  lastType = OP // a valid expression can always come after an operator
-  while (true) { // parse all the tokens
+  # basic shunting yard parser
+  lastType = OP # a valid expression can always come after an operator
+  while (true) { # parse all the tokens
     [token,s] = getToken(s,lastType,parens.length > 0 && [CALL,LBR].includes(parens.at(-1)[0]));
     if (token == null) {
       break;
     }
     [values,ops,parens] = addToken(token,lastType,values,ops,parens)
-    lastType = token[0] // type of last token
+    lastType = token[0] # type of last token
   }
-  while (ops.length > 0) { // apply the rest of the operators
+  while (ops.length > 0) { # apply the rest of the operators
     if (ops.at(-1)[0] == UOP) {
       op = ops.pop();
       values[values.length - 1] = applyuop(op, values.at(-1));
