@@ -38,9 +38,9 @@ numregex = /[0-9]+/y
 stringregex = /"(([^"\\]|\\([n\\"]|x[0-9a-fA-F]{2}))*)"/y;
 
 fn getDigit(s) {
-  if ord(s) >= ord("0") then if ord(s) <= ord("9") then {
-	return [ord(s) - ord("0"), strmid(s, 1)]
-  }
+  if ord(s) >= ord("0") then
+    if ord(s) <= ord("9") then
+      return [ord(s) - ord("0"), strmid(s, 1)]
 }
 
 fn repeat(p) {
