@@ -72,7 +72,6 @@ fn atomic(p) {
     for x in gcall(p, s) {
 	  return x
 	}
-  }
   return bind(atomic, p)
 }
 
