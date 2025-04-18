@@ -45,23 +45,24 @@ fn getDigit(s) {
 
 fn repeat(p) {
   fn addnull(s, p) {
+    def true = 0 == 0
+    def false = !true
     for x in gcall(p, s) do {
-	  def v = x[0]
-	  def s = x[1]
-	  yield [[true, v], s]
-	}
-	return [[false, null], s]
+      def v = x[0]
+      def s = x[1]
+      yield [[true, v], s]
+    }
+    return [[false, "null"], s]
   }
   fn repeat(s, addnull) {
+    def true = 0 == 0
     def l = []
     while true do {
       def x = addnull(s)
-	  def v = x[0]
-	  s = x[1]
-      l = concat(l, [v[1]])
-	  yield ([l, s])
-	  if v[0] then {} else return
+      def v = x[0]
       s = x[1]
+      if !(v[0]) then return ([l, s])
+      l = concat(l, [v[1]])
     }
   }
   return bind(repeat, bind(addnull, p))
@@ -69,9 +70,10 @@ fn repeat(p) {
 
 fn atomic(p) {
   fn atomic(s, p) {
-    for x in gcall(p, s) {
-	  return x
-	}
+    for x in gcall(p, s) do {
+      return x
+    }
+  }
   return bind(atomic, p)
 }
 
