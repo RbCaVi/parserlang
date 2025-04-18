@@ -364,6 +364,29 @@ case OP_ ## op: \
 			case OP_IDX:
 				pl_bytecode_builder_add(c->code, GET, {});
 				break;
+			case OP_GREATER:
+				pl_bytecode_builder_add(c->code, GREATER, {});
+				break;
+			case OP_LESS:
+				pl_bytecode_builder_add(c->code, SWAPN, {-2});
+				pl_bytecode_builder_add(c->code, GREATER, {});
+				break;
+			case OP_GREATEREQUAL:
+				pl_bytecode_builder_add(c->code, SWAPN, {-2});
+				pl_bytecode_builder_add(c->code, GREATER, {});
+				pl_bytecode_builder_add(c->code, NOT, {});
+				break;
+			case OP_LESSEQUAL:
+				pl_bytecode_builder_add(c->code, GREATER, {});
+				pl_bytecode_builder_add(c->code, NOT, {});
+				break;
+			case OP_NOTEQUAL:
+				pl_bytecode_builder_add(c->code, EQUAL, {});
+				pl_bytecode_builder_add(c->code, NOT, {});
+				break;
+			case OP_NOT:
+				pl_bytecode_builder_add(c->code, NOT, {});
+				break;
 			}
 			break;
 		}
