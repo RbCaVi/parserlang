@@ -7,3 +7,5 @@ plc_dumptree
 plc_dumpval
 plc_compile
 *.exe
+pl_exec_run.js
+pl_exec_run.wasm
