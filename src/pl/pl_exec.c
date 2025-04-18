@@ -331,8 +331,8 @@ pv pl_next(pl_state *state) {
 			opcase(GREATER) {
 				pv v1 = pl_stack_get(state->stack, -2);
 				pv v2 = pl_stack_get(state->stack, -1);
-				double n1 = pv_double_value(v1);
-				double n2 = pv_double_value(v2);
+				double n1 = pv_number_value(v1);
+				double n2 = pv_number_value(v2);
 				state->stack = pl_stack_pop(state->stack);
 				state->stack = pl_stack_set(state->stack, pv_bool(n1 > n2), -1);
 				break;
