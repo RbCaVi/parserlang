@@ -80,6 +80,9 @@ OPCODE(upper_name, lower_name, {})
 #undef UOP
 #undef BOP
 
+OPCODE(NOT, not, {}) // negates a boolean on top of the stack
+OPCODE(GREATER, greater, {}) // compare 2 numbers
+
 OPCODE(EQUAL, equal, {})
 
 JOPCODE(JUMP, jump, {int target;}) // unconditional jump - target is bytes relative to the next instruction

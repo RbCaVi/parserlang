@@ -152,6 +152,8 @@ void pl_bytecode_dump(pl_bytecode b) {
 #include "pv_number_ops_data.h"
 #undef UOP
 #undef BOP
+			nodataopcase(NOT)
+			nodataopcase(GREATER)
 			nodataopcase(EQUAL)
 			nodataopcase(ITER)
 			nodataopcase(ITERK)
